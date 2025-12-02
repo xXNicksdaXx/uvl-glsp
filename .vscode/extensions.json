@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "DavidAnson.vscode-markdownlint",
+    "shengchen.vscode-checkstyle",
+    "vscjava.vscode-java-pack"
+  ],
+  "unwantedRecommendations": []
+}

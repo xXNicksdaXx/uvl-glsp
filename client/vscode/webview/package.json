@@ -1,0 +1,56 @@
+{
+  "name": "uvl-vscode-webview",
+  "version": "0.0.1",
+  "private": "true",
+  "description": "UVL GLSP diagrams in a VS Code extensions (WebView part)",
+  "keywords": [
+    "vscode",
+    "graph",
+    "diagram",
+    "layout",
+    "glsp",
+    "uvl"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://git-st.inf.tu-dresden.de/stgroup/student-projects/2026/ma-nick-ruider.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Nick Ruider"
+  },
+  "contributors": [
+    {
+      "name": "Nick Ruider",
+      "email": "nick.ruider@mailbox.tu-dresden.de",
+      "url": "https://github.com/xXNicksdaXx"
+    }
+  ],
+  "scripts": {
+    "build": "yarn compile && yarn bundle",
+    "build:prod": "yarn compile && yarn bundle:prod",
+    "bundle": "webpack",
+    "bundle:prod": "webpack --config ./webpack.prod.js",
+    "clean": "rimraf lib dist tsconfig.tsbuildinfo",
+    "compile": "tsc -b",
+    "lint": "eslint --ext .ts,.tsx ./src",
+    "lint:fix": "eslint --ext .ts,.tsx ./src --fix",
+    "lint:ci": "yarn lint --output-file eslint_report.json --format json",
+    "watch": "tsc -w"
+  },
+  "devDependencies": {
+    "@eclipse-glsp/vscode-integration-webview": "2.5.0",
+    "@vscode/codicons": "^0.0.36",
+    "circular-dependency-plugin": "^5.2.2",
+    "css-loader": "^7.1.2",
+    "ignore-loader": "^0.1.2",
+    "reflect-metadata": "^0.2.2",
+    "source-map-loader": "^5.0.0",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.4",
+    "uvl-sprotty": "0.0.1",
+    "webpack": "^5.102.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-merge": "^5.10.0"
+  }
+}

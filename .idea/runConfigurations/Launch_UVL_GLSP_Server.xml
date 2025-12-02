@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Launch UVL GLSP Server" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="de.tu_dresden.inf.st.uvl.glsp.launch.UVLServerLauncher" />
+    <module name="uvl.glsp" />
+    <option name="PROGRAM_PARAMETERS" value="--port=5007" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="de.tu_dresden.inf.st.glsp.uvl.launch.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

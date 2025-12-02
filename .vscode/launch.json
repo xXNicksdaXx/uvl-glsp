@@ -1,0 +1,76 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Launch UVL GLSP Server",
+      "request": "launch",
+      "mainClass": "de.tu_dresden.inf.st.uvl.glsp.launch.UVLServerLauncher",
+      "projectName": "uvl.glsp",
+      "args": [
+        "--port",
+        "5007"
+      ]
+    },
+    {
+      "name": "Launch UVL VS Code Extension (Embedded GLSP Server)",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "${workspaceFolder}/client/workspace",
+        "--extensionDevelopmentPath=${workspaceFolder}/client/vscode/extension"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/client/vscode/extension/dist/*.js",
+        "${workspaceFolder}/client/vscode/extension/lib/**/*.js",
+        "${workspaceFolder}/client/node_modules/@eclipse-glsp/**/*.js"
+      ],
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "webpack://client-vscode/(.+)": "${workspaceFolder}/client/vscode/extension/$1"
+      }
+    },
+    {
+      "name": "Launch UVL VS Code Extension (Excluding GLSP Server)",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "${workspaceFolder}/client/workspace",
+        "--extensionDevelopmentPath=${workspaceFolder}/client/vscode/extension"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/client/vscode/extension/dist/*.js",
+        "${workspaceFolder}/client/node_modules/@eclipse-glsp/**/*.js"
+      ],
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "webpack://client-vscode/(.+)": "${workspaceFolder}/client/vscode/extension/$1"
+      },
+      "env": {
+        "GLSP_SERVER_DEBUG": "true",
+        "GLSP_SERVER_PORT": "5007"
+      }
+    },
+    {
+      "name": "Install UVL VS Code Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "${workspaceFolder}/client/workspace",
+        "--extensionDevelopmentPath=${workspaceFolder}/client/vscode/extension"
+      ],
+      "preLaunchTask": "Install UVL VS Code Extension"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Launch UVL VS Code extension (Using external GLSP Server)",
+      "configurations": [
+        "Launch UVL GLSP Server",
+        "Launch UVL VS Code Extension (Excluding GLSP Server)"
+      ]
+    }
+  ]
+}

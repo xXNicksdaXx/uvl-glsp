@@ -1,0 +1,50 @@
+{
+  "name": "uvl-sprotty",
+  "version": "0.0.1",
+  "private": "true",
+  "description": "Sprotty diagram elements for the UVL GLSP client",
+  "keywords": [
+    "glsp",
+    "diagram",
+    "uvl"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://git-st.inf.tu-dresden.de/stgroup/student-projects/2026/ma-nick-ruider.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Nick Ruider"
+  },
+  "contributors": [
+    {
+      "name": "Nick Ruider",
+      "email": "nick.ruider@mailbox.tu-dresden.de",
+      "url": "https://github.com/xXNicksdaXx"
+    }
+  ],
+  "main": "lib/index",
+  "types": "lib/index",
+  "files": [
+    "lib",
+    "src",
+    "css"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf lib tsconfig.tsbuildinfo",
+    "lint": "eslint --ext .ts,.tsx ./src",
+    "lint:fix": "eslint --ext .ts,.tsx ./src --fix",
+    "lint:ci": "yarn lint --output-file eslint_report.json --format json",
+    "watch": "tsc -w"
+  },
+  "dependencies": {
+    "@eclipse-glsp/client": "2.5.0",
+    "balloon-css": "^1.2.0",
+    "inversify": "^6.1.3",
+    "uvl-common": "0.0.1"
+  },
+  "devDependencies": {
+    "reflect-metadata": "~0.2.2"
+  }
+}
