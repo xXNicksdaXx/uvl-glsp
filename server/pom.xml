@@ -49,6 +49,7 @@
             <glsp.version>2.5.0</glsp.version>
             <eclipse.core.runtime.version>3.7.0</eclipse.core.runtime.version>
             <eclipse.core.version>3.7.100</eclipse.core.version>
+            <eclipse.lsp4j.version>0.24.0</eclipse.lsp4j.version>
             <apache.logging.log4j.version>2.25.1</apache.logging.log4j.version>
             <uvl.fm.metamodel.version>1.0</uvl.fm.metamodel.version>
         </properties>
@@ -73,6 +74,11 @@
                 <groupId>org.eclipse.core</groupId>
                 <artifactId>org.eclipse.core.resources</artifactId>
                 <version>${eclipse.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.lsp4j</groupId>
+                <artifactId>org.eclipse.lsp4j</artifactId>
+                <version>${eclipse.lsp4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
