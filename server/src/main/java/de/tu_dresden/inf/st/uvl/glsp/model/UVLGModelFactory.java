@@ -2,6 +2,7 @@ package de.tu_dresden.inf.st.uvl.glsp.model;
 
 import com.google.inject.Inject;
 import de.tu_dresden.inf.st.uvl.glsp.UVLModelTypes;
+import de.tu_dresden.inf.st.uvl.glsp.notation.ElementNotation;
 import de.vill.model.Feature;
 import de.vill.model.FeatureModel;
 import org.eclipse.glsp.graph.DefaultTypes;
@@ -15,6 +16,9 @@ import org.eclipse.glsp.graph.builder.impl.GNodeBuilder;
 import org.eclipse.glsp.graph.util.GConstants;
 import org.eclipse.glsp.server.features.core.model.GModelFactory;
 import org.eclipse.glsp.server.utils.ClientOptionsUtil;
+
+import static de.tu_dresden.inf.st.uvl.glsp.utils.FeatureUtil.getFeatureId;
+import static de.tu_dresden.inf.st.uvl.glsp.utils.NotationUtil.applyNotationData;
 
 public class UVLGModelFactory implements GModelFactory {
 
@@ -37,26 +41,29 @@ public class UVLGModelFactory implements GModelFactory {
 
     protected void fillRootElement(GModelRoot root) {
         FeatureModel model = modelState.getUVLModel();
-        Feature rootFeature = model.getRootFeature();
         GGraph graph = (GGraph) root;
 
-        graph.getChildren().add(createFeature(rootFeature));
+        model.getFeatureMap().values().stream()
+                .map(this::createFeature)
+                .forEachOrdered(graph.getChildren()::add);
     }
 
     private GNode createFeature(final Feature feature) {
         GNodeBuilder nodeBuilder = new GNodeBuilder(UVLModelTypes.FEATURE)
-                .id("root")
+                .id(getFeatureId(feature))
                 .layout(GConstants.Layout.VBOX)
                 .layoutOptions(new GLayoutOptions()
                         .paddingTop(0)
                         .paddingLeft(0)
                         .paddingRight(0)
-                        .paddingBottom(0.0)
-                        .resizeContainer(true))
+                        .paddingBottom(0.0))
                 .add(new GLabelBuilder(DefaultTypes.LABEL)
-                        .id("root" + "_label")
+                        .id(getFeatureId(feature) + "_label")
                         .text(feature.getFeatureName())
                         .build());
+
+        ElementNotation notation = modelState.getNotationData().getElementNotation(feature.getFeatureName());
+        applyNotationData(notation, nodeBuilder);
         return nodeBuilder.build();
     }
 }

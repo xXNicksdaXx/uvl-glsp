@@ -30,7 +30,7 @@ async function createNewDiagramFromPrompt(connector: GlspVscodeConnector): Promi
     const workspaceUri = getWorkspaceRoot();
     if (modelName) {
         const uvlFileUri = vscode.Uri.joinPath(workspaceUri, `${modelName}.uvl`);
-        const notationFileUri = vscode.Uri.joinPath(workspaceUri, `${modelName}.notation`);
+        const notationFileUri = vscode.Uri.joinPath(workspaceUri, `${modelName}.notation.json`);
 
         try {
             await fs.access(uvlFileUri.fsPath);

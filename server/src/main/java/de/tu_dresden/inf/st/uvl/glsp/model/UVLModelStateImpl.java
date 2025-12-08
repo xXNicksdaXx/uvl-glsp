@@ -2,6 +2,7 @@ package de.tu_dresden.inf.st.uvl.glsp.model;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import de.tu_dresden.inf.st.uvl.glsp.notation.NotationData;
 import de.vill.model.FeatureModel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,6 +21,8 @@ public class UVLModelStateImpl extends DefaultGModelState implements UVLModelSta
 
     protected FeatureModel featureModel;
 
+    protected NotationData notationData;
+
     @Override
     @Inject
     public void init() {
@@ -35,6 +38,16 @@ public class UVLModelStateImpl extends DefaultGModelState implements UVLModelSta
     public void setUVLModel(FeatureModel model) {
         this.featureModel = model;
         // setCommandStack(this.featureModel.getCommandStack());
+    }
+
+    @Override
+    public NotationData getNotationData() {
+        return this.notationData;
+    }
+
+    @Override
+    public void setNotationData(NotationData notationData) {
+        this.notationData = notationData;
     }
 
     @Override

@@ -11,9 +11,6 @@
  * Visually separates the diagram from the rest of the UI.
  */
 svg {
-    border-style: solid;
-    border-width: 1px;
-    border-color: lightgrey;
     fill: transparent;
 }
 
@@ -40,25 +37,10 @@ svg {
  * Node appearance for different node types.
  * These classes are set for specific node types.
  */
-.natural-type-node > .sprotty-node,
-.data-type-node > .sprotty-node,
-.compartment-type-node > .sprotty-node {
+.sprotty-node {
     fill: white;
     stroke: black;
     stroke-width: 1px;
-}
-
-.role-type-node > .sprotty-node {
-    fill: #e3e3e3;
-    stroke: black;
-    stroke-width: 1px;
-}
-
-.role-group-node > .sprotty-node {
-    fill: context-fill;
-    stroke: black;
-    stroke-width: 1px;
-    stroke-dasharray: 4, 2;
 }
 
 .sprotty-node.selected {
@@ -100,60 +82,8 @@ svg {
     font-size: 4px !important;
 }
 
-/*
- * Separator line inside nodes.
- * Used to visually separate compartments or sections.
- */
-.separator-line {
-    stroke: black;
-    stroke-width: 1px;
-}
-
-.inheritance-edge,
-.fulfillment-edge,
-.association-edge,
-.role-implication-edge,
-.role-equivalence-edge,
-.role-prohibition-edge,
-.intra-constraint-edge {
-    stroke: black !important;
-    stroke-width: 2px;
-}
-
-.role-implication-edge,
-.role-equivalence-edge,
-.role-prohibition-edge,
-.intra-constraint-edge {
-    stroke-dasharray: 6;
-}
-
-.triangle {
-    stroke: black !important;
-    stroke-dasharray: 0 !important;
-}
-
-.inheritance-edge .triangle,
-.role-implication-edge .triangle,
-.role-equivalence-edge .triangle {
-    fill: white;
-}
-
-.fulfillment-edge .triangle {
-    fill: black;
-}
-
-.role-prohibition-edge .triangle {
-    fill: white;
-}
-
 .edge-label {
     font-size: 8px !important;
     font-weight: normal;
     text-anchor: start !important;
-}
-
-.part-amount-label {
-    font-size: 8px !important;
-    font-weight: normal;
-    text-anchor: middle !important;
 }

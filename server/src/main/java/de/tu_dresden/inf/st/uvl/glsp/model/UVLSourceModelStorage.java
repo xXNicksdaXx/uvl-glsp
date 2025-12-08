@@ -6,6 +6,8 @@
 package de.tu_dresden.inf.st.uvl.glsp.model;
 
 import com.google.inject.Inject;
+import de.tu_dresden.inf.st.uvl.glsp.notation.NotationData;
+import de.tu_dresden.inf.st.uvl.glsp.notation.NotationFileHandler;
 import de.vill.main.UVLModelFactory;
 import de.vill.model.FeatureModel;
 import org.apache.logging.log4j.LogManager;
@@ -41,6 +43,22 @@ public class UVLSourceModelStorage implements SourceModelStorage {
         try {
             FeatureModel featureModel = loadUVLFeatureModelFromFile(filePath);
             modelState.setUVLModel(featureModel);
+
+            // Load or create notation data
+            NotationData notationData;
+            try {
+                notationData = NotationFileHandler.loadNotationFile(filePath);
+                if (notationData.getElements().isEmpty()) {
+                    LOGGER.info("Notation file is empty. Creating default notation.");
+                    notationData = NotationFileHandler.createDefaultNotation(featureModel);
+                    NotationFileHandler.saveNotationFile(filePath, notationData);
+                }
+            } catch (IOException e) {
+                LOGGER.warn("Could not load notation file. Creating default notation.", e);
+                notationData = NotationFileHandler.createDefaultNotation(featureModel);
+                NotationFileHandler.saveNotationFile(filePath, notationData);
+            }
+            modelState.setNotationData(notationData);
         } catch (IOException e) {
             throw new GLSPServerException(e.getMessage());
         }
@@ -49,6 +67,7 @@ public class UVLSourceModelStorage implements SourceModelStorage {
     @Override
     public void saveSourceModel(SaveModelAction action) {
         final FeatureModel featureModel = modelState.getUVLModel();
+        final NotationData notationData = modelState.getNotationData();
         final String fileUri = action.getFileUri()
                 .orElseThrow(() -> new GLSPServerException("No file URI given!"));
         final URI uri = URI.create(fileUri);
@@ -57,6 +76,11 @@ public class UVLSourceModelStorage implements SourceModelStorage {
             String uvlModel = featureModel.toString();
             Path filePath = Paths.get(uri);
             Files.write(filePath, uvlModel.getBytes());
+
+            // Save notation data
+            if (notationData != null) {
+                NotationFileHandler.saveNotationFile(filePath.toString(), notationData);
+            }
         } catch (IOException e) {
             LOGGER.error(e);
             throw new GLSPServerException("An error occurred while saving the model.", e);
