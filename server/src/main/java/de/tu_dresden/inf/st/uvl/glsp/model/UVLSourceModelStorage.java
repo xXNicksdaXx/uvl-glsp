@@ -44,21 +44,18 @@ public class UVLSourceModelStorage implements SourceModelStorage {
             FeatureModel featureModel = loadUVLFeatureModelFromFile(filePath);
             modelState.setUVLModel(featureModel);
 
-            // Load or create notation data
-            NotationData notationData;
-            try {
-                notationData = NotationFileHandler.loadNotationFile(filePath);
-                if (notationData.getElements().isEmpty()) {
-                    LOGGER.info("Notation file is empty. Creating default notation.");
-                    notationData = NotationFileHandler.createDefaultNotation(featureModel);
-                    NotationFileHandler.saveNotationFile(filePath, notationData);
-                }
-            } catch (IOException e) {
-                LOGGER.warn("Could not load notation file. Creating default notation.", e);
-                notationData = NotationFileHandler.createDefaultNotation(featureModel);
-                NotationFileHandler.saveNotationFile(filePath, notationData);
-            }
+            NotationData notationData = loadNotationDataFromFile(filePath, featureModel);
             modelState.setNotationData(notationData);
+        }  catch (IndexOutOfBoundsException e) {
+            FeatureModel featureModel = new FeatureModel();
+            modelState.setUVLModel(featureModel);
+
+            try {
+                NotationData notationData = loadNotationDataFromFile(filePath, featureModel);
+                modelState.setNotationData(notationData);
+            } catch (IOException ex) {
+                throw new GLSPServerException(e.getMessage());
+            }
         } catch (IOException e) {
             throw new GLSPServerException(e.getMessage());
         }
@@ -92,6 +89,23 @@ public class UVLSourceModelStorage implements SourceModelStorage {
         String content = new String(Files.readAllBytes(filePath));
         UVLModelFactory uvlModelFactory = new UVLModelFactory();
         return uvlModelFactory.parse(content);
+    }
+
+    private static NotationData loadNotationDataFromFile(String path, FeatureModel featureModel) throws IOException {
+        NotationData notationData;
+        try {
+            notationData = NotationFileHandler.loadNotationFile(path);
+            if (notationData.getElements().isEmpty()) {
+                LOGGER.info("Notation file is empty. Creating default notation.");
+                notationData = NotationFileHandler.createDefaultNotation(featureModel);
+                NotationFileHandler.saveNotationFile(path, notationData);
+            }
+        } catch (IOException e) {
+            LOGGER.warn("Could not load notation file. Creating default notation.", e);
+            notationData = NotationFileHandler.createDefaultNotation(featureModel);
+            NotationFileHandler.saveNotationFile(path, notationData);
+        }
+        return notationData;
     }
 
     protected File convertToFile(final Map<String, String> clientOptions) {
