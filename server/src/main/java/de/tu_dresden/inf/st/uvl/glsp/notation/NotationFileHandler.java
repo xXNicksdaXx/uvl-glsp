@@ -12,6 +12,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import de.vill.model.Feature;
 import de.vill.model.FeatureModel;
+import de.vill.model.Group;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -58,6 +59,10 @@ public class NotationFileHandler {
             int yOffset = 0;
             for (Feature feature : featureModel.getFeatureMap().values()) {
                 createDefaultNotationForFeature(feature, 0, yOffset, notationData);
+
+                if (feature.getParentGroup() != null) {
+                    createDefaultEdgeNotationForParentGroup(feature, notationData);
+                }
                 yOffset += 64;
             }
         }
@@ -70,9 +75,19 @@ public class NotationFileHandler {
             return;
         }
         String featureId = getFeatureId(feature);
-        String featureName = feature.getFeatureName();
-        notationData.setElementNotation(featureName,
-            new ElementNotationImpl(featureId, x, y, 64, 32));
+        notationData.setElementNotation(featureId,
+            new ElementNotationImpl(x, y, 64, 32));
+    }
+
+    private static void createDefaultEdgeNotationForParentGroup(Feature feature, NotationData notationData) {
+        if (feature == null || feature.getParentGroup() == null) {
+            return;
+        }
+
+        Group parentGroup = feature.getParentGroup();
+        String edgeId = getFeatureId(parentGroup.getParentFeature()) + "_to_" + getFeatureId(feature);
+        notationData.setEdgeNotation(edgeId,
+            new EdgeNotationImpl(getFeatureId(parentGroup.getParentFeature()), getFeatureId(feature)));
     }
 
     private static Path getNotationPath(String uvlFilePath) {
@@ -88,7 +103,6 @@ public class NotationFileHandler {
                 return;
             }
             out.beginObject();
-            out.name("id").value(value.getId());
             out.name("x").value(value.getX());
             out.name("y").value(value.getY());
             out.name("width").value(value.getWidth());
@@ -98,16 +112,12 @@ public class NotationFileHandler {
 
         @Override
         public ElementNotation read(JsonReader in) throws IOException {
-            String id = null;
             double x = 0, y = 0, width = 0, height = 0;
 
             in.beginObject();
             while (in.hasNext()) {
                 String name = in.nextName();
                 switch (name) {
-                    case "id":
-                        id = in.nextString();
-                        break;
                     case "x":
                         x = in.nextDouble();
                         break;
@@ -127,7 +137,7 @@ public class NotationFileHandler {
             }
             in.endObject();
 
-            return new ElementNotationImpl(id, x, y, width, height);
+            return new ElementNotationImpl(x, y, width, height);
         }
     }
 
@@ -139,7 +149,6 @@ public class NotationFileHandler {
                 return;
             }
             out.beginObject();
-            out.name("id").value(value.getId());
             out.name("sourceId").value(value.getSourceId());
             out.name("targetId").value(value.getTargetId());
             out.endObject();
@@ -147,15 +156,12 @@ public class NotationFileHandler {
 
         @Override
         public EdgeNotation read(JsonReader in) throws IOException {
-            String id = null, sourceId = null, targetId = null;
+            String sourceId = null, targetId = null;
 
             in.beginObject();
             while (in.hasNext()) {
                 String name = in.nextName();
                 switch (name) {
-                    case "id":
-                        id = in.nextString();
-                        break;
                     case "sourceId":
                         sourceId = in.nextString();
                         break;
@@ -169,7 +175,7 @@ public class NotationFileHandler {
             }
             in.endObject();
 
-            return new EdgeNotationImpl(id, sourceId, targetId);
+            return new EdgeNotationImpl(sourceId, targetId);
         }
     }
 }

@@ -24,6 +24,7 @@ public final class UVLModelTypes {
     public static final String MANDATORY = DefaultTypes.EDGE + ":mandatory";
     public static final String OPTIONAL = DefaultTypes.EDGE + ":optional";
     public static final String ALTERNATIVE = DefaultTypes.EDGE + ":alternative";
+    public static final String OR = DefaultTypes.EDGE + ":or";
 
     /**
      * Private constructor to prevent instantiation of this utility class.

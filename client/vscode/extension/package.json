@@ -56,6 +56,18 @@
         "enablement": "activeCustomEditorId == 'uvl.glspDiagram'"
       },
       {
+        "command": "uvl.center",
+        "title": "Center selection",
+        "category": "Diagram",
+        "enablement": "activeCustomEditorId == 'uvl.glspDiagram'"
+      },
+      {
+        "command": "uvl.layout",
+        "title": "Layout diagram",
+        "category": "Diagram",
+        "enablement": "activeCustomEditorId == 'uvl.glspDiagram'"
+      },
+      {
         "command": "uvl.exportAsSVG",
         "title": "Export as SVG",
         "category": "Diagram",
@@ -109,6 +121,16 @@
       "uvl.editor.title": [
         {
           "command": "uvl.fit",
+          "group": "navigation",
+          "when": "activeCustomEditorId == 'uvl.glspDiagram'"
+        },
+        {
+          "command": "uvl.center",
+          "group": "navigation",
+          "when": "activeCustomEditorId == 'uvl.glspDiagram'"
+        },
+        {
+          "command": "uvl.layout",
           "group": "navigation",
           "when": "activeCustomEditorId == 'uvl.glspDiagram'"
         },

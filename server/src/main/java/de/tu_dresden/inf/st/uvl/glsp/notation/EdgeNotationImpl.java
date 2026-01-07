@@ -5,26 +5,23 @@
  */
 package de.tu_dresden.inf.st.uvl.glsp.notation;
 
+import org.eclipse.glsp.graph.GPoint;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class EdgeNotationImpl implements EdgeNotation {
-    private String id;
     private String sourceId;
     private String targetId;
+    private List<GPoint> bendPoints;
 
     public EdgeNotationImpl() {
     }
 
-    public EdgeNotationImpl(String id, String sourceId, String targetId) {
-        this.id = id;
+    public EdgeNotationImpl(String sourceId, String targetId) {
         this.sourceId = sourceId;
         this.targetId = targetId;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+        this.bendPoints = new ArrayList<>();
     }
 
     public String getSourceId() {
@@ -41,5 +38,13 @@ public class EdgeNotationImpl implements EdgeNotation {
 
     public void setTargetId(String targetId) {
         this.targetId = targetId;
+    }
+
+    public List<GPoint> getBendPoints() {
+        return bendPoints;
+    }
+
+    public void setBendPoints(List<GPoint> bendPoints) {
+        this.bendPoints = bendPoints;
     }
 }

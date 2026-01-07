@@ -6,7 +6,6 @@
 package de.tu_dresden.inf.st.uvl.glsp.notation;
 
 public class ElementNotationImpl implements ElementNotation {
-    private String id;
     private double x;
     private double y;
     private double width;
@@ -15,20 +14,11 @@ public class ElementNotationImpl implements ElementNotation {
     public ElementNotationImpl() {
     }
 
-    public ElementNotationImpl(String id, double x, double y, double width, double height) {
-        this.id = id;
+    public ElementNotationImpl(double x, double y, double width, double height) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public double getX() {

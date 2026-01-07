@@ -39,12 +39,13 @@ svg {
  */
 .sprotty-node {
     fill: white;
-    stroke: black;
-    stroke-width: 1px;
+    stroke: white !important;
+    stroke-width: 1px !important;
 }
 
 .sprotty-node.selected {
-    stroke-width: 2px !important;
+    stroke: royalblue !important;
+    stroke-width: 1px !important;
 }
 
 .selection-feedback {
@@ -55,6 +56,11 @@ svg {
 
 .selection-feedback.selected {
     stroke-width: 0.5;
+}
+
+.sprotty-edge {
+    stroke: black;
+    stroke-width: 1px;
 }
 
 /*
@@ -82,8 +88,10 @@ svg {
     font-size: 4px !important;
 }
 
-.edge-label {
-    font-size: 8px !important;
-    font-weight: normal;
-    text-anchor: start !important;
+.mandatory .circle {
+    fill: black;
+}
+
+.optional .circle {
+    fill: white;
 }

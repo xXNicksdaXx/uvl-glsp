@@ -5,14 +5,18 @@
  */
 package de.tu_dresden.inf.st.uvl.glsp.notation;
 
-public interface EdgeNotation {
+import org.eclipse.glsp.graph.GPoint;
 
-    String getId();
-    void setId(String id);
+import java.util.List;
+
+public interface EdgeNotation {
 
     String getSourceId();
     void setSourceId(String sourceId);
 
     String getTargetId();
     void setTargetId(String targetId);
+
+    List<GPoint> getBendPoints();
+    void setBendPoints(List<GPoint> bendPoints);
 }

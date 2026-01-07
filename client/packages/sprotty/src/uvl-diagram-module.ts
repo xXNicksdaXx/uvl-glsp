@@ -36,6 +36,7 @@ import 'balloon-css/balloon.min.css';
 import '../css/diagram.css';
 
 import { FeatureCompartmentSelectionFeedback } from './features/feedback';
+import {CircleEdgeView} from "./views";
 
 const uvlDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = {bind, unbind, isBound, rebind};
@@ -65,9 +66,10 @@ const uvlDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => 
 
     configureModelElement(context, UVLModelTypes.B_THREAD, GLabel, GLabelView);
 
-    configureModelElement(context, UVLModelTypes.MANDATORY, GEdge, GEdgeView);
-    configureModelElement(context, UVLModelTypes.OPTIONAL, GEdge, GEdgeView);
+    configureModelElement(context, UVLModelTypes.MANDATORY, GEdge, CircleEdgeView);
+    configureModelElement(context, UVLModelTypes.OPTIONAL, GEdge, CircleEdgeView);
     configureModelElement(context, UVLModelTypes.ALTERNATIVE, GEdge, GEdgeView);
+    configureModelElement(context, UVLModelTypes.OR, GEdge, GEdgeView);
 });
 
 /**

@@ -7,9 +7,6 @@ package de.tu_dresden.inf.st.uvl.glsp.notation;
 
 public interface ElementNotation {
 
-    String getId();
-    void setId(String id);
-
     double getX();
     void setX(double x);
 

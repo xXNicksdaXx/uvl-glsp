@@ -22,4 +22,5 @@ export namespace UVLModelTypes {
     export const MANDATORY = `${DefaultTypes.EDGE}:mandatory`;
     export const OPTIONAL = `${DefaultTypes.EDGE}:optional`;
     export const ALTERNATIVE = `${DefaultTypes.EDGE}:alternative`;
+    export const OR = `${DefaultTypes.EDGE}:or`;
 }

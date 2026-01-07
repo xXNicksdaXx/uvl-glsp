@@ -6,6 +6,7 @@
 package de.tu_dresden.inf.st.uvl.glsp;
 
 import com.google.inject.Singleton;
+import de.tu_dresden.inf.st.uvl.glsp.layout.UVLTreeLayoutEngine;
 import org.eclipse.glsp.server.actions.ActionHandler;
 import org.eclipse.glsp.server.di.DiagramModule;
 import org.eclipse.glsp.server.di.MultiBinding;
@@ -13,6 +14,7 @@ import org.eclipse.glsp.server.diagram.DiagramConfiguration;
 import org.eclipse.glsp.server.features.core.model.GModelFactory;
 import org.eclipse.glsp.server.features.core.model.SourceModelStorage;
 import org.eclipse.glsp.server.features.toolpalette.ToolPaletteItemProvider;
+import org.eclipse.glsp.server.layout.LayoutEngine;
 import org.eclipse.glsp.server.operations.OperationHandler;
 
 import de.tu_dresden.inf.st.uvl.glsp.model.UVLGModelFactory;
@@ -58,6 +60,11 @@ public class UVLDiagramModule extends DiagramModule {
     @Override
     protected Class<? extends ToolPaletteItemProvider> bindToolPaletteItemProvider() {
         return UVLToolPaletteItemProvider.class;
+    }
+
+    @Override
+    protected Class<? extends LayoutEngine> bindLayoutEngine() {
+        return UVLTreeLayoutEngine.class;
     }
 
     @Override
