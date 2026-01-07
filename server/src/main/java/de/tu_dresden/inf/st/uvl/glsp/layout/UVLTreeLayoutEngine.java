@@ -1,5 +1,5 @@
 /*
- * Copyright © 2025 Nick Ruider. All rights reserved.
+ * Copyright © 2026 Nick Ruider. All rights reserved.
  * This work is licensed under the terms of the MIT license.
  * For a copy, see <https://opensource.org/licenses/MIT>.
  */
@@ -178,13 +178,6 @@ public class UVLTreeLayoutEngine implements LayoutEngine {
      */
     protected void transferLayout(final WalkersNode node) {
         transferLayout(modelState.getRoot(), node);
-//        ElementNotation elementNotation = modelState.getNotationData().getElementNotation(node.id);
-//        elementNotation.setX(node.x);
-//        elementNotation.setY(node.y);
-//
-//        for (WalkersNode child : node.children) {
-//            transferLayout(child);
-//        }
     }
 
     protected void transferLayout(final GModelElement element, final WalkersNode node) {
