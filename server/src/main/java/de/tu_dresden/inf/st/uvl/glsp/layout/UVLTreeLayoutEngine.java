@@ -6,11 +6,11 @@
 package de.tu_dresden.inf.st.uvl.glsp.layout;
 
 import com.google.inject.Inject;
+import de.tu_dresden.inf.st.uvl.glsp.model.UVLModelIndex;
 import de.tu_dresden.inf.st.uvl.glsp.model.UVLModelState;
-import de.tu_dresden.inf.st.uvl.glsp.notation.ElementNotation;
-import de.tu_dresden.inf.st.uvl.glsp.notation.NotationData;
 import de.vill.model.Feature;
 import de.vill.model.Group;
+import org.eclipse.glsp.graph.GDimension;
 import org.eclipse.glsp.graph.GGraph;
 import org.eclipse.glsp.graph.GModelElement;
 import org.eclipse.glsp.graph.GNode;
@@ -38,14 +38,14 @@ public class UVLTreeLayoutEngine implements LayoutEngine {
      */
     @Override
     public void layout(Optional<LayoutOperation> layoutOperation) {
-        if (modelState.getUVLModel() == null && modelState.getNotationData() == null) {
+        if (modelState.getFeatureModel() == null || modelState.getRoot() == null) {
             return;
         }
 
         // Parse all features into WalkersNode tree
-        Feature rootFeature = modelState.getUVLModel().getRootFeature();
-        NotationData notationData = modelState.getNotationData();
-        WalkersNode rootNode = transformFeature(rootFeature, notationData);
+        Feature rootFeature = modelState.getFeatureModel().getRootFeature();
+        UVLModelIndex index = modelState.getIndex();
+        WalkersNode rootNode = transformFeature(rootFeature, index);
 
         // Perform the layout algorithm
         layout(rootNode);
@@ -54,20 +54,27 @@ public class UVLTreeLayoutEngine implements LayoutEngine {
         transferLayout(rootNode);
     }
 
-    private WalkersNode transformFeature(Feature feature, NotationData notationData) {
+    private WalkersNode transformFeature(Feature feature, UVLModelIndex index) {
         String featureId = getFeatureId(feature);
-        ElementNotation elementNotation = notationData.getElementNotation(featureId);
+        GNode gNode = index.getGModelElement(featureId, GNode.class).orElseThrow(
+                () -> new IllegalStateException("No GModelElement found for Feature ID: " + featureId)
+        );
+
+        GDimension size = gNode.getSize();
+        if (size == null) {
+            size = GraphUtil.dimension(64, 32);
+        }
 
         WalkersNode node = new WalkersNode(
                 featureId,
                 feature.getFeatureName(),
-                elementNotation.getWidth(),
-                elementNotation.getHeight()
+                size.getWidth(),
+                size.getHeight()
         );
 
         for (Group childGroup : feature.getChildren()) {
             childGroup.getFeatures().forEach(childFeature -> {
-                WalkersNode childNode = transformFeature(childFeature, notationData);
+                WalkersNode childNode = transformFeature(childFeature, index);
                 childNode.parent = node;
                 node.children.add(childNode);
             });

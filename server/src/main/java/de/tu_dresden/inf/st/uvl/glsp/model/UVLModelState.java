@@ -5,16 +5,14 @@
  */
 package de.tu_dresden.inf.st.uvl.glsp.model;
 
-import de.tu_dresden.inf.st.uvl.glsp.notation.NotationData;
 import de.vill.model.FeatureModel;
 import org.eclipse.glsp.server.model.GModelState;
 
 public interface UVLModelState extends GModelState {
-    FeatureModel getUVLModel();
+    FeatureModel getFeatureModel();
 
-    void setUVLModel(FeatureModel model);
+    void setFeatureModel(FeatureModel model);
 
-    NotationData getNotationData();
-
-    void setNotationData(NotationData notationData);
+    @Override
+    UVLModelIndex getIndex();
 }

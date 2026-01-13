@@ -7,7 +7,6 @@ package de.tu_dresden.inf.st.uvl.glsp.model;
 
 import com.google.inject.Inject;
 import de.tu_dresden.inf.st.uvl.glsp.UVLModelTypes;
-import de.tu_dresden.inf.st.uvl.glsp.notation.ElementNotation;
 import de.vill.model.Feature;
 import de.vill.model.FeatureModel;
 import de.vill.model.Group;
@@ -26,13 +25,9 @@ import org.eclipse.glsp.server.features.core.model.GModelFactory;
 import org.eclipse.glsp.server.layout.LayoutEngine;
 import org.eclipse.glsp.server.utils.ClientOptionsUtil;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static de.tu_dresden.inf.st.uvl.glsp.utils.FeatureUtil.getFeatureId;
-import static de.tu_dresden.inf.st.uvl.glsp.utils.NotationUtil.applyNotationData;
 
 public class UVLGModelFactory implements GModelFactory {
 
@@ -46,6 +41,7 @@ public class UVLGModelFactory implements GModelFactory {
     public void createGModel() {
         GModelRoot newRoot = createRootElement();
         modelState.updateRoot(newRoot);
+        modelState.getIndex().indexFeatureModel(modelState.getFeatureModel());
         fillRootElement(newRoot);
     }
 
@@ -57,7 +53,7 @@ public class UVLGModelFactory implements GModelFactory {
     }
 
     protected void fillRootElement(GModelRoot root) {
-        FeatureModel model = modelState.getUVLModel();
+        FeatureModel model = modelState.getFeatureModel();
         GGraph graph = (GGraph) root;
 
         model.getFeatureMap().values().stream()
@@ -80,17 +76,20 @@ public class UVLGModelFactory implements GModelFactory {
                 .id(getFeatureId(feature))
                 .layout(GConstants.Layout.VBOX)
                 .layoutOptions(new GLayoutOptions()
-                        .paddingTop(0)
-                        .paddingLeft(0)
-                        .paddingRight(0)
-                        .paddingBottom(0.0))
+                        .paddingTop(2)
+                        .paddingLeft(2)
+                        .paddingRight(2)
+                        .paddingBottom(2.0))
                 .add(new GLabelBuilder(DefaultTypes.LABEL)
                         .id(getFeatureId(feature) + "_label")
                         .text(feature.getFeatureName())
                         .build());
 
-        ElementNotation notation = modelState.getNotationData().getElementNotation(feature);
-        applyNotationData(notation, nodeBuilder);
+        Optional<GNode> node = modelState.getIndex().getGModelElement(feature, GNode.class);
+        if (node.isPresent()) {
+            nodeBuilder.position(node.get().getPosition());
+            nodeBuilder.size(node.get().getSize());
+        }
         return nodeBuilder.build();
     }
 

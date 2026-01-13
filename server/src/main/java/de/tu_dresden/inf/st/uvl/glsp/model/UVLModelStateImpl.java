@@ -7,10 +7,12 @@ package de.tu_dresden.inf.st.uvl.glsp.model;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import de.tu_dresden.inf.st.uvl.glsp.notation.NotationData;
+import de.tu_dresden.inf.st.uvl.glsp.utils.UVLIdGenerator;
 import de.vill.model.FeatureModel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.glsp.graph.GModelIndex;
+import org.eclipse.glsp.graph.GModelRoot;
 import org.eclipse.glsp.server.model.DefaultGModelState;
 import org.eclipse.glsp.server.session.ClientSession;
 import org.eclipse.glsp.server.session.ClientSessionListener;
@@ -24,9 +26,10 @@ public class UVLModelStateImpl extends DefaultGModelState implements UVLModelSta
     @Inject
     protected ClientSessionManager clientSessionManager;
 
-    protected FeatureModel featureModel;
+    @Inject
+    protected UVLIdGenerator idGenerator;
 
-    protected NotationData notationData;
+    protected FeatureModel featureModel;
 
     @Override
     @Inject
@@ -35,24 +38,24 @@ public class UVLModelStateImpl extends DefaultGModelState implements UVLModelSta
     }
 
     @Override
-    public FeatureModel getUVLModel() {
+    public UVLModelIndex getIndex() {
+        return (UVLModelIndex) super.getIndex();
+    }
+
+    @Override
+    protected GModelIndex getOrUpdateIndex(final GModelRoot newRoot) {
+        return UVLModelIndex.getOrCreate(getRoot(), idGenerator);
+    }
+
+    @Override
+    public FeatureModel getFeatureModel() {
         return this.featureModel;
     }
 
     @Override
-    public void setUVLModel(FeatureModel model) {
+    public void setFeatureModel(FeatureModel model) {
         this.featureModel = model;
         // setCommandStack(this.featureModel.getCommandStack());
-    }
-
-    @Override
-    public NotationData getNotationData() {
-        return this.notationData;
-    }
-
-    @Override
-    public void setNotationData(NotationData notationData) {
-        this.notationData = notationData;
     }
 
     @Override

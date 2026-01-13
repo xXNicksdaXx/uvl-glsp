@@ -39,13 +39,13 @@ svg {
  */
 .sprotty-node {
     fill: white;
-    stroke: white !important;
+    stroke: black !important;
     stroke-width: 1px !important;
 }
 
 .sprotty-node.selected {
     stroke: royalblue !important;
-    stroke-width: 1px !important;
+    stroke-width: 2px !important;
 }
 
 .selection-feedback {
