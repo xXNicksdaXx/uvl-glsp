@@ -10,17 +10,12 @@ import de.tu_dresden.inf.st.uvl.glsp.model.UVLModelIndex;
 import de.tu_dresden.inf.st.uvl.glsp.model.UVLModelState;
 import de.vill.model.Feature;
 import de.vill.model.Group;
-import org.eclipse.glsp.graph.GDimension;
-import org.eclipse.glsp.graph.GGraph;
-import org.eclipse.glsp.graph.GModelElement;
-import org.eclipse.glsp.graph.GNode;
+import org.eclipse.glsp.graph.*;
 import org.eclipse.glsp.graph.util.GraphUtil;
 import org.eclipse.glsp.server.layout.LayoutEngine;
 import org.eclipse.glsp.server.operations.LayoutOperation;
 
 import java.util.Optional;
-
-import static de.tu_dresden.inf.st.uvl.glsp.utils.FeatureUtil.getFeatureId;
 
 public class UVLTreeLayoutEngine implements LayoutEngine {
 
@@ -44,6 +39,9 @@ public class UVLTreeLayoutEngine implements LayoutEngine {
 
         // Parse all features into WalkersNode tree
         Feature rootFeature = modelState.getFeatureModel().getRootFeature();
+        if (rootFeature == null) {
+            return;
+        }
         UVLModelIndex index = modelState.getIndex();
         WalkersNode rootNode = transformFeature(rootFeature, index);
 
@@ -52,10 +50,13 @@ public class UVLTreeLayoutEngine implements LayoutEngine {
 
         // Transfer the computed layout back to the model state
         transferLayout(rootNode);
+
+        // Remove all routing points from edges
+        removeRoutingPoints();
     }
 
     private WalkersNode transformFeature(Feature feature, UVLModelIndex index) {
-        String featureId = getFeatureId(feature);
+        String featureId = index.getIdFor(feature);
         GNode gNode = index.getGModelElement(featureId, GNode.class).orElseThrow(
                 () -> new IllegalStateException("No GModelElement found for Feature ID: " + featureId)
         );
@@ -207,6 +208,13 @@ public class UVLTreeLayoutEngine implements LayoutEngine {
                 transferLayout(child, node);
             }
         }
+    }
+
+    private void removeRoutingPoints() {
+        modelState.getIndex().getStream(modelState.getRoot())
+                .filter(GEdge.class::isInstance)
+                .map(GEdge.class::cast)
+                .forEach(edge -> edge.getRoutingPoints().clear());
     }
 
     // --- Helper Methods ---

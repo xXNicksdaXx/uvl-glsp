@@ -22,6 +22,7 @@ import {
     HelperLineType,
     initializeDiagramContainer,
     layoutableChildFeature,
+    layoutModule,
     LogLevel,
     overrideModelElement,
     PreRenderedView,
@@ -80,5 +81,5 @@ const uvlDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => 
  * @returns The initialized container.
  */
 export function initializeUvlDiagramContainer(container: Container, ...containerConfiguration: ContainerConfiguration): Container {
-    return initializeDiagramContainer(container, defaultModule, helperLineModule, uvlDiagramModule, ...containerConfiguration);
+    return initializeDiagramContainer(container, defaultModule, helperLineModule, layoutModule, uvlDiagramModule, ...containerConfiguration);
 }

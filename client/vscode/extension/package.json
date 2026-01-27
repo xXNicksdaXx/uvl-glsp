@@ -99,6 +99,12 @@
         "when": "activeCustomEditorId == 'uvl.glspDiagram'"
       },
       {
+        "key": "alt+l",
+        "mac": "alt+l",
+        "command": "uvl.layout",
+        "when": "activeCustomEditorId == 'uvl.glspDiagram'"
+      },
+      {
         "key": "ctrl+a",
         "mac": "ctrl+a",
         "command": "uvl.selectAll",

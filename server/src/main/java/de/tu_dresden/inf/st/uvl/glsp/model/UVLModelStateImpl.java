@@ -7,7 +7,6 @@ package de.tu_dresden.inf.st.uvl.glsp.model;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import de.tu_dresden.inf.st.uvl.glsp.utils.UVLIdGenerator;
 import de.vill.model.FeatureModel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,9 +25,6 @@ public class UVLModelStateImpl extends DefaultGModelState implements UVLModelSta
     @Inject
     protected ClientSessionManager clientSessionManager;
 
-    @Inject
-    protected UVLIdGenerator idGenerator;
-
     protected FeatureModel featureModel;
 
     @Override
@@ -44,7 +40,11 @@ public class UVLModelStateImpl extends DefaultGModelState implements UVLModelSta
 
     @Override
     protected GModelIndex getOrUpdateIndex(final GModelRoot newRoot) {
-        return UVLModelIndex.getOrCreate(getRoot(), idGenerator);
+        UVLModelIndex index = UVLModelIndex.getOrCreate(getRoot());
+        if (featureModel != null) {
+            index.indexFeatureModel(featureModel);
+        }
+        return index;
     }
 
     @Override

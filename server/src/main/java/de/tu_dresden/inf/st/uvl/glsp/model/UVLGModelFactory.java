@@ -13,67 +13,60 @@ import de.vill.model.Group;
 import org.eclipse.glsp.graph.DefaultTypes;
 import org.eclipse.glsp.graph.GEdge;
 import org.eclipse.glsp.graph.GGraph;
-import org.eclipse.glsp.graph.GModelRoot;
 import org.eclipse.glsp.graph.GNode;
-import org.eclipse.glsp.graph.builder.impl.GEdgeBuilder;
-import org.eclipse.glsp.graph.builder.impl.GGraphBuilder;
-import org.eclipse.glsp.graph.builder.impl.GLabelBuilder;
-import org.eclipse.glsp.graph.builder.impl.GLayoutOptions;
-import org.eclipse.glsp.graph.builder.impl.GNodeBuilder;
+import org.eclipse.glsp.graph.builder.impl.*;
 import org.eclipse.glsp.graph.util.GConstants;
 import org.eclipse.glsp.server.features.core.model.GModelFactory;
-import org.eclipse.glsp.server.layout.LayoutEngine;
 import org.eclipse.glsp.server.utils.ClientOptionsUtil;
 
-import java.util.*;
-
-import static de.tu_dresden.inf.st.uvl.glsp.utils.FeatureUtil.getFeatureId;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public class UVLGModelFactory implements GModelFactory {
 
     @Inject
     protected UVLModelState modelState;
 
-    @Inject
-    protected LayoutEngine layoutEngine;
-
     @Override
     public void createGModel() {
-        GModelRoot newRoot = createRootElement();
+        FeatureModel featureModel = modelState.getFeatureModel();
+        UVLModelIndex index = modelState.getIndex();
+
+        GGraph newRoot = createRootElement();
         modelState.updateRoot(newRoot);
-        modelState.getIndex().indexFeatureModel(modelState.getFeatureModel());
-        fillRootElement(newRoot);
+
+        fillRootElement(newRoot, featureModel, index);
     }
 
-    protected GModelRoot createRootElement() {
-        GGraph graph = new GGraphBuilder().build();
-        graph.setId(ClientOptionsUtil.getSourceUri(modelState.getClientOptions()).orElse("root"));
-        graph.setRevision(modelState.getRoot() != null ? graph.getRevision() : -1);
-        return graph;
+    protected GGraph createRootElement() {
+        return new GGraphBuilder(DefaultTypes.GRAPH)
+                .id(ClientOptionsUtil.getSourceUri(modelState.getClientOptions()).orElse("root"))
+                .revision(modelState.getRoot() != null ? modelState.getRoot().getRevision() : -1)
+                .build();
     }
 
-    protected void fillRootElement(GModelRoot root) {
-        FeatureModel model = modelState.getFeatureModel();
-        GGraph graph = (GGraph) root;
+    protected void fillRootElement(GGraph root, FeatureModel featureModel, UVLModelIndex index) {
+        featureModel.getFeatureMap().values().stream()
+                .map(feature -> createFeature(feature, index))
+                .forEachOrdered(root.getChildren()::add);
 
-        model.getFeatureMap().values().stream()
-                .map(this::createFeature)
-                .forEachOrdered(graph.getChildren()::add);
-
-        model.getFeatureMap().values().stream()
+        featureModel.getFeatureMap().values().stream()
                 .map(Feature::getParentGroup)
                 .filter(Objects::nonNull)
                 .distinct()
-                .map(this::createEdge)
+                .map(group -> createEdge(group, index))
                 .flatMap(Collection::stream)
-                .forEachOrdered(graph.getChildren()::add);
-
-        layoutEngine.layout(java.util.Optional.empty());
+                .forEachOrdered(root.getChildren()::add);
     }
 
-    private GNode createFeature(final Feature feature) {
+    private GNode createFeature(final Feature feature, UVLModelIndex index) {
+        String id = index.getIdFor(feature);
+
         GNodeBuilder nodeBuilder = new GNodeBuilder(UVLModelTypes.FEATURE)
-                .id(getFeatureId(feature))
+                .id(id)
                 .layout(GConstants.Layout.VBOX)
                 .layoutOptions(new GLayoutOptions()
                         .paddingTop(2)
@@ -81,11 +74,11 @@ public class UVLGModelFactory implements GModelFactory {
                         .paddingRight(2)
                         .paddingBottom(2.0))
                 .add(new GLabelBuilder(DefaultTypes.LABEL)
-                        .id(getFeatureId(feature) + "_label")
+                        .id(id + "_label")
                         .text(feature.getFeatureName())
                         .build());
 
-        Optional<GNode> node = modelState.getIndex().getGModelElement(feature, GNode.class);
+        Optional<GNode> node = index.getGModelElement(feature, GNode.class);
         if (node.isPresent()) {
             nodeBuilder.position(node.get().getPosition());
             nodeBuilder.size(node.get().getSize());
@@ -93,10 +86,10 @@ public class UVLGModelFactory implements GModelFactory {
         return nodeBuilder.build();
     }
 
-    private Collection<GEdge> createEdge(final Group group) {
+    private Collection<GEdge> createEdge(final Group group, UVLModelIndex index) {
         List<GEdge> edges = new ArrayList<>();
-        Feature source = group.getParentFeature();
-
+        String groupId = index.getIdFor(group);
+        String sourceId = index.getIdFor(group.getParentFeature());
         String type;
         switch (group.GROUPTYPE) {
             case ALTERNATIVE -> type = UVLModelTypes.ALTERNATIVE;
@@ -107,11 +100,12 @@ public class UVLGModelFactory implements GModelFactory {
         }
 
         for (Feature target : group.getFeatures()) {
+            String targetId = index.getIdFor(target);
             GEdgeBuilder edgeBuilder = new GEdgeBuilder(type)
-                    .id(source.getFeatureName() + "_to_" + target.getFeatureName())
+                    .id(groupId + "_" + targetId)
                     .addCssClass(group.GROUPTYPE.name().toLowerCase())
-                    .sourceId(getFeatureId(source))
-                    .targetId(getFeatureId(target))
+                    .sourceId(sourceId)
+                    .targetId(targetId)
                     .routerKind(GConstants.RouterKind.POLYLINE);
 
             edges.add(edgeBuilder.build());

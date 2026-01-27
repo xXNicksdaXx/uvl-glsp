@@ -21,11 +21,8 @@ public class UVLDiagramConfiguration extends BaseDiagramConfiguration {
                                 false, false, false, false,
                                 List.of(UVLModelTypes.FEATURE, UVLModelTypes.CONSTRAINT)),
                         new ShapeTypeHint(UVLModelTypes.FEATURE,
-                                false, true, false, true,
+                                true, true, false, true,
                                 List.of(UVLModelTypes.CONSTRAINT)),
-                        new ShapeTypeHint(UVLModelTypes.FEATURE,
-                                false, true, false, true,
-                                List.of()),
                         new ShapeTypeHint(UVLModelTypes.B_THREAD,
                                 false, true, false, true,
                                 List.of())
