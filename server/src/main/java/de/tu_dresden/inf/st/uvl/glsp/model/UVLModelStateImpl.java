@@ -10,8 +10,8 @@ import com.google.inject.Singleton;
 import de.vill.model.FeatureModel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.glsp.graph.GModelIndex;
 import org.eclipse.glsp.graph.GModelRoot;
+import org.eclipse.glsp.server.internal.gmodel.commandstack.GModelCommandStack;
 import org.eclipse.glsp.server.model.DefaultGModelState;
 import org.eclipse.glsp.server.session.ClientSession;
 import org.eclipse.glsp.server.session.ClientSessionListener;
@@ -31,6 +31,7 @@ public class UVLModelStateImpl extends DefaultGModelState implements UVLModelSta
     @Inject
     public void init() {
         this.clientSessionManager.addListener(this, this.clientId);
+        setCommandStack(new GModelCommandStack());
     }
 
     @Override
@@ -39,12 +40,17 @@ public class UVLModelStateImpl extends DefaultGModelState implements UVLModelSta
     }
 
     @Override
-    protected GModelIndex getOrUpdateIndex(final GModelRoot newRoot) {
-        UVLModelIndex index = UVLModelIndex.getOrCreate(getRoot());
-        if (featureModel != null) {
-            index.indexFeatureModel(featureModel);
+    public void updateRoot(final GModelRoot newRoot) {
+        setRoot(newRoot);
+        this.index = getOrUpdateIndex(newRoot);
+        if (this.featureModel != null) {
+            getIndex().indexFeatureModel(this.featureModel);
         }
-        return index;
+    }
+
+    @Override
+    protected UVLModelIndex getOrUpdateIndex(final GModelRoot newRoot) {
+        return UVLModelIndex.getOrCreate(getRoot());
     }
 
     @Override
@@ -55,7 +61,6 @@ public class UVLModelStateImpl extends DefaultGModelState implements UVLModelSta
     @Override
     public void setFeatureModel(FeatureModel model) {
         this.featureModel = model;
-        // setCommandStack(this.featureModel.getCommandStack());
     }
 
     @Override

@@ -13,7 +13,6 @@ import {
     DefaultTypes,
     GEdge,
     GEdgeView,
-    GLabel,
     GLabelView,
     GModelElement,
     GNode,
@@ -37,7 +36,8 @@ import 'balloon-css/balloon.min.css';
 import '../css/diagram.css';
 
 import { FeatureCompartmentSelectionFeedback } from './features/feedback';
-import {CircleEdgeView} from "./views";
+import { EditableGLabel } from "./model";
+import { CircleEdgeView } from "./views";
 
 const uvlDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = {bind, unbind, isBound, rebind};
@@ -61,15 +61,15 @@ const uvlDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => 
         enable: [layoutableChildFeature]
     });
 
+    overrideModelElement(context, DefaultTypes.LABEL, EditableGLabel, GLabelView)
+
     // Register custom model elements and their views
     configureModelElement(context, UVLModelTypes.FEATURE, GNode, RectangularNodeView);
-    configureModelElement(context, UVLModelTypes.CONSTRAINT, GNode, RectangularNodeView);
-
-    configureModelElement(context, UVLModelTypes.B_THREAD, GLabel, GLabelView);
 
     configureModelElement(context, UVLModelTypes.MANDATORY, GEdge, CircleEdgeView);
     configureModelElement(context, UVLModelTypes.OPTIONAL, GEdge, CircleEdgeView);
     configureModelElement(context, UVLModelTypes.ALTERNATIVE, GEdge, GEdgeView);
+    configureModelElement(context, UVLModelTypes.GROUP_CARDINALITY, GEdge, GEdgeView);
     configureModelElement(context, UVLModelTypes.OR, GEdge, GEdgeView);
 });
 

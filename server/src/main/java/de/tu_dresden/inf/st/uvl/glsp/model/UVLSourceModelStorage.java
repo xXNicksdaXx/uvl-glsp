@@ -7,19 +7,14 @@ package de.tu_dresden.inf.st.uvl.glsp.model;
 
 import com.google.inject.Inject;
 import de.vill.main.UVLModelFactory;
-import de.vill.model.Feature;
 import de.vill.model.FeatureModel;
-import de.vill.model.Group;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.glsp.graph.*;
-import org.eclipse.glsp.graph.builder.impl.GEdgeBuilder;
-import org.eclipse.glsp.graph.builder.impl.GNodeBuilder;
 import org.eclipse.glsp.server.actions.SaveModelAction;
 import org.eclipse.glsp.server.features.core.model.RequestModelAction;
 import org.eclipse.glsp.server.features.core.model.SourceModelStorage;
 import org.eclipse.glsp.server.gmodel.GModelStorage;
-import org.eclipse.glsp.server.layout.LayoutEngine;
 import org.eclipse.glsp.server.model.GModelState;
 import org.eclipse.glsp.server.types.GLSPServerException;
 import org.eclipse.glsp.server.utils.ClientOptionsUtil;
@@ -36,8 +31,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
-import java.util.Set;
 
 public class UVLSourceModelStorage extends GModelStorage implements SourceModelStorage {
 
@@ -45,9 +38,6 @@ public class UVLSourceModelStorage extends GModelStorage implements SourceModelS
 
     @Inject
     protected UVLModelState modelState;
-
-    @Inject
-    protected LayoutEngine layoutEngine;
 
     @Override
     public void loadSourceModel(RequestModelAction action) {
@@ -57,10 +47,6 @@ public class UVLSourceModelStorage extends GModelStorage implements SourceModelS
         String filePath = featureModelFile.getAbsolutePath();
         File notationFile = getNotationFile(filePath);
         loadGModel(notationFile);
-
-        if (requiresLayoutOperation()) {
-            layoutEngine.layout(Optional.empty());
-        }
     }
 
     protected void loadFeatureModel(final File featureModelFile) {
@@ -93,13 +79,11 @@ public class UVLSourceModelStorage extends GModelStorage implements SourceModelS
                 if (isEmpty) {
                     GModelRoot newRoot = createNewEmptyRoot(modelState);
                     modelState.updateRoot(newRoot);
-                    resolveUnreferencedElements(modelState.getRoot());
                     return;
                 }
                 throw new IOException("Could not deserialize GModel file contents of: " + notationFile.toURI());
             }
             modelState.updateRoot(root);
-            resolveUnreferencedElements(modelState.getRoot());
         } catch (IOException e) {
             LOGGER.error(e);
             throw new GLSPServerException("Could not load GModel from file: " + notationFile.toURI(), e);
@@ -113,43 +97,6 @@ public class UVLSourceModelStorage extends GModelStorage implements SourceModelS
         root.setRevision(modelState.getRoot() != null ? root.getRevision() : -1);
         root.setType(DefaultTypes.GRAPH);
         return root;
-    }
-
-    protected void resolveUnreferencedElements(GModelRoot root) {
-        Set<String> existingElements = modelState.getIndex().allFeatureModelIds();
-        for (String featureModelId : existingElements) {
-            boolean existsInGModel = root.getChildren().stream()
-                    .anyMatch(element -> featureModelId.equals(element.getId()));
-            if (!existsInGModel) {
-                addGModelElement(featureModelId, root);
-            }
-        }
-    }
-
-    private void addGModelElement(String id, GModelRoot root) {
-        Optional<Object> element = modelState.getIndex().getUVLObject(id);
-        if (element.isPresent()) {
-            Object uvlObject = element.get();
-            if (uvlObject instanceof Feature) {
-                GNode node = new GNodeBuilder(DefaultTypes.NODE)
-                        .id(id)
-                        .size(64, 32)
-                        .position(0, 0)
-                        .build();
-                root.getChildren().add(node);
-            } else if (uvlObject instanceof Group group) {
-                for (Feature target : group.getFeatures()) {
-                    String sourceId = modelState.getIndex().getIdFor(group.getParentFeature());
-                    String targetId = modelState.getIndex().getIdFor(target);
-                    GEdge edge = new GEdgeBuilder(DefaultTypes.EDGE)
-                            .id(id + "_" + targetId)
-                            .sourceId(sourceId)
-                            .targetId(targetId)
-                            .build();
-                    root.getChildren().add(edge);
-                }
-            }
-        }
     }
 
     @Override
@@ -177,36 +124,11 @@ public class UVLSourceModelStorage extends GModelStorage implements SourceModelS
     protected void saveGModel(final File notationFile) {
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(notationFile), StandardCharsets.UTF_8)) {
             GGraph root = (GGraph) modelState.getRoot();
-            GGraph reducedGraph = reduceGGraph(root);
-            gson.toJson(reducedGraph, GGraph.class, writer);
+            gson.toJson(root, GGraph.class, writer);
         } catch (IOException e) {
             LOGGER.error(e);
             throw new GLSPServerException("An error occurred during save process of the GModel file.", e);
         }
-    }
-
-    private boolean requiresLayoutOperation() {
-        long count = modelState.getRoot().getChildren().stream()
-                .filter(element -> element instanceof GNode)
-                .map(element -> (GNode) element)
-                .filter(node -> node.getPosition().getX() == 0 && node.getPosition().getY() == 0)
-                .count();
-        return count > 1;
-    }
-
-    private GGraph reduceGGraph(GGraph graph) {
-        for (GModelElement element : graph.getChildren()) {
-            if (element instanceof GNode node) {
-                node.setLayout(null);
-                node.getLayoutOptions().clear();
-                node.getChildren().clear();
-            } else if (element instanceof GEdge edge) {
-                edge.setRouterKind(null);
-                edge.getCssClasses().clear();
-                edge.getChildren().clear();
-            }
-        }
-        return graph;
     }
 
     private static File getNotationFile(String featureModelFilePath) {

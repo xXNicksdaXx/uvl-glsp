@@ -15,12 +15,15 @@ import { DefaultTypes } from '@eclipse-glsp/client';
  */
 export namespace UVLModelTypes {
     export const FEATURE = `${DefaultTypes.NODE}:feature`;
-    export const CONSTRAINT = `${DefaultTypes.NODE}:constraint`;
-
-    export const B_THREAD = `${DefaultTypes.LABEL}:b-thread`;
 
     export const MANDATORY = `${DefaultTypes.EDGE}:mandatory`;
     export const OPTIONAL = `${DefaultTypes.EDGE}:optional`;
     export const ALTERNATIVE = `${DefaultTypes.EDGE}:alternative`;
+    export const GROUP_CARDINALITY = `${DefaultTypes.EDGE}:groupCardinality`;
     export const OR = `${DefaultTypes.EDGE}:or`;
+
+    export const EQUIVALENCE = `${DefaultTypes.EDGE}:equivalence`;
+    export const IMPLICATION = `${DefaultTypes.EDGE}:implication`;
+    export const EXCLUSION = `${DefaultTypes.EDGE}:exclusion`;
+    export const EXPRESSION = `${DefaultTypes.EDGE}:expression`;
 }

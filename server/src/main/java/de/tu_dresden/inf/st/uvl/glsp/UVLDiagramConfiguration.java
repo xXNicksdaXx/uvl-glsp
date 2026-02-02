@@ -19,13 +19,9 @@ public class UVLDiagramConfiguration extends BaseDiagramConfiguration {
                 return List.of(
                         new ShapeTypeHint(DefaultTypes.GRAPH,
                                 false, false, false, false,
-                                List.of(UVLModelTypes.FEATURE, UVLModelTypes.CONSTRAINT)),
+                                List.of(UVLModelTypes.FEATURE)),
                         new ShapeTypeHint(UVLModelTypes.FEATURE,
-                                true, true, false, true,
-                                List.of(UVLModelTypes.CONSTRAINT)),
-                        new ShapeTypeHint(UVLModelTypes.B_THREAD,
-                                false, true, false, true,
-                                List.of())
+                                true, true, false, true)
                 );
         }
 
@@ -41,6 +37,14 @@ public class UVLDiagramConfiguration extends BaseDiagramConfiguration {
                                 List.of(UVLModelTypes.FEATURE),
                                 List.of(UVLModelTypes.FEATURE)),
                         new EdgeTypeHint(UVLModelTypes.ALTERNATIVE,
+                                true, true, true,
+                                List.of(UVLModelTypes.FEATURE),
+                                List.of(UVLModelTypes.FEATURE)),
+                        new EdgeTypeHint(UVLModelTypes.GROUP_CARDINALITY,
+                                true, true, true,
+                                List.of(UVLModelTypes.FEATURE),
+                                List.of(UVLModelTypes.FEATURE)),
+                        new EdgeTypeHint(UVLModelTypes.OR,
                                 true, true, true,
                                 List.of(UVLModelTypes.FEATURE),
                                 List.of(UVLModelTypes.FEATURE))

@@ -22,14 +22,13 @@ public class UVLToolPaletteItemProvider implements ToolPaletteItemProvider {
         return List.of(
                 elements(),
                 relations(),
-                additionals()
+                constraints()
         );
     }
 
     private PaletteItem elements() {
         List<PaletteItem> elements = List.of(
-                node(UVLModelTypes.FEATURE, "Feature"),
-                node(UVLModelTypes.CONSTRAINT, "Constraint"));
+                node(UVLModelTypes.FEATURE, "Feature"));
         return PaletteItem.createPaletteGroup("elements", "Elements", elements, "symbol-property", "A");
     }
 
@@ -37,14 +36,20 @@ public class UVLToolPaletteItemProvider implements ToolPaletteItemProvider {
         List<PaletteItem> relations = List.of(
                 edge(UVLModelTypes.MANDATORY, "Mandatory"),
                 edge(UVLModelTypes.OPTIONAL, "Optional"),
-                edge(UVLModelTypes.ALTERNATIVE, "Alternative"));
-        return PaletteItem.createPaletteGroup("relations", "Relations", relations, "symbol-property", "C");
+                edge(UVLModelTypes.ALTERNATIVE, "Alternative"),
+                edge(UVLModelTypes.GROUP_CARDINALITY, "Group Cardinality"),
+                edge(UVLModelTypes.OR, "Or"));
+        return PaletteItem.createPaletteGroup("relations", "Relations", relations, "symbol-property", "B");
     }
 
-    private PaletteItem additionals() {
-        List<PaletteItem> features = List.of(
-                node(UVLModelTypes.B_THREAD, "B-Thread"));
-        return PaletteItem.createPaletteGroup("additionals", "Additionals", features, "symbol-property", "C");
+    private PaletteItem constraints() {
+        List<PaletteItem> constraints = List.of(
+                edge(UVLModelTypes.EQUIVALENCE, "Equivalence"),
+                edge(UVLModelTypes.IMPLICATION, "Implication"),
+                edge(UVLModelTypes.EXCLUSION, "Exclusion"),
+                edge(UVLModelTypes.EXPRESSION, "Expression")
+        );
+        return PaletteItem.createPaletteGroup("constraints", "Constraints", constraints, "symbol-property", "C");
     }
 
     /**

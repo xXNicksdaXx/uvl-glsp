@@ -14,11 +14,10 @@ import org.eclipse.glsp.graph.impl.GModelIndexImpl;
 import org.eclipse.glsp.graph.util.RootAdapterUtil;
 import org.eclipse.glsp.server.utils.BiIndex;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
-import static de.tu_dresden.inf.st.uvl.glsp.utils.GroupUtil.getGroupName;
+import static de.tu_dresden.inf.st.uvl.glsp.utils.FeatureModelUtil.getAllGroups;
+import static de.tu_dresden.inf.st.uvl.glsp.utils.GroupUtil.convertGroupTypeToModelType;
 
 public class UVLModelIndex extends GModelIndexImpl {
 
@@ -41,22 +40,70 @@ public class UVLModelIndex extends GModelIndexImpl {
     }
 
     protected void indexFeatureModel(final FeatureModel featureModel) {
-        featureModel.getFeatureMap().values().forEach(this::indexFeature);
-        featureModel.getFeatureMap().values().stream()
-                .map(Feature::getParentGroup)
-                .filter(Objects::nonNull)
-                .distinct()
-                .forEach(this::indexGroup);
+        this.uvlIndex.clear();
+
+        // Index FeatureModel based on the GModelIndex
+        Collection<GModelElement> modelElements = idToElement.values();
+
+        featureModel.getFeatureMap().values().forEach(feature -> indexFeature(feature, modelElements));
+        getAllGroups(featureModel).forEach(group -> indexGroup(group, modelElements));
     }
 
-    private void indexFeature(final Feature feature) {
-        String id = getOrCreateId(feature.getFeatureName());
-        uvlIndex.putIfAbsent(id, feature);
+    private void indexFeature(final Feature feature, Collection<GModelElement> modelElements) {
+        // find the corresponding GModelElement for the Feature
+        Optional<String> matchingNodeId = modelElements.stream()
+                .filter(GNode.class::isInstance)
+                .map(GNode.class::cast)
+                .filter(node -> {
+                    // check children for label with feature name
+                    Optional<GLabel> labelElement = node.getChildren().stream()
+                            .filter(GLabel.class::isInstance)
+                            .map(GLabel.class::cast)
+                            .filter(label -> {
+                                String labelText = label.getText();
+                                return labelText != null && labelText.equals(feature.getFeatureName());
+                            })
+                            .findFirst();
+                    return labelElement.isPresent();
+                })
+                .map(GNode::getId)
+                .findAny();
+
+        if (matchingNodeId.isPresent()) {
+            String id = matchingNodeId.get();
+            uvlIndex.put(id, feature);
+        } else {
+            String uuid = UUID.randomUUID().toString();
+            uvlIndex.putIfAbsent(uuid, feature);
+        }
     }
 
-    private void indexGroup(final Group group) {
-        String id = getOrCreateId(getGroupName(group));
-        uvlIndex.putIfAbsent(id, group);
+    private void indexGroup(final Group group, Collection<GModelElement> modelElements) {
+        // Find the corresponding GModelElement for the Group
+        Optional<String> matchingGroupId = modelElements.stream()
+                .filter(GEdge.class::isInstance)
+                .map(GEdge.class::cast)
+                .filter(edge -> {
+                    // check for type
+                    String expectedType = convertGroupTypeToModelType(group.GROUPTYPE);
+                    return edge.getType().equals(expectedType);
+                })
+                .filter(edge -> {
+                    // check for identical source node
+                    Optional<String> id = getIdFor(group.getParentFeature());
+                    return id.isPresent() && edge.getSourceId().equals(id.get());
+                })
+                .map(GEdge::getId)
+                .map(id -> id.substring(0, id.indexOf("_"))) // remove feature part
+                .findAny();
+
+        if (matchingGroupId.isPresent()) {
+            String id = matchingGroupId.get();
+            uvlIndex.putIfAbsent(id, group);
+        } else {
+            String uuid = UUID.randomUUID().toString();
+            uvlIndex.putIfAbsent(uuid, group);
+        }
     }
 
     public Optional<Object> getUVLObject(final String id) {
@@ -91,18 +138,8 @@ public class UVLModelIndex extends GModelIndexImpl {
         return getGModelElement(uvlIndex.getKey(object), clazz);
     }
 
-    protected String getOrCreateId(final Object element) {
-        if (element instanceof Feature feature) {
-            return feature.getFeatureName();
-        } else if (element instanceof Group group) {
-            return getGroupName(group);
-        } else {
-            return Objects.toString(element);
-        }
-    }
-
-    public String getIdFor(final Object object) {
-        return uvlIndex.getKey(object);
+    public Optional<String> getIdFor(final Object object) {
+        return Optional.ofNullable(uvlIndex.getKey(object));
     }
 
     public Set<String> allFeatureModelIds() {

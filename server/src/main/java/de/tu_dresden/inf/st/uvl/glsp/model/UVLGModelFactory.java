@@ -7,6 +7,7 @@ package de.tu_dresden.inf.st.uvl.glsp.model;
 
 import com.google.inject.Inject;
 import de.tu_dresden.inf.st.uvl.glsp.UVLModelTypes;
+import de.tu_dresden.inf.st.uvl.glsp.utils.GroupUtil;
 import de.vill.model.Feature;
 import de.vill.model.FeatureModel;
 import de.vill.model.Group;
@@ -17,6 +18,7 @@ import org.eclipse.glsp.graph.GNode;
 import org.eclipse.glsp.graph.builder.impl.*;
 import org.eclipse.glsp.graph.util.GConstants;
 import org.eclipse.glsp.server.features.core.model.GModelFactory;
+import org.eclipse.glsp.server.layout.LayoutEngine;
 import org.eclipse.glsp.server.utils.ClientOptionsUtil;
 
 import java.util.ArrayList;
@@ -30,15 +32,20 @@ public class UVLGModelFactory implements GModelFactory {
     @Inject
     protected UVLModelState modelState;
 
+    @Inject
+    protected LayoutEngine layoutEngine;
+
     @Override
     public void createGModel() {
         FeatureModel featureModel = modelState.getFeatureModel();
-        UVLModelIndex index = modelState.getIndex();
-
         GGraph newRoot = createRootElement();
+
+        fillRootElement(newRoot, featureModel);
         modelState.updateRoot(newRoot);
 
-        fillRootElement(newRoot, featureModel, index);
+        if (requiresLayoutOperation()) {
+            layoutEngine.layout(Optional.empty());
+        }
     }
 
     protected GGraph createRootElement() {
@@ -48,22 +55,25 @@ public class UVLGModelFactory implements GModelFactory {
                 .build();
     }
 
-    protected void fillRootElement(GGraph root, FeatureModel featureModel, UVLModelIndex index) {
+    protected void fillRootElement(GGraph root, FeatureModel featureModel) {
         featureModel.getFeatureMap().values().stream()
-                .map(feature -> createFeature(feature, index))
+                .map(this::createFeature)
                 .forEachOrdered(root.getChildren()::add);
 
         featureModel.getFeatureMap().values().stream()
                 .map(Feature::getParentGroup)
                 .filter(Objects::nonNull)
                 .distinct()
-                .map(group -> createEdge(group, index))
+                .map(this::createEdge)
                 .flatMap(Collection::stream)
                 .forEachOrdered(root.getChildren()::add);
     }
 
-    private GNode createFeature(final Feature feature, UVLModelIndex index) {
-        String id = index.getIdFor(feature);
+    private GNode createFeature(final Feature feature) {
+        UVLModelIndex index = modelState.getIndex();
+        String id = index.getIdFor(feature).orElseThrow(
+                () -> new IllegalStateException("Feature not indexed: " + feature.getFeatureName())
+        );
 
         GNodeBuilder nodeBuilder = new GNodeBuilder(UVLModelTypes.FEATURE)
                 .id(id)
@@ -82,14 +92,25 @@ public class UVLGModelFactory implements GModelFactory {
         if (node.isPresent()) {
             nodeBuilder.position(node.get().getPosition());
             nodeBuilder.size(node.get().getSize());
+        } else {
+            // initialize with default position and size
+            nodeBuilder.position(0, 0);
+            nodeBuilder.size(64, 32);
         }
         return nodeBuilder.build();
     }
 
-    private Collection<GEdge> createEdge(final Group group, UVLModelIndex index) {
+    private Collection<GEdge> createEdge(final Group group) {
+        UVLModelIndex index = modelState.getIndex();
         List<GEdge> edges = new ArrayList<>();
-        String groupId = index.getIdFor(group);
-        String sourceId = index.getIdFor(group.getParentFeature());
+
+        String groupId = index.getIdFor(group).orElseThrow(
+                () -> new IllegalStateException("Group not indexed: " + GroupUtil.getGroupName(group))
+        );
+        String sourceId = index.getIdFor(group.getParentFeature()).orElseThrow(
+                () -> new IllegalStateException("Parent feature of group not indexed: " + group.getParentFeature().getFeatureName())
+        );
+
         String type;
         switch (group.GROUPTYPE) {
             case ALTERNATIVE -> type = UVLModelTypes.ALTERNATIVE;
@@ -100,7 +121,10 @@ public class UVLGModelFactory implements GModelFactory {
         }
 
         for (Feature target : group.getFeatures()) {
-            String targetId = index.getIdFor(target);
+            String targetId = index.getIdFor(target).orElseThrow(
+                    () -> new IllegalStateException("Target feature of group not indexed: " + target.getFeatureName())
+            );
+
             GEdgeBuilder edgeBuilder = new GEdgeBuilder(type)
                     .id(groupId + "_" + targetId)
                     .addCssClass(group.GROUPTYPE.name().toLowerCase())
@@ -112,5 +136,13 @@ public class UVLGModelFactory implements GModelFactory {
         }
 
         return edges;
+    }
+    private boolean requiresLayoutOperation() {
+        long count = modelState.getRoot().getChildren().stream()
+                .filter(element -> element instanceof GNode)
+                .map(element -> (GNode) element)
+                .filter(node -> node.getPosition().getX() == 0 && node.getPosition().getY() == 0)
+                .count();
+        return count > 1;
     }
 }

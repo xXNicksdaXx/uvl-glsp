@@ -56,7 +56,9 @@ public class UVLTreeLayoutEngine implements LayoutEngine {
     }
 
     private WalkersNode transformFeature(Feature feature, UVLModelIndex index) {
-        String featureId = index.getIdFor(feature);
+        String featureId = index.getIdFor(feature).orElseThrow(
+                () -> new IllegalStateException("No ID found for Feature: " + feature.getFeatureName())
+        );
         GNode gNode = index.getGModelElement(featureId, GNode.class).orElseThrow(
                 () -> new IllegalStateException("No GModelElement found for Feature ID: " + featureId)
         );
