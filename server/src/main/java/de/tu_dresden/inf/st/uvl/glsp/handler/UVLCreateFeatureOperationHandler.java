@@ -64,7 +64,7 @@ public class UVLCreateFeatureOperationHandler extends GModelCreateOperationHandl
             createFeature(Optional.of(parentFeature));
             selectElement(newNode);
         }
-        modelState.updateRoot(modelState.getRoot());
+        modelState.updateIndex();
     }
 
     protected Feature getInitialFeatureLink(String containerId) {
@@ -112,7 +112,7 @@ public class UVLCreateFeatureOperationHandler extends GModelCreateOperationHandl
     }
 
     protected void selectElement(GNode node) {
-        actionDispatcher.dispatchAfterNextUpdate(SelectAction.addSelection(List.of(node.getId())));
+        actionDispatcher.dispatchAfterNextUpdate(SelectAction.setSelection(List.of(node.getId())));
     }
 
     private String getFeatureName() {

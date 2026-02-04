@@ -40,6 +40,10 @@ public class UVLModelStateImpl extends DefaultGModelState implements UVLModelSta
         return (UVLModelIndex) super.getIndex();
     }
 
+    public void updateIndex() {
+        updateRoot(getRoot());
+    }
+
     @Override
     public void updateRoot(final GModelRoot newRoot) {
         setRoot(newRoot);

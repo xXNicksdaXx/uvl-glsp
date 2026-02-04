@@ -8,7 +8,6 @@ package de.tu_dresden.inf.st.uvl.glsp.handler;
 import com.google.inject.Inject;
 import de.tu_dresden.inf.st.uvl.glsp.model.UVLModelState;
 import de.vill.model.Feature;
-import de.vill.model.FeatureModel;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.glsp.graph.*;
 import org.eclipse.glsp.server.features.directediting.ApplyLabelEditOperation;
@@ -16,8 +15,6 @@ import org.eclipse.glsp.server.gmodel.GModelApplyLabelEditOperationHandler;
 
 import java.util.Objects;
 import java.util.Optional;
-
-import static de.tu_dresden.inf.st.uvl.glsp.utils.FeatureModelEditUtil.renameFeature;
 
 public class UVLApplyLabelEditOperationHandler extends GModelApplyLabelEditOperationHandler {
 
@@ -45,9 +42,8 @@ public class UVLApplyLabelEditOperationHandler extends GModelApplyLabelEditOpera
             label.setText(operation.getText());
 
             // Update FeatureModel
-            FeatureModel featureModel = renameFeature(modelState.getFeatureModel(), feature, operation.getText());
-            modelState.setFeatureModel(featureModel);
-            modelState.updateRoot(modelState.getRoot());
+            feature.setFeatureName(operation.getText());
+            modelState.updateIndex();
         } else {
             throw new IllegalArgumentException("Parent node does not correspond to a UVL Feature.");
         }

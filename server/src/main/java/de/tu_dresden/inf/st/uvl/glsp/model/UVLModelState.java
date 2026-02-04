@@ -13,6 +13,8 @@ public interface UVLModelState extends GModelState {
 
     void setFeatureModel(FeatureModel model);
 
+    void updateIndex();
+
     @Override
     UVLModelIndex getIndex();
 }
