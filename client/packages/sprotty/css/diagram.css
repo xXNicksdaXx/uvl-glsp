@@ -95,3 +95,11 @@ svg {
 .optional .circle {
     fill: white;
 }
+
+.alternative .sector {
+    fill: transparent;
+}
+
+.or .sector {
+    fill: black;
+}

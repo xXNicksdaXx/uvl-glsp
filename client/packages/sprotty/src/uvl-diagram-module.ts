@@ -14,8 +14,6 @@ import {
     GEdge,
     GEdgeView,
     GLabelView,
-    GModelElement,
-    GNode,
     GShapedPreRenderedElement,
     helperLineModule,
     HelperLineType,
@@ -35,9 +33,10 @@ import { UVLModelTypes } from 'uvl-common';
 import 'balloon-css/balloon.min.css';
 import '../css/diagram.css';
 
+import { CenteredAnchor } from "./features/center-anchor-computer";
 import { FeatureCompartmentSelectionFeedback } from './features/feedback';
-import { EditableGLabel } from "./model";
-import { CircleEdgeView } from "./views";
+import { EditableGLabel, CenteredNode } from "./model";
+import { CircleEdgeView, SectorEdgeView } from "./views";
 
 const uvlDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = {bind, unbind, isBound, rebind};
@@ -50,11 +49,12 @@ const uvlDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => 
             HelperLineType.Left, HelperLineType.Center, HelperLineType.Right,
             HelperLineType.Top, HelperLineType.Middle, HelperLineType.Bottom
         ],
-        viewportLines: [], // do not show alignment lines for viewport
-        alignmentElementFilter: (element: GModelElement) => true,
-        minimumMoveDelta: { x: 10, y: 10 },
+        viewportLines: [],
+        minimumMoveDelta: { x: 16, y: 16 },
         alignmentEpsilon: 0.5
     });
+
+    bind(TYPES.IAnchorComputer).to(CenteredAnchor).inSingletonScope();
 
     configureDefaultModelElements(context);
     overrideModelElement(context, DefaultTypes.SHAPE_PRE_RENDERED, GShapedPreRenderedElement, PreRenderedView, {
@@ -64,13 +64,13 @@ const uvlDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => 
     overrideModelElement(context, DefaultTypes.LABEL, EditableGLabel, GLabelView)
 
     // Register custom model elements and their views
-    configureModelElement(context, UVLModelTypes.FEATURE, GNode, RectangularNodeView);
+    configureModelElement(context, UVLModelTypes.FEATURE, CenteredNode, RectangularNodeView);
 
     configureModelElement(context, UVLModelTypes.MANDATORY, GEdge, CircleEdgeView);
     configureModelElement(context, UVLModelTypes.OPTIONAL, GEdge, CircleEdgeView);
-    configureModelElement(context, UVLModelTypes.ALTERNATIVE, GEdge, GEdgeView);
+    configureModelElement(context, UVLModelTypes.ALTERNATIVE, GEdge, SectorEdgeView);
     configureModelElement(context, UVLModelTypes.GROUP_CARDINALITY, GEdge, GEdgeView);
-    configureModelElement(context, UVLModelTypes.OR, GEdge, GEdgeView);
+    configureModelElement(context, UVLModelTypes.OR, GEdge, SectorEdgeView);
 });
 
 /**

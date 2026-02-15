@@ -111,9 +111,10 @@ public class UVLGModelFactory implements GModelFactory {
 
         String type;
         switch (group.GROUPTYPE) {
-            case ALTERNATIVE -> type = UVLModelTypes.ALTERNATIVE;
-            case OPTIONAL -> type = UVLModelTypes.OPTIONAL;
             case MANDATORY -> type = UVLModelTypes.MANDATORY;
+            case OPTIONAL -> type = UVLModelTypes.OPTIONAL;
+            case ALTERNATIVE -> type = UVLModelTypes.ALTERNATIVE;
+            case GROUP_CARDINALITY -> type = UVLModelTypes.GROUP_CARDINALITY;
             case OR -> type = UVLModelTypes.OR;
             default -> throw new IllegalArgumentException("Unknown group type: " + group.GROUPTYPE);
         }

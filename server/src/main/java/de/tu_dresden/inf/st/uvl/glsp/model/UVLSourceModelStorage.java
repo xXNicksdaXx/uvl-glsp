@@ -6,6 +6,7 @@
 package de.tu_dresden.inf.st.uvl.glsp.model;
 
 import com.google.inject.Inject;
+import de.vill.exception.ParseErrorList;
 import de.vill.main.UVLModelFactory;
 import de.vill.model.FeatureModel;
 import org.apache.logging.log4j.LogManager;
@@ -68,9 +69,16 @@ public class UVLSourceModelStorage extends GModelStorage implements SourceModelS
             modelState.setFeatureModel(featureModel);
         } catch (IndexOutOfBoundsException e) {
             modelState.setFeatureModel(new FeatureModel());
+        } catch (ParseErrorList e) {
+            String errorList = e.getErrorList().stream().reduce("", (acc, error) -> acc + error.toString() + "\n", String::concat);
+            LOGGER.error(errorList);
+            throw new GLSPServerException("Check the UVL file for the following error: " + errorList, e);
         } catch (IOException e) {
             LOGGER.error(e);
             throw new GLSPServerException("Could not load FeatureModel from file: " + featureModelFile.toURI(), e);
+        }  catch (Exception e) {
+            LOGGER.error(e);
+            throw new GLSPServerException("An unexpected error occurred during loading of the FeatureModel file: " + featureModelFile.toURI(), e);
         }
     }
 

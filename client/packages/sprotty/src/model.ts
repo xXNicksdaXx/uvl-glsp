@@ -14,6 +14,7 @@ import {
     GCompartment,
     GLabel,
     GModelElement,
+    GNode,
     Hoverable,
     hoverFeedbackFeature,
     Nameable,
@@ -24,6 +25,14 @@ import {
     WithEditableLabel,
     withEditLabelFeature
 } from '@eclipse-glsp/client';
+
+import { CENTERED_ANCHOR_KIND } from "./features/center-anchor-computer";
+
+export class CenteredNode extends GNode {
+    override get anchorKind() {
+        return CENTERED_ANCHOR_KIND;
+    }
+}
 
 export class LabeledNode extends RectangularNode implements WithEditableLabel, Nameable, Deletable {
 
