@@ -9,6 +9,7 @@ import com.google.inject.Singleton;
 import de.tu_dresden.inf.st.uvl.glsp.handler.UVLApplyLabelEditOperationHandler;
 import de.tu_dresden.inf.st.uvl.glsp.handler.UVLCreateFeatureOperationHandler;
 import de.tu_dresden.inf.st.uvl.glsp.handler.UVLCreateRelationEdgeOperationHandler;
+import de.tu_dresden.inf.st.uvl.glsp.handler.UVLDeleteOperationHandler;
 import de.tu_dresden.inf.st.uvl.glsp.layout.UVLTreeLayoutEngine;
 import org.eclipse.glsp.server.actions.ActionHandler;
 import org.eclipse.glsp.server.di.DiagramModule;
@@ -19,7 +20,6 @@ import org.eclipse.glsp.server.features.core.model.SourceModelStorage;
 import org.eclipse.glsp.server.features.toolpalette.ToolPaletteItemProvider;
 import org.eclipse.glsp.server.gmodel.GModelChangeBoundsOperationHandler;
 import org.eclipse.glsp.server.gmodel.GModelChangeRoutingPointsHandler;
-import org.eclipse.glsp.server.gmodel.GModelDeleteOperationHandler;
 import org.eclipse.glsp.server.gmodel.GModelPasteOperationHandler;
 import org.eclipse.glsp.server.gmodel.GModelReconnectEdgeOperationHandler;
 import org.eclipse.glsp.server.gmodel.GModelRequestClipboardDataActionHandler;
@@ -78,14 +78,13 @@ public class UVLDiagramModule extends DiagramModule {
 
         binding.add(GModelChangeBoundsOperationHandler.class);
         binding.add(GModelChangeRoutingPointsHandler.class);
-        binding.add(GModelDeleteOperationHandler.class);
         binding.add(GModelReconnectEdgeOperationHandler.class);
         binding.add(GModelPasteOperationHandler.class);
 
         binding.add(UVLApplyLabelEditOperationHandler.class);
+        binding.add(UVLDeleteOperationHandler.class);
 
         binding.add(UVLCreateFeatureOperationHandler.class);
-
         binding.add(UVLCreateRelationEdgeOperationHandler.class);
     }
 
