@@ -9,6 +9,7 @@ import de.tu_dresden.inf.st.uvl.glsp.UVLModelTypes;
 import de.vill.model.Feature;
 import de.vill.model.FeatureModel;
 import de.vill.model.constraint.Constraint;
+import de.vill.model.constraint.EquivalenceConstraint;
 import de.vill.model.constraint.ImplicationConstraint;
 import de.vill.model.constraint.LiteralConstraint;
 
@@ -45,7 +46,7 @@ public class ConstraintUtil {
     public static String convertConstraintTypeToModelType(Constraint constraint) {
         return switch (constraint) {
             case ImplicationConstraint ignored -> UVLModelTypes.IMPLICATION;
-            case LiteralConstraint ignored -> UVLModelTypes.EQUIVALENCE;
+            case EquivalenceConstraint ignored -> UVLModelTypes.EQUIVALENCE;
             default -> "";
         };
     }

@@ -8,6 +8,7 @@ package de.tu_dresden.inf.st.uvl.glsp.handler;
 import com.google.inject.Inject;
 import de.tu_dresden.inf.st.uvl.glsp.model.UVLModelState;
 import de.vill.model.Feature;
+import de.vill.model.Group;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.glsp.graph.GLabel;
 import org.eclipse.glsp.graph.GModelElement;
@@ -36,13 +37,20 @@ public class UVLApplyLabelEditOperationHandler extends GModelApplyLabelEditOpera
         GLabel label = findLabel(operation).orElseThrow(
                 () -> new IllegalArgumentException("Element with provided ID cannot be found or is not a GLabel"));
         GModelElement parentElement = findParent(label);
-        Object uvlObject = modelState.getIndex().getUVLObject(parentElement).orElseThrow(
-                () -> new IllegalArgumentException("No UVL object found for the given parent node."));
+        Object uvlObject = modelState.getIndex().getUVLObject(parentElement.getId())
+                .orElseGet(() -> modelState.getIndex()
+                        .getUVLObject(parentElement.getId().split("_")[0])
+                        .orElseThrow(() -> new IllegalArgumentException("No UVL object found for parent element with ID " + parentElement.getId()))
+                );
 
         // update label for each type
         if (uvlObject instanceof Feature feature) {
             updateFeatureName(label, feature, operation.getText());
-        } else {
+        } if (uvlObject instanceof Group group) {
+            updateGroupCardinality(label, group, operation.getText());
+        }
+
+        else {
             throw new IllegalArgumentException("Parent node does not correspond to a UVL Feature.");
         }
 
@@ -56,6 +64,21 @@ public class UVLApplyLabelEditOperationHandler extends GModelApplyLabelEditOpera
 
         // update Feature
         feature.setFeatureName(newName);
+    }
+
+    protected void updateGroupCardinality(GLabel label, Group group, String newName) {
+        // check if the new name is a valid cardinality (e.g., "0..*", "1..1", etc.)
+        if (!newName.matches("\\d+\\.\\.(\\d+|\\*)")) {
+            throw new IllegalArgumentException("Invalid cardinality format: " + newName);
+        }
+
+        // update GModel
+        label.setText(newName);
+
+        // update Group
+        String[] bounds = newName.split("\\.\\.");
+        group.setLowerBound(bounds[0]);
+        group.setUpperBound(bounds[1]);
     }
 
     protected GModelElement findParent(final GLabel label) {

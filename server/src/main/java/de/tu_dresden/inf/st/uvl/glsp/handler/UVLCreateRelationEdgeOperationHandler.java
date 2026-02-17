@@ -28,10 +28,13 @@ public class UVLCreateRelationEdgeOperationHandler extends GModelCreateOperation
         super(UVLModelTypes.MANDATORY, UVLModelTypes.OPTIONAL, UVLModelTypes.ALTERNATIVE, UVLModelTypes.OR);
     }
 
+    UVLCreateRelationEdgeOperationHandler(final String... elementTypeIds) {
+        super(elementTypeIds);
+    }
+
     @Override
     public Optional<Command> createCommand(CreateEdgeOperation operation) {
-        String uvlModelType = getUVLModelType(operation);
-        return edgeAlreadyExists(operation, uvlModelType)
+        return edgeAlreadyExists(operation, operation.getElementTypeId())
                 ? doNothing()
                 : commandOf(() -> executeCreation(operation));
     }
@@ -83,18 +86,8 @@ public class UVLCreateRelationEdgeOperationHandler extends GModelCreateOperation
         source.getChildren().add(group);
     }
 
-    protected String getUVLModelType(CreateEdgeOperation operation) {
-        return switch (operation.getElementTypeId()) {
-            case UVLModelTypes.MANDATORY -> UVLModelTypes.MANDATORY;
-            case UVLModelTypes.OPTIONAL -> UVLModelTypes.OPTIONAL;
-            case UVLModelTypes.ALTERNATIVE -> UVLModelTypes.ALTERNATIVE;
-            case UVLModelTypes.OR -> UVLModelTypes.OR;
-            default -> throw new IllegalArgumentException("Unsupported edge type: " + operation.getElementTypeId());
-        };
-    }
-
     protected Group.GroupType getGroupType(CreateEdgeOperation operation) {
-        return convertModelTypeToGroupType(getUVLModelType(operation));
+        return convertModelTypeToGroupType(operation.getElementTypeId());
     }
 
     protected Feature getSourceFeature(CreateEdgeOperation operation) {

@@ -150,7 +150,7 @@ public class UVLGModelFactory implements GModelFactory {
 
             if (requiresCardinalityLabel) {
                 edgeBuilder.add(new GLabelBuilder(UVLModelTypes.CARDINALITY_LABEL)
-                        .id(groupId + "_" + targetId + "_cardinality")
+                        .id(groupId + "_" + targetId + "_label")
                         .text(GroupUtil.getCardinalityText(group))
                         .addCssClass("edge-label")
                         .edgePlacement(new GEdgePlacementBuilder()
