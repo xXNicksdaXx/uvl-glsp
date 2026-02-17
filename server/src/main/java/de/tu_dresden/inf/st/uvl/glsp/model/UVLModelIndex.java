@@ -8,6 +8,8 @@ package de.tu_dresden.inf.st.uvl.glsp.model;
 import de.vill.model.Feature;
 import de.vill.model.FeatureModel;
 import de.vill.model.Group;
+import de.vill.model.constraint.Constraint;
+import de.vill.model.constraint.LiteralConstraint;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.glsp.graph.*;
 import org.eclipse.glsp.graph.impl.GModelIndexImpl;
@@ -16,6 +18,7 @@ import org.eclipse.glsp.server.utils.BiIndex;
 
 import java.util.*;
 
+import static de.tu_dresden.inf.st.uvl.glsp.utils.ConstraintUtil.convertConstraintTypeToModelType;
 import static de.tu_dresden.inf.st.uvl.glsp.utils.FeatureModelUtil.getAllGroups;
 import static de.tu_dresden.inf.st.uvl.glsp.utils.GroupUtil.convertGroupTypeToModelType;
 
@@ -47,6 +50,7 @@ public class UVLModelIndex extends GModelIndexImpl {
 
         featureModel.getFeatureMap().values().forEach(feature -> indexFeature(feature, modelElements));
         getAllGroups(featureModel).forEach(group -> indexGroup(group, modelElements));
+        featureModel.getOwnConstraints().forEach(constraint -> indexConstraint(constraint, modelElements));
     }
 
     private void indexFeature(final Feature feature, Collection<GModelElement> modelElements) {
@@ -103,6 +107,34 @@ public class UVLModelIndex extends GModelIndexImpl {
         } else {
             String uuid = UUID.randomUUID().toString();
             uvlIndex.putIfAbsent(uuid, group);
+        }
+    }
+
+    private void indexConstraint(final Constraint constraint, Collection<GModelElement> modelElements) {
+        // Find the corresponding GModelElement for the Constraint
+        Optional<String> matchingConstraintId = modelElements.stream()
+                .filter(GEdge.class::isInstance)
+                .map(GEdge.class::cast)
+                .filter(edge -> {
+                    // check for type
+                    String expectedType = convertConstraintTypeToModelType(constraint);
+                    return edge.getType().equals(expectedType);
+                })
+                .filter(edge -> {
+                    // check for identical source and target nodes
+                    Optional<String> sourceId = getIdFor(((LiteralConstraint) constraint.getConstraintSubParts().getFirst()).getFeature());
+                    Optional<String> targetId = getIdFor(((LiteralConstraint) constraint.getConstraintSubParts().getLast()).getFeature());
+                    return sourceId.isPresent() && targetId.isPresent() && edge.getSourceId().equals(sourceId.get()) && edge.getTargetId().equals(targetId.get());
+                })
+                .map(GEdge::getId)
+                .findAny();
+
+        if (matchingConstraintId.isPresent()) {
+            String id = matchingConstraintId.get();
+            uvlIndex.putIfAbsent(id, constraint);
+        } else {
+            String uuid = UUID.randomUUID().toString();
+            uvlIndex.putIfAbsent(uuid, constraint);
         }
     }
 

@@ -98,8 +98,25 @@ svg {
 
 .alternative .sector {
     fill: transparent;
+    stroke: transparent;
 }
 
 .or .sector {
     fill: black;
+    stroke: transparent;
+}
+
+.constraint-edge {
+    stroke-dasharray: 6;
+}
+
+.triangle {
+    stroke: black !important;
+    fill: white;
+}
+
+.edge-label {
+    font-size: 8px !important;
+    font-weight: normal;
+    text-anchor: start;
 }

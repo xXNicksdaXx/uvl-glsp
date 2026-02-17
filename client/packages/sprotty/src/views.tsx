@@ -5,7 +5,7 @@
  * For a copy, see <https://opensource.org/licenses/MIT>.
  *
  ****************************************************************************/
-import { GEdge, GEdgeView, Point, RenderingContext } from '@eclipse-glsp/client';
+import { angleOfPoint, GEdge, GEdgeView, Point, RenderingContext, toDegrees } from '@eclipse-glsp/client';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import { svg } from 'sprotty';
@@ -76,14 +76,17 @@ export class SectorEdgeView extends GEdgeView {
 
             const largeArcFlag = this.calculateLargeArcFlag(s1, s2, source);
 
-            const arc = (
+            const sector = (
                 <path
                     class-sprotty-edge={true}
                     class-sector={true}
-                    d={`M ${s1.x} ${s1.y} A ${this.RADIUS} ${this.RADIUS} 0 ${largeArcFlag} 1 ${s2.x} ${s2.y}`}
+                    d={`
+                        M ${s1.x} ${s1.y} A ${this.RADIUS} ${this.RADIUS} 0 ${largeArcFlag} 1 ${s2.x} ${s2.y} 
+                        M ${source.x} ${source.y} L ${s1.x} ${s1.y} L ${s2.x} ${s2.y} Z
+                    `}
                 />
             );
-            additionals.push(arc);
+            additionals.push(sector);
         }
 
         return additionals;
@@ -125,5 +128,110 @@ export class SectorEdgeView extends GEdgeView {
         const clamped = Math.max(-1, Math.min(1, dot));
         const angle = Math.acos(clamped);
         return angle > Math.PI ? 1 : 0;
+    }
+}
+
+@injectable()
+export abstract class TrimmedGEdgeView extends GEdgeView {
+    protected abstract readonly shortenDistance: number; // distance to trim at both ends
+    protected abstract readonly trimFirstSegment: boolean; // whether to trim the first segment
+
+    protected override renderLine(_edge: GEdge, segments: Point[], _context: RenderingContext): VNode {
+        if (this.shortenDistance <= 0 || segments.length < 2) {
+            // If no shortening is needed or not enough segments, return the original path
+            return <path d={this.createPathForSegments(segments)} />;
+        }
+        // Trim the endpoints of the segments to shorten the edge
+        const trimmedSegments = this.trimSegmentEndpoints(segments, this.shortenDistance);
+        return <path d={this.createPathForSegments(trimmedSegments)} />;
+    }
+
+    protected trimSegmentEndpoints(segments: Point[], offset: number): Point[] {
+        if (segments.length < 2) {
+            return segments;
+        }
+
+        const trimmed: Point[] = [...segments];
+
+        // shorten the first segment
+        if (this.trimFirstSegment) {
+            const startDir = Point.normalize(Point.subtract(segments[1], segments[0]));
+            trimmed[0] = Point.add(segments[0], { x: startDir.x * offset, y: startDir.y * offset });
+        }
+
+        // shorten the last segment
+        const endDir = Point.normalize(Point.subtract(segments[segments.length - 2], segments[segments.length - 1]));
+        trimmed[trimmed.length - 1] = Point.add(segments[segments.length - 1], { x: endDir.x * offset, y: endDir.y * offset });
+
+        return trimmed;
+    }
+}
+
+@injectable()
+export class SingleArrowEdgeView extends TrimmedGEdgeView {
+    protected override shortenDistance = 2;
+    protected override trimFirstSegment = false;
+
+    protected override renderAdditionals(edge: GEdge, segments: Point[], context: RenderingContext): VNode[] {
+        const additionals = super.renderAdditionals(edge, segments, context);
+        const p1 = segments[segments.length - 2];
+        const p2 = segments[segments.length - 1];
+
+        const arrowPath = 'M 0,0 L 6,-3 M 0,0 L 6,3'; // line-based arrow
+        const offset = 1; // offset to move the arrow away from the target
+
+        const arrow = (
+            <path
+                class-sprotty-edge={true}
+                class-triangle={true}
+                d={arrowPath}
+                transform={`rotate(${toDegrees(angleOfPoint(Point.subtract(p1, p2)))} ${p2.x} ${p2.y}) 
+                              translate(${p2.x} ${p2.y})
+                              translate(${offset}, 0)`}
+            />
+        );
+        additionals.push(arrow);
+        return additionals;
+    }
+}
+
+@injectable()
+export class DoubleArrowEdgeView extends TrimmedGEdgeView {
+    protected override shortenDistance = 2;
+    protected override trimFirstSegment = true;
+
+    protected override renderAdditionals(edge: GEdge, segments: Point[], context: RenderingContext): VNode[] {
+        const additionals = super.renderAdditionals(edge, segments, context);
+        const source1 = segments[0];
+        const source2 = segments[1];
+        const target1 = segments[segments.length - 2];
+        const target2 = segments[segments.length - 1];
+
+        const arrowPath = 'M 0,0 L 6,-3 M 0,0 L 6,3'; // line-based arrow
+        const offset = 1; // offset to move the arrow away from the target
+
+        const sourceArrow = (
+            <path
+                class-sprotty-edge={true}
+                class-triangle={true}
+                d={arrowPath}
+                transform={`rotate(${toDegrees(angleOfPoint(Point.subtract(source2, source1)))} ${source1.x} ${source1.y}) 
+                              translate(${source1.x} ${source1.y})
+                              translate(${offset}, 0)`}
+            />
+        );
+        const targetArrow = (
+            <path
+                class-sprotty-edge={true}
+                class-triangle={true}
+                d={arrowPath}
+                transform={`rotate(${toDegrees(angleOfPoint(Point.subtract(target1, target2)))} ${target2.x} ${target2.y}) 
+                              translate(${target2.x} ${target2.y})
+                              translate(${offset}, 0)`}
+            />
+        );
+        additionals.push(sourceArrow);
+        additionals.push(targetArrow);
+        return additionals;
     }
 }

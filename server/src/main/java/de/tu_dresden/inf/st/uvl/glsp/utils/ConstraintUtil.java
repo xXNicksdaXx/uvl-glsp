@@ -5,9 +5,11 @@
  */
 package de.tu_dresden.inf.st.uvl.glsp.utils;
 
+import de.tu_dresden.inf.st.uvl.glsp.UVLModelTypes;
 import de.vill.model.Feature;
 import de.vill.model.FeatureModel;
 import de.vill.model.constraint.Constraint;
+import de.vill.model.constraint.ImplicationConstraint;
 import de.vill.model.constraint.LiteralConstraint;
 
 import java.util.List;
@@ -38,5 +40,13 @@ public class ConstraintUtil {
         return featureModel.getConstraints().stream()
                 .filter(constraint -> constraint.getConstraintSubParts().contains(getLiteralConstraint(feature, featureModel)))
                 .toList();
+    }
+
+    public static String convertConstraintTypeToModelType(Constraint constraint) {
+        return switch (constraint) {
+            case ImplicationConstraint ignored -> UVLModelTypes.IMPLICATION;
+            case LiteralConstraint ignored -> UVLModelTypes.EQUIVALENCE;
+            default -> "";
+        };
     }
 }

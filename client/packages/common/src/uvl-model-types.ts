@@ -24,6 +24,7 @@ export namespace UVLModelTypes {
 
     export const EQUIVALENCE = `${DefaultTypes.EDGE}:equivalence`;
     export const IMPLICATION = `${DefaultTypes.EDGE}:implication`;
-    export const EXCLUSION = `${DefaultTypes.EDGE}:exclusion`;
-    export const EXPRESSION = `${DefaultTypes.EDGE}:expression`;
+
+    export const CARDINALITY_LABEL = `${DefaultTypes.LABEL}:cardinality`;
+    export const CONSTRAINT_LABEL = `${DefaultTypes.LABEL}:constraint`;
 }

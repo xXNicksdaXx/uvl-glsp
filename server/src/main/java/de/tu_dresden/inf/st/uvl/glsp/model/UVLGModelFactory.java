@@ -11,6 +11,12 @@ import de.tu_dresden.inf.st.uvl.glsp.utils.GroupUtil;
 import de.vill.model.Feature;
 import de.vill.model.FeatureModel;
 import de.vill.model.Group;
+import de.vill.model.constraint.Constraint;
+import de.vill.model.constraint.EquivalenceConstraint;
+import de.vill.model.constraint.ImplicationConstraint;
+import de.vill.model.constraint.LiteralConstraint;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.glsp.graph.DefaultTypes;
 import org.eclipse.glsp.graph.GEdge;
 import org.eclipse.glsp.graph.GGraph;
@@ -26,9 +32,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import static de.tu_dresden.inf.st.uvl.glsp.layout.UVLTreeLayoutEngine.requiresLayoutOperation;
+import static de.tu_dresden.inf.st.uvl.glsp.utils.ConstraintUtil.convertConstraintTypeToModelType;
 import static de.tu_dresden.inf.st.uvl.glsp.utils.FeatureModelUtil.getAllGroups;
 
 public class UVLGModelFactory implements GModelFactory {
+    protected static Logger LOGGER = LogManager.getLogger(UVLGModelFactory.class.getSimpleName());
 
     @Inject
     protected UVLModelState modelState;
@@ -44,7 +53,7 @@ public class UVLGModelFactory implements GModelFactory {
         fillRootElement(newRoot, featureModel);
         modelState.updateRoot(newRoot);
 
-        if (requiresLayoutOperation()) {
+        if (requiresLayoutOperation(modelState.getRoot())) {
             layoutEngine.layout(Optional.empty());
         }
     }
@@ -62,7 +71,12 @@ public class UVLGModelFactory implements GModelFactory {
                 .forEachOrdered(root.getChildren()::add);
 
         getAllGroups(featureModel).stream()
-                .map(this::createEdge)
+                .map(this::createGroupEdges)
+                .flatMap(Collection::stream)
+                .forEachOrdered(root.getChildren()::add);
+
+        featureModel.getOwnConstraints().stream()
+                .map(this::createConstraintEdges)
                 .flatMap(Collection::stream)
                 .forEachOrdered(root.getChildren()::add);
     }
@@ -98,7 +112,7 @@ public class UVLGModelFactory implements GModelFactory {
         return nodeBuilder.build();
     }
 
-    private Collection<GEdge> createEdge(final Group group) {
+    private Collection<GEdge> createGroupEdges(final Group group) {
         UVLModelIndex index = modelState.getIndex();
         List<GEdge> edges = new ArrayList<>();
 
@@ -119,6 +133,8 @@ public class UVLGModelFactory implements GModelFactory {
             default -> throw new IllegalArgumentException("Unknown group type: " + group.GROUPTYPE);
         }
 
+        boolean requiresCardinalityLabel = group.GROUPTYPE == Group.GroupType.GROUP_CARDINALITY;
+
         for (Feature target : group.getFeatures()) {
             String targetId = index.getIdFor(target).orElseThrow(
                     () -> new IllegalStateException("Target feature of group not indexed: " + target.getFeatureName())
@@ -126,22 +142,99 @@ public class UVLGModelFactory implements GModelFactory {
 
             GEdgeBuilder edgeBuilder = new GEdgeBuilder(type)
                     .id(groupId + "_" + targetId)
+                    .addCssClass("centered-anchor")
                     .addCssClass(group.GROUPTYPE.name().toLowerCase())
                     .sourceId(sourceId)
                     .targetId(targetId)
                     .routerKind(GConstants.RouterKind.POLYLINE);
+
+            if (requiresCardinalityLabel) {
+                edgeBuilder.add(new GLabelBuilder(UVLModelTypes.CARDINALITY_LABEL)
+                        .id(groupId + "_" + targetId + "_cardinality")
+                        .text(GroupUtil.getCardinalityText(group))
+                        .addCssClass("edge-label")
+                        .edgePlacement(new GEdgePlacementBuilder()
+                                .side(GConstants.EdgeSide.LEFT)
+                                .position(0.1d)
+                                .rotate(false)
+                                .build())
+                        .build());
+                requiresCardinalityLabel = false;
+            }
 
             edges.add(edgeBuilder.build());
         }
 
         return edges;
     }
-    private boolean requiresLayoutOperation() {
-        long count = modelState.getRoot().getChildren().stream()
-                .filter(element -> element instanceof GNode)
-                .map(element -> (GNode) element)
-                .filter(node -> node.getPosition().getX() == 0 && node.getPosition().getY() == 0)
-                .count();
-        return count > 1;
+
+    private Collection<GEdge> createConstraintEdges(final Constraint constraint) {
+        UVLModelIndex index = modelState.getIndex();
+        List<GEdge> edges = new ArrayList<>();
+
+        switch (constraint) {
+            case ImplicationConstraint implication -> edges.add(createBiConstraintEdge(implication, index));
+            case EquivalenceConstraint equivalence -> edges.add(createBiConstraintEdge(equivalence, index));
+            default -> LOGGER.warn("Unknown constraint type: {}", constraint.getClass().getName());
+        }
+
+        return edges;
+    }
+
+    private GEdge createBiConstraintEdge(Constraint constraint, UVLModelIndex index) {
+        String id = index.getIdFor(constraint).orElseThrow(
+                () -> new IllegalStateException("Constraint not indexed: " + constraint.toString())
+        );
+
+        String sourceId, targetId;
+
+        Constraint sourceConstraint = constraint.getConstraintSubParts().getFirst();
+        if (sourceConstraint instanceof LiteralConstraint sourceLiteralConstraint) {
+            Feature sourceFeature = sourceLiteralConstraint.getFeature();
+            sourceId = index.getIdFor(sourceFeature).orElseThrow(
+                    () -> new IllegalStateException("Source feature of implication constraint not indexed: " + sourceFeature.getFeatureName())
+            );
+        } else {
+            throw new IllegalStateException("Unsupported source constraint type for implication: " + sourceConstraint.getClass().getName());
+        }
+
+        Constraint targetConstraint = constraint.getConstraintSubParts().getLast();
+        if (targetConstraint instanceof LiteralConstraint targetLiteralConstraint) {
+            Feature targetFeature = targetLiteralConstraint.getFeature();
+            targetId = index.getIdFor(targetFeature).orElseThrow(
+                    () -> new IllegalStateException("Target feature of implication constraint not indexed: " + targetFeature.getFeatureName())
+            );
+        } else {
+            throw new IllegalStateException("Unsupported target constraint type for implication: " + targetConstraint.getClass().getName());
+        }
+
+        String type = convertConstraintTypeToModelType(constraint);
+
+        GEdgeBuilder edgeBuilder = new GEdgeBuilder(type)
+                .id(id)
+                .sourceId(sourceId)
+                .targetId(targetId)
+                .routerKind(GConstants.RouterKind.POLYLINE)
+                .addCssClass("constraint-edge")
+                .add(new GLabelBuilder(UVLModelTypes.CONSTRAINT_LABEL)
+                        .id(id + "_label")
+                        .text("requires")
+                        .addCssClass("edge-label")
+                        .edgePlacement(new GEdgePlacementBuilder()
+                                .side(GConstants.EdgeSide.TOP)
+                                .position(0.5d)
+                                .offset(1.5d)
+                                .rotate(false)
+                                .build())
+                        .build());
+
+        applyEdgeData(edgeBuilder, id);
+        return edgeBuilder.build();
+    }
+
+    protected void applyEdgeData(GEdgeBuilder edgeBuilder, String id) {
+        Optional<GEdge> existingEdge = modelState.getIndex().getGModelElement(id, GEdge.class);
+        existingEdge.ifPresent(edge -> edgeBuilder
+                .addRoutingPoints(edge.getRoutingPoints()));
     }
 }

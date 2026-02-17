@@ -26,8 +26,9 @@ public final class UVLModelTypes {
 
     public static final String EQUIVALENCE = DefaultTypes.EDGE + ":equivalence";
     public static final String IMPLICATION = DefaultTypes.EDGE + ":implication";
-    public static final String EXCLUSION = DefaultTypes.EDGE + ":exclusion";
-    public static final String EXPRESSION = DefaultTypes.EDGE + ":expression";
+
+    public static final String CARDINALITY_LABEL = DefaultTypes.LABEL + ":cardinality";
+    public static final String CONSTRAINT_LABEL = DefaultTypes.LABEL + ":constraint";
 
     /**
      * Private constructor to prevent instantiation of this utility class.

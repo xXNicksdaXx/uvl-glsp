@@ -6,14 +6,19 @@
  *
  ****************************************************************************/
 import {
+    bindAsService,
     configureDefaultModelElements,
     configureModelElement,
     ConsoleLogger,
-    ContainerConfiguration, defaultModule,
+    ContainerConfiguration,
+    defaultModule,
     DefaultTypes,
     GEdge,
     GEdgeView,
+    GLabel,
     GLabelView,
+    GLSPPolylineEdgeRouter,
+    GNode,
     GShapedPreRenderedElement,
     helperLineModule,
     HelperLineType,
@@ -35,8 +40,9 @@ import '../css/diagram.css';
 
 import { CenteredAnchor } from "./features/center-anchor-computer";
 import { FeatureCompartmentSelectionFeedback } from './features/feedback';
-import { EditableGLabel, CenteredNode } from "./model";
-import { CircleEdgeView, SectorEdgeView } from "./views";
+import { EditableGLabel } from "./model";
+import { CircleEdgeView, DoubleArrowEdgeView, SectorEdgeView, SingleArrowEdgeView } from "./views";
+import { UVLPolylineEdgeRouter } from "./features/uvl-polyline-edge-router";
 
 const uvlDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = {bind, unbind, isBound, rebind};
@@ -54,7 +60,9 @@ const uvlDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => 
         alignmentEpsilon: 0.5
     });
 
-    bind(TYPES.IAnchorComputer).to(CenteredAnchor).inSingletonScope();
+    bindAsService(context, TYPES.IAnchorComputer, CenteredAnchor);
+    bind(UVLPolylineEdgeRouter).toSelf().inSingletonScope();
+    rebind(GLSPPolylineEdgeRouter).toService(UVLPolylineEdgeRouter);
 
     configureDefaultModelElements(context);
     overrideModelElement(context, DefaultTypes.SHAPE_PRE_RENDERED, GShapedPreRenderedElement, PreRenderedView, {
@@ -64,13 +72,19 @@ const uvlDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => 
     overrideModelElement(context, DefaultTypes.LABEL, EditableGLabel, GLabelView)
 
     // Register custom model elements and their views
-    configureModelElement(context, UVLModelTypes.FEATURE, CenteredNode, RectangularNodeView);
+    configureModelElement(context, UVLModelTypes.FEATURE, GNode, RectangularNodeView);
 
     configureModelElement(context, UVLModelTypes.MANDATORY, GEdge, CircleEdgeView);
     configureModelElement(context, UVLModelTypes.OPTIONAL, GEdge, CircleEdgeView);
     configureModelElement(context, UVLModelTypes.ALTERNATIVE, GEdge, SectorEdgeView);
     configureModelElement(context, UVLModelTypes.GROUP_CARDINALITY, GEdge, GEdgeView);
     configureModelElement(context, UVLModelTypes.OR, GEdge, SectorEdgeView);
+
+    configureModelElement(context, UVLModelTypes.IMPLICATION, GEdge, SingleArrowEdgeView);
+    configureModelElement(context, UVLModelTypes.EQUIVALENCE, GEdge, DoubleArrowEdgeView);
+
+    configureModelElement(context, UVLModelTypes.CARDINALITY_LABEL, EditableGLabel, GLabelView);
+    configureModelElement(context, UVLModelTypes.CONSTRAINT_LABEL, GLabel, GLabelView)
 });
 
 /**

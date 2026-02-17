@@ -295,4 +295,14 @@ public class UVLTreeLayoutEngine implements LayoutEngine {
             shiftTree(child, amount);
         }
     }
+
+    // --- Static Methods ---
+    public static boolean requiresLayoutOperation(GModelRoot root) {
+        long count = root.getChildren().stream()
+                .filter(element -> element instanceof GNode)
+                .map(element -> (GNode) element)
+                .filter(node -> node.getPosition().getX() == 0 && node.getPosition().getY() == 0)
+                .count();
+        return count > 1;
+    }
 }

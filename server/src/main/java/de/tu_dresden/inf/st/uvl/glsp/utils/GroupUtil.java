@@ -46,4 +46,11 @@ public class GroupUtil {
             default -> throw new IllegalArgumentException("Unknown model type: " + modelType);
         };
     }
+
+    public static String getCardinalityText(Group group) {
+        if (group.GROUPTYPE == Group.GroupType.GROUP_CARDINALITY) {
+            return group.getLowerBound() + ".." + group.getUpperBound();
+        }
+        return "";
+    }
 }
