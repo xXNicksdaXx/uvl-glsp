@@ -42,4 +42,9 @@ public class FeatureModelUtil {
                 .distinct()
                 .toList();
     }
+
+    public static boolean includesFeatureCardinality(FeatureModel featureModel) {
+        return featureModel.getFeatureMap().values().stream()
+                .anyMatch(feature -> feature.getLowerBound() != null && feature.getUpperBound() != null);
+    }
 }

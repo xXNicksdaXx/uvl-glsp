@@ -91,9 +91,8 @@ public class UVLGModelFactory implements GModelFactory {
                         .paddingRight(0)
                         .paddingBottom(0.0)
                         .resizeContainer(true))
-                .add(buildHeader(id, feature.getFeatureName()))
+                .add(buildHeader(id, feature.getFeatureName(), feature.getLowerBound(), feature.getUpperBound()))
                 .add(buildAttributeCompartment(id, feature));
-
 
         Optional<GNode> node = index.getGModelElement(feature, GNode.class);
         if (node.isPresent()) {
@@ -107,12 +106,12 @@ public class UVLGModelFactory implements GModelFactory {
         return nodeBuilder.build();
     }
 
-    private GCompartment buildHeader(final String id, final String name) {
+    private GCompartment buildHeader(final String id, final String name, String lower, String upper) {
         GLabel headerLabel = new GLabelBuilder(UVLModelTypes.FEATURE_NAME)
                 .id(id + "_header_label")
                 .text(name)
                 .build();
-        return new GCompartmentBuilder(DefaultTypes.COMPARTMENT_HEADER)
+        GCompartmentBuilder headerBuilder = new GCompartmentBuilder(DefaultTypes.COMPARTMENT_HEADER)
                 .id(id + "_header")
                 .layout(GConstants.Layout.HBOX)
                 .layoutOptions(new GLayoutOptions()
@@ -122,8 +121,24 @@ public class UVLGModelFactory implements GModelFactory {
                         .paddingBottom(4.0)
                         .hAlign(GConstants.HAlign.CENTER)
                         .resizeContainer(true))
-                .add(headerLabel)
-                .build();
+                .add(headerLabel);
+
+        if (lower != null && upper != null) {
+            GLabel cardinalityLabel = new GLabelBuilder(UVLModelTypes.CARDINALITY_LABEL)
+                    .id(id + "_cardinality_label")
+                    .text(lower + ".." + upper)
+                    .build();
+            headerBuilder
+                    .add(new GLabelBuilder(DefaultTypes.LABEL)
+                            .text(" [")
+                            .build())
+                    .add(cardinalityLabel)
+                    .add(new GLabelBuilder(DefaultTypes.LABEL)
+                            .text("]")
+                            .build());
+        }
+
+        return headerBuilder.build();
     }
 
     private GCompartment buildAttributeCompartment(final String id, final Feature feature) {

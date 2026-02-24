@@ -5,7 +5,16 @@
  * For a copy, see <https://opensource.org/licenses/MIT>.
  *
  ****************************************************************************/
-import { angleOfPoint, GEdge, GEdgeView, IViewArgs, Point, RectangularNodeView, RenderingContext, toDegrees } from '@eclipse-glsp/client';
+import {
+    angleOfPoint,
+    GEdge,
+    GEdgeView,
+    IViewArgs,
+    Point,
+    RectangularNodeView,
+    RenderingContext,
+    toDegrees
+} from '@eclipse-glsp/client';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import { svg } from 'sprotty';

@@ -9,11 +9,13 @@ import com.google.inject.Inject;
 import de.tu_dresden.inf.st.uvl.glsp.UVLModelTypes;
 import de.tu_dresden.inf.st.uvl.glsp.model.UVLModelState;
 import de.tu_dresden.inf.st.uvl.glsp.utils.ConstraintUtil;
+import de.tu_dresden.inf.st.uvl.glsp.utils.FeatureModelUtil;
 import de.tu_dresden.inf.st.uvl.glsp.utils.GModelUtil;
 import de.tu_dresden.inf.st.uvl.glsp.utils.TypeCastingUtil;
 import de.vill.model.Attribute;
 import de.vill.model.Feature;
 import de.vill.model.Group;
+import de.vill.model.LanguageLevel;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.glsp.graph.GLabel;
 import org.eclipse.glsp.graph.GModelElement;
@@ -54,6 +56,7 @@ public class UVLApplyLabelEditOperationHandler extends GModelApplyLabelEditOpera
                 case UVLModelTypes.FEATURE_NAME -> updateFeatureName(label, feature, operation.getText());
                 case UVLModelTypes.ATTRIBUTE_NAME -> updateAttributeName(label, feature, operation.getText());
                 case UVLModelTypes.ATTRIBUTE_VALUE -> updateAttributeValue(label, feature, operation.getText());
+                case UVLModelTypes.CARDINALITY_LABEL -> updateFeatureCardinality(label, feature, operation.getText());
                 default -> throw new IllegalArgumentException("Label type " + label.getType() + " is not supported for Feature elements.");
             }
         } else if (uvlObject instanceof Group group) {
@@ -123,6 +126,33 @@ public class UVLApplyLabelEditOperationHandler extends GModelApplyLabelEditOpera
                 TypeCastingUtil.convertStringToBestType(newValue)
         );
         feature.getAttributes().replace(attributeKey, newAttribute);
+    }
+
+    protected void updateFeatureCardinality(GLabel label, Feature feature, String newName) {
+        if (newName.isBlank()) {
+            // remove feature cardinality if the new name is empty
+            feature.setLowerBound(null);
+            feature.setUpperBound(null);
+
+            // remove language level if no other feature uses cardinality
+            if (!FeatureModelUtil.includesFeatureCardinality(modelState.getFeatureModel())) {
+                modelState.getFeatureModel().getUsedLanguageLevels().remove(LanguageLevel.FEATURE_CARDINALITY);
+            }
+            return;
+        }
+
+        // check if the new name is a valid cardinality (e.g., "0..*", "1..1", etc.)
+        if (!newName.matches("\\d+\\.\\.(\\d+|\\*)")) {
+            throw new IllegalArgumentException("Invalid cardinality format: " + newName);
+        }
+
+        // update GModel
+        label.setText(newName);
+
+        // update Feature
+        String[] bounds = newName.split("\\.\\.");
+        feature.setLowerBound(bounds[0]);
+        feature.setUpperBound(bounds[1]);
     }
 
     protected void updateGroupCardinality(GLabel label, Group group, String newName) {

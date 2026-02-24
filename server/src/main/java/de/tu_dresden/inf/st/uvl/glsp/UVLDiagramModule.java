@@ -7,7 +7,7 @@ package de.tu_dresden.inf.st.uvl.glsp;
 
 import com.google.inject.Singleton;
 import de.tu_dresden.inf.st.uvl.glsp.handler.UVLApplyLabelEditOperationHandler;
-import de.tu_dresden.inf.st.uvl.glsp.handler.UVLCreateAttributeOperationHandler;
+import de.tu_dresden.inf.st.uvl.glsp.handler.UVLCreateFeatureElementOperationHandler;
 import de.tu_dresden.inf.st.uvl.glsp.handler.UVLCreateBiConstraintEdgeOperationHandler;
 import de.tu_dresden.inf.st.uvl.glsp.handler.UVLCreateFeatureOperationHandler;
 import de.tu_dresden.inf.st.uvl.glsp.handler.UVLCreateGroupCardinalityEdgeOperationHandler;
@@ -88,7 +88,7 @@ public class UVLDiagramModule extends DiagramModule {
         binding.add(UVLDeleteOperationHandler.class);
 
         binding.add(UVLCreateFeatureOperationHandler.class);
-        binding.add(UVLCreateAttributeOperationHandler.class);
+        binding.add(UVLCreateFeatureElementOperationHandler.class);
         binding.add(UVLCreateRelationEdgeOperationHandler.class);
         binding.add(UVLCreateGroupCardinalityEdgeOperationHandler.class);
         binding.add(UVLCreateBiConstraintEdgeOperationHandler.class);

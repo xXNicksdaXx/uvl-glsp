@@ -8,6 +8,8 @@ package de.tu_dresden.inf.st.uvl.glsp.utils;
 import org.eclipse.glsp.graph.GLabel;
 import org.eclipse.glsp.graph.GModelElement;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,11 +52,13 @@ public class GModelUtil {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(input);
 
-        if (matcher.find()) {
-            return matcher.group();
+        List<String> matches = new ArrayList<>();
+        while (matcher.find()) {
+            matches.add(matcher.group());
         }
 
-        return null;
+        if (matches.isEmpty()) return null;
+        return String.join("_", matches);
     }
 
     /**
