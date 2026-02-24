@@ -6,8 +6,10 @@
 package de.tu_dresden.inf.st.uvl.glsp.handler;
 
 import com.google.inject.Inject;
+import de.tu_dresden.inf.st.uvl.glsp.UVLModelTypes;
 import de.tu_dresden.inf.st.uvl.glsp.model.UVLModelState;
 import de.tu_dresden.inf.st.uvl.glsp.utils.ConstraintUtil;
+import de.tu_dresden.inf.st.uvl.glsp.utils.GModelUtil;
 import de.vill.model.Feature;
 import de.vill.model.Group;
 import de.vill.model.constraint.Constraint;
@@ -53,9 +55,9 @@ public class UVLDeleteOperationHandler extends GModelOperationHandler<DeleteOper
     protected boolean delete(final String elementId) {
         Optional<Object> element = modelState.getIndex().getUVLObject(elementId);
         if (element.isEmpty()) {
-            LOGGER.warn("UVL Object not found: {}", elementId);
-            return false;
+            return deleteSubElement(elementId);
         }
+
         Set<Object> objectsToDelete = new LinkedHashSet<>();
         collectUvlDependents(objectsToDelete, element.get());
 
@@ -96,6 +98,30 @@ public class UVLDeleteOperationHandler extends GModelOperationHandler<DeleteOper
             default -> LOGGER.warn("Unknown UVL object type for deletion: {}", uvlObject.getClass().getName());
         }
         modelState.updateIndex();
+    }
+
+    protected boolean deleteSubElement(final String elementId) {
+        Optional<GModelElement> gModelElement = modelState.getIndex().getGModelElement(elementId);
+        if (gModelElement.isEmpty()) {
+            LOGGER.warn("GModel Element not found: {}", elementId);
+            return false;
+        }
+
+        GModelElement element = gModelElement.get();
+        if (element.getType().equals(UVLModelTypes.ATTRIBUTE)) {
+            int index = GModelUtil.extractAttributeIndex(elementId);
+            String featureId = GModelUtil.extractUUID(elementId);
+
+            Feature feature = modelState.getIndex().getUVLObject(featureId, Feature.class).orElseThrow(
+                    () -> new IllegalStateException("Feature not found for attribute: " + elementId));
+            String attributeName = feature.getAttributes().keySet().stream().skip(index).findFirst().orElse(null);
+            feature.getAttributes().remove(attributeName);
+
+            if (ConstraintUtil.featureAttributeIsInConstraint(feature, attributeName, modelState.getFeatureModel())) {
+                ConstraintUtil.removeFeatureAttributeInConstraints(feature, attributeName, modelState.getFeatureModel());
+            }
+        }
+        return true;
     }
 
     protected void collectUvlDependents(final Set<Object> dependents, final Object objectToDelete) {

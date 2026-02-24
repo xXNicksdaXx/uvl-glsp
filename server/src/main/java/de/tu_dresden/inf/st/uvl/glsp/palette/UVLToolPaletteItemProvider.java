@@ -28,7 +28,8 @@ public class UVLToolPaletteItemProvider implements ToolPaletteItemProvider {
 
     private PaletteItem elements() {
         List<PaletteItem> elements = List.of(
-                node(UVLModelTypes.FEATURE, "Feature"));
+                node(UVLModelTypes.FEATURE, "Feature"),
+                node(UVLModelTypes.ATTRIBUTE, "Attribute"));
         return PaletteItem.createPaletteGroup("elements", "Elements", elements, "symbol-property", "A");
     }
 
