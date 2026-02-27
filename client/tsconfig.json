@@ -1,0 +1,24 @@
+{
+  "extends": "@eclipse-glsp/ts-config",
+  "include": [],
+  "compilerOptions": {
+    "composite": true
+  },
+  "references": [
+    {
+      "path": "./packages/common"
+    },
+    {
+      "path": "./packages/sprotty"
+    },
+    {
+      "path": "./packages/command-contribution"
+    },
+    {
+      "path": "./vscode/extension"
+    },
+    {
+      "path": "./vscode/webview"
+    }
+  ]
+}

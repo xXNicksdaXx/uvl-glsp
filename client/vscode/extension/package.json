@@ -1,0 +1,196 @@
+{
+  "name": "uvl-vscode-extension",
+  "version": "0.0.1",
+  "private": "true",
+  "description": "Extension for the Universal Variability Language (UVL), using a GLSP-based diagram editor inside VSCode",
+  "categories": [
+    "diagram editor",
+    "glsp",
+    "uvl"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://git-st.inf.tu-dresden.de/stgroup/student-projects/2026/ma-nick-ruider.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Nick Ruider"
+  },
+  "contributors": [
+    {
+      "name": "Nick Ruider",
+      "email": "nick.ruider@mailbox.tu-dresden.de",
+      "url": "https://github.com/xXNicksdaXx"
+    }
+  ],
+  "publisher": "NickRuider",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "main": "dist/uvl-extension",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "uvl.fit",
+        "title": "Fit to Screen",
+        "category": "Diagram",
+        "enablement": "activeCustomEditorId == 'uvl.glspDiagram'"
+      },
+      {
+        "command": "uvl.center",
+        "title": "Center selection",
+        "category": "Diagram",
+        "enablement": "activeCustomEditorId == 'uvl.glspDiagram'"
+      },
+      {
+        "command": "uvl.layout",
+        "title": "Layout diagram",
+        "category": "Diagram",
+        "enablement": "activeCustomEditorId == 'uvl.glspDiagram'"
+      },
+      {
+        "command": "uvl.exportAsSVG",
+        "title": "Export as SVG",
+        "category": "Diagram",
+        "enablement": "activeCustomEditorId == 'uvl.glspDiagram'"
+      },
+      {
+        "command": "uvl.newDiagram",
+        "title": "New UVL file",
+        "category": "uvl",
+        "enablement": "activeCustomEditorId == 'uvl.glspDiagram'"
+      }
+    ],
+    "customEditors": [
+      {
+        "viewType": "uvl.glspDiagram",
+        "displayName": "Universal Variability Language Diagram Editor",
+        "selector": [
+          {
+            "filenamePattern": "*.uvl"
+          }
+        ]
+      }
+    ],
+    "keybindings": [
+      {
+        "key": "alt+f",
+        "mac": "alt+f",
+        "command": "uvl.fit",
+        "when": "activeCustomEditorId == 'uvl.glspDiagram'"
+      },
+      {
+        "key": "alt+l",
+        "mac": "alt+l",
+        "command": "uvl.layout",
+        "when": "activeCustomEditorId == 'uvl.glspDiagram'"
+      },
+      {
+        "key": "ctrl+a",
+        "mac": "ctrl+a",
+        "command": "uvl.selectAll",
+        "when": "activeCustomEditorId == 'uvl.glspDiagram'"
+      },
+      {
+        "key": "alt+e",
+        "mac": "alt+e",
+        "command": "uvl.exportAsSVG",
+        "when": "activeCustomEditorId == 'uvl.glspDiagram'"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "submenu": "uvl.editor.title",
+          "group": "bookmarks"
+        }
+      ],
+      "uvl.editor.title": [
+        {
+          "command": "uvl.fit",
+          "group": "navigation",
+          "when": "activeCustomEditorId == 'uvl.glspDiagram'"
+        },
+        {
+          "command": "uvl.center",
+          "group": "navigation",
+          "when": "activeCustomEditorId == 'uvl.glspDiagram'"
+        },
+        {
+          "command": "uvl.layout",
+          "group": "navigation",
+          "when": "activeCustomEditorId == 'uvl.glspDiagram'"
+        },
+        {
+          "command": "uvl.exportAsSVG",
+          "when": "activeCustomEditorId == 'uvl.glspDiagram'"
+        }
+      ],
+      "file/newFile": [
+        {
+          "command": "uvl.newDiagram",
+          "when": "true",
+          "group": "navigation@1"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "uvl.newDiagram",
+          "when": "true",
+          "group": "navigation@1"
+        }
+      ]
+    },
+    "submenus": [
+      {
+        "id": "uvl.editor.title",
+        "label": "Diagram"
+      }
+    ]
+  },
+  "files": [
+    "dist"
+  ],
+  "workspaces": {
+    "nohoist": [
+      "**/@vscode/codicons",
+      "**/@vscode/codicons/**"
+    ]
+  },
+  "scripts": {
+    "build": "yarn compile && yarn bundle",
+    "bundle": "webpack",
+    "bundle:prod": "webpack --config ./webpack.prod.js",
+    "clean": "rimraf lib dist tsconfig.tsbuildinfo uvl-vscode.vsix",
+    "compile": "tsc -b",
+    "lint": "eslint --ext .ts,.tsx ./src",
+    "lint:fix": "eslint --ext .ts,.tsx ./src --fix",
+    "lint:ci": "yarn lint --output-file eslint_report.json --format json",
+    "package": "vsce package --yarn --out uvl-vscode.vsix",
+    "watch": "tsc -w",
+    "watch:bundle": "webpack --watch"
+  },
+  "dependencies": {
+    "@vscode/codicons": "^0.0.35"
+  },
+  "devDependencies": {
+    "@eclipse-glsp/vscode-integration": "2.5.0",
+    "@types/node": "^18.11.9",
+    "@types/vscode": "^1.80.0",
+    "@vscode/vsce": "^2.19.0",
+    "copy-webpack-plugin": "^13.0.1",
+    "ts-loader": "^9.5.4",
+    "uvl-command-contribution": "0.0.1",
+    "uvl-vscode-webview": "0.0.1",
+    "webpack": "5.104.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-merge": "^5.10.0"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.9",
+    "utf-8-validate": "^6.0.5"
+  }
+}

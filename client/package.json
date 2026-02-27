@@ -1,0 +1,54 @@
+{
+  "name": "uvl-client",
+  "version": "0.0.1",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://git-st.inf.tu-dresden.de/stgroup/student-projects/2026/ma-nick-ruider.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Nick Ruider"
+  },
+  "contributors": [
+    {
+      "name": "Nick Ruider",
+      "email": "nick.ruider@mailbox.tu-dresden.de",
+      "url": "https://github.com/xXNicksdaXx"
+    }
+  ],
+  "workspaces": [
+    "packages/*",
+    "vscode/*"
+  ],
+  "scripts": {
+    "all": "yarn clean && yarn install --ignore-scripts && yarn lint && yarn build",
+    "build": "lerna run build",
+    "clean": "lerna run clean",
+    "lint": "lerna run lint",
+    "lint:fix": "lerna run lint:fix",
+    "lint:ci": "lerna run lint:ci",
+    "package": "yarn sprotty build && yarn vs-code-webview bundle:prod && yarn vs-code-extension bundle:prod && yarn vs-code-extension package",
+    "prepare": "yarn build",
+    "uvl-command-contribution": "yarn --cwd packages/command-contribution",
+    "uvl-common": "yarn --cwd packages/common",
+    "uvl-sprotty": "yarn --cwd packages/sprotty",
+    "vs-code-extension": "yarn --cwd vscode/extension",
+    "vs-code-webview": "yarn --cwd vscode/webview",
+    "watch:vs-code": "concurrently \"yarn vs-code-webview watch\" \"yarn vs-code-extension watch\""
+  },
+  "devDependencies": {
+    "@eclipse-glsp/config": "2.5.0",
+    "@types/node": "20.x",
+    "concurrently": "^9.2.1",
+    "eslint": "^9.37.0",
+    "eslint-plugin-header": "^3.1.1",
+    "lerna": "^9.0.0",
+    "rimraf": "5.0.10",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=20 <21",
+    "yarn": ">=1.7.0 <2"
+  }
+}
