@@ -4,9 +4,12 @@
              xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
         <modelVersion>4.0.0</modelVersion>
 
-    <groupId>de.tu_dresden.inf.st</groupId>
+    <parent>
+        <groupId>de.tu_dresden.inf.st</groupId>
+        <artifactId>server</artifactId>
+        <version>0.0.1</version>
+    </parent>
     <artifactId>uvl.glsp</artifactId>
-    <version>0.0.1</version>
     <description>GLSP server component</description>
     <url>https://git-st.inf.tu-dresden.de/stgroup/student-projects/2026/ma-nick-ruider</url>
 
@@ -37,9 +40,9 @@
 
     <properties>
         <!-- General build environment plugin versions -->
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.source>21</java.source>
-        <java.target>21</java.target>
         <maven.checkstyle.version>3.2.0</maven.checkstyle.version>
         <puppycrawl.checkstyle.version>8.44</puppycrawl.checkstyle.version>
         <maven.build.helper.plugin.version>3.3.0</maven.build.helper.plugin.version>
@@ -138,9 +141,9 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.plugin.version}</version>
                 <configuration>
-                    <source>${java.source}</source>
-                    <target>${java.target}</target>
-                    <release>${java.target}</release>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <release>${maven.compiler.target}</release>
                 </configuration>
             </plugin>
             <plugin>

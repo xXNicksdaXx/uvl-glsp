@@ -36,6 +36,7 @@
     </scm>
 
     <modules>
+        <module>uvl.bp</module>
         <module>uvl.glsp</module>
     </modules>
 </project>
