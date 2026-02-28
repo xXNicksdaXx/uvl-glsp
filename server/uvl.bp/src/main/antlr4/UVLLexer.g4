@@ -27,6 +27,12 @@ FEATURE_CARDINALITY_KEY: 'feature-cardinality';
 AGGREGATE_KEY: 'aggregate-function';
 STRING_CONSTRAINTS_KEY: 'string-constraints';
 
+REQUESTED_KEY: 'requested'; // BP Event Constraint
+BLOCKED_KEY: 'blocked'; // BP Event Constraint
+WAITED_FOR_KEY: 'waited_for'; // BP Event Constraint
+SELECTED_KEY: 'selected'; // BP Event Constraint
+CONFLICTING_KEY: 'conflicting'; // BP Event Constraint
+
 ORGROUP: 'or';
 ALTERNATIVE: 'alternative';
 OPTIONAL: 'optional';
@@ -77,7 +83,7 @@ SKIP_: ( SPACES | COMMENT) -> skip;
 
 fragment COMMENT:
 	'//' ~[\r\n\f]*
-	| OPEN_COMMENT .* CLOSE_COMMENT;
+	| OPEN_COMMENT .*? CLOSE_COMMENT;
 fragment SPACES: [ \t]+;
 
 NEWLINE: ('\r'? '\n' | '\r');
