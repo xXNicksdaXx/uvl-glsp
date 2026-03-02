@@ -1,0 +1,23 @@
+package de.tu_dresden.inf.st.uvl.bp.metamodel.model.constraint.bp;
+
+import de.tu_dresden.inf.st.uvl.bp.metamodel.model.building.VariableReference;
+import de.tu_dresden.inf.st.uvl.bp.metamodel.model.constraint.Constraint;
+import de.tu_dresden.inf.st.uvl.bp.metamodel.util.ConstantSymbols;
+
+/**
+ * Represents a BP event constraint of the form: {@code blocked(<reference>)}.
+ */
+public class BlockedConstraint extends AbstractBPEventConstraint {
+
+    public BlockedConstraint(VariableReference reference) {
+        super(reference, "blocked");
+    }
+
+    @Override
+    public Constraint clone() {
+        BlockedConstraint clone = new BlockedConstraint(getReference());
+        clone.setLineNumber(getLineNumber());
+        return clone;
+    }
+}
+

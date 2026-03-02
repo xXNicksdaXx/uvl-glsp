@@ -21,6 +21,11 @@ import de.tu_dresden.inf.st.uvl.bp.metamodel.model.constraint.NotConstraint;
 import de.tu_dresden.inf.st.uvl.bp.metamodel.model.constraint.NotEqualsEquationConstraint;
 import de.tu_dresden.inf.st.uvl.bp.metamodel.model.constraint.OrConstraint;
 import de.tu_dresden.inf.st.uvl.bp.metamodel.model.constraint.ParenthesisConstraint;
+import de.tu_dresden.inf.st.uvl.bp.metamodel.model.constraint.bp.BlockedConstraint;
+import de.tu_dresden.inf.st.uvl.bp.metamodel.model.constraint.bp.ConflictingConstraint;
+import de.tu_dresden.inf.st.uvl.bp.metamodel.model.constraint.bp.RequestedConstraint;
+import de.tu_dresden.inf.st.uvl.bp.metamodel.model.constraint.bp.SelectedConstraint;
+import de.tu_dresden.inf.st.uvl.bp.metamodel.model.constraint.bp.WaitedForConstraint;
 import de.tu_dresden.inf.st.uvl.bp.metamodel.model.expression.AddExpression;
 import de.tu_dresden.inf.st.uvl.bp.metamodel.model.expression.AggregateFunctionExpression;
 import de.tu_dresden.inf.st.uvl.bp.metamodel.model.expression.AvgAggregateFunctionExpression;
@@ -648,6 +653,84 @@ public class UVLListener extends UVLJavaParserBaseListener {
         while (!constraintStack.isEmpty()) {
             fmBuilder.addConstraintAtPosition(constraintStack.pop(), 0);
         }
+    }
+
+    // ===================== BP Constraint Handler =====================
+
+    @Override
+    public void exitRequestedConstraint(UVLJavaParser.RequestedConstraintContext ctx) {
+        GlobalAttribute attribute = ParsingUtilities.getGlobalAttribute(ctx.reference().getText(), fmBuilder.getFeatureModel());
+        RequestedConstraint constraint = new RequestedConstraint(attribute);
+        constraintStack.push(constraint);
+        Token t = ctx.getStart();
+        int line = t.getLine();
+        constraint.setLineNumber(line);
+    }
+
+    @Override
+    public void exitBlockedConstraint(UVLJavaParser.BlockedConstraintContext ctx) {
+        GlobalAttribute attribute = ParsingUtilities.getGlobalAttribute(ctx.reference().getText(), fmBuilder.getFeatureModel());
+        BlockedConstraint constraint = new BlockedConstraint(attribute);
+        constraintStack.push(constraint);
+        Token t = ctx.getStart();
+        int line = t.getLine();
+        constraint.setLineNumber(line);
+    }
+
+    @Override
+    public void exitWaitedForConstraint(UVLJavaParser.WaitedForConstraintContext ctx) {
+        GlobalAttribute attribute = ParsingUtilities.getGlobalAttribute(ctx.reference().getText(), fmBuilder.getFeatureModel());
+        WaitedForConstraint constraint = new WaitedForConstraint(attribute);
+        constraintStack.push(constraint);
+        Token t = ctx.getStart();
+        int line = t.getLine();
+        constraint.setLineNumber(line);
+    }
+
+    @Override
+    public void exitSelectedConstraint(UVLJavaParser.SelectedConstraintContext ctx) {
+        GlobalAttribute attribute = ParsingUtilities.getGlobalAttribute(ctx.reference().getText(), fmBuilder.getFeatureModel());
+        SelectedConstraint constraint = new SelectedConstraint(attribute);
+        constraintStack.push(constraint);
+        Token t = ctx.getStart();
+        int line = t.getLine();
+        constraint.setLineNumber(line);
+    }
+
+    @Override
+    public void exitConflictingConstraint(UVLJavaParser.ConflictingConstraintContext ctx) {
+        List<VariableReference> list = ctx.reference().stream()
+                .map(referenceContext -> ParsingUtilities.getGlobalAttribute(referenceContext.getText(), fmBuilder.getFeatureModel()))
+                .map(attribute -> (VariableReference) attribute)
+                .toList();
+        ConflictingConstraint constraint = new ConflictingConstraint(list);
+        constraintStack.push(constraint);
+        Token t = ctx.getStart();
+        int line = t.getLine();
+        constraint.setLineNumber(line);
+    }
+
+    // ===================== BP Env/Config Feature Handler =====================
+
+    @Override
+    public void enterEnvConfigFeature(UVLJavaParser.EnvConfigFeatureContext ctx) {
+        // Push a feature onto the featureStack so attribute handling works correctly
+        String featureName = ctx.reference().getText().replace("\"", "");
+        Feature feature = new Feature(featureName);
+        featureStack.push(feature);
+    }
+
+    @Override
+    public void exitEnvConfigFeature(UVLJavaParser.EnvConfigFeatureContext ctx) {
+        Feature feature = featureStack.pop();
+        if (feature.getFeatureName().equals("Env")) {
+            fmBuilder.getFeatureModel().setEnv(feature);
+        } else if (feature.getFeatureName().equals("Config")) {
+            fmBuilder.getFeatureModel().setConfig(feature);
+        } else {
+            errorList.add(new ParseError("Only features named Env and Config are allowed as additional top-level features!"));
+        }
+        fmBuilder.getFeatureModel().getFeatureMap().put(feature.getFeatureName(), feature);
     }
 
     public Constraint getConstraint() {

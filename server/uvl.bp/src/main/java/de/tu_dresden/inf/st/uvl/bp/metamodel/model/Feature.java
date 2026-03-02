@@ -176,7 +176,7 @@ public class Feature implements VariableReference {
             ;
 
         };
-        attributes = new HashMap<>();
+        attributes = new LinkedHashMap<>();
     }
 
     /**

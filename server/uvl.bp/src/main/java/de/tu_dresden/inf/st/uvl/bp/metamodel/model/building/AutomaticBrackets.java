@@ -1,8 +1,7 @@
 package de.tu_dresden.inf.st.uvl.bp.metamodel.model.building;
 
 import de.tu_dresden.inf.st.uvl.bp.metamodel.model.constraint.*;
-import de.tu_dresden.inf.st.uvl.bp.metamodel.model.expression.*;
-import de.tu_dresden.inf.st.uvl.bp.metamodel.model.constraint.*;
+import de.tu_dresden.inf.st.uvl.bp.metamodel.model.constraint.bp.*;
 import de.tu_dresden.inf.st.uvl.bp.metamodel.model.expression.*;
 
 import java.util.HashMap;
@@ -54,6 +53,11 @@ public class AutomaticBrackets {
         constraintprecedenceLookup.put(LiteralConstraint.class, CONSTRAINT_UNARY_PRECEDENCE);
         constraintprecedenceLookup.put(NotConstraint.class, CONSTRAINT_UNARY_PRECEDENCE);
         constraintprecedenceLookup.put(ParenthesisConstraint.class, CONSTRAINT_UNARY_PRECEDENCE);
+        constraintprecedenceLookup.put(RequestedConstraint.class, CONSTRAINT_UNARY_PRECEDENCE);
+        constraintprecedenceLookup.put(BlockedConstraint.class, CONSTRAINT_UNARY_PRECEDENCE);
+        constraintprecedenceLookup.put(WaitedForConstraint.class, CONSTRAINT_UNARY_PRECEDENCE);
+        constraintprecedenceLookup.put(SelectedConstraint.class, CONSTRAINT_UNARY_PRECEDENCE);
+        constraintprecedenceLookup.put(ConflictingConstraint.class, CONSTRAINT_UNARY_PRECEDENCE);
 
         expressionPrecedenceLookup = new HashMap<>();
 

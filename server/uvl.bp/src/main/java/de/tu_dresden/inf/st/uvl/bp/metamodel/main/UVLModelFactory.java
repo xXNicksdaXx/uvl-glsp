@@ -3,6 +3,8 @@ package de.tu_dresden.inf.st.uvl.bp.metamodel.main;
 import de.tu_dresden.inf.st.uvl.bp.metamodel.model.*;
 import de.tu_dresden.inf.st.uvl.bp.metamodel.model.building.VariableReference;
 import de.tu_dresden.inf.st.uvl.bp.metamodel.model.constraint.*;
+import de.tu_dresden.inf.st.uvl.bp.metamodel.model.constraint.bp.AbstractBPEventConstraint;
+import de.tu_dresden.inf.st.uvl.bp.metamodel.model.constraint.bp.ConflictingConstraint;
 import de.tu_dresden.inf.st.uvl.bp.metamodel.model.expression.*;
 import de.tu_dresden.inf.st.uvl.bp.metamodel.util.Util;
 
@@ -389,6 +391,21 @@ public class UVLModelFactory {
             if (literalConstraint.getReference() instanceof ImportedVariablePlaceholder) {
                 ImportedVariablePlaceholder placeholder = (ImportedVariablePlaceholder) literalConstraint.getReference();
                 literalConstraint.setReference(resolvePlaceholder(placeholder, featureModel));
+            }
+        } else if (constraint instanceof AbstractBPEventConstraint) {
+            AbstractBPEventConstraint bpConstraint = (AbstractBPEventConstraint) constraint;
+            if (bpConstraint.getReference() instanceof ImportedVariablePlaceholder) {
+                ImportedVariablePlaceholder placeholder = (ImportedVariablePlaceholder) bpConstraint.getReference();
+                bpConstraint.setReference(resolvePlaceholder(placeholder, featureModel));
+            }
+        } else if (constraint instanceof ConflictingConstraint) {
+            ConflictingConstraint conflictingConstraint = (ConflictingConstraint) constraint;
+            List<VariableReference> refs = conflictingConstraint.getReferenceList();
+            for (int i = 0; i < refs.size(); i++) {
+                if (refs.get(i) instanceof ImportedVariablePlaceholder) {
+                    ImportedVariablePlaceholder placeholder = (ImportedVariablePlaceholder) refs.get(i);
+                    conflictingConstraint.setReference(i, resolvePlaceholder(placeholder, featureModel));
+                }
             }
         }
     }
