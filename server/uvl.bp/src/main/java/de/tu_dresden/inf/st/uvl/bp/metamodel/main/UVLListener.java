@@ -55,7 +55,10 @@ import java.util.Stack;
 import org.antlr.v4.runtime.Token;
 
 public class UVLListener extends UVLJavaParserBaseListener {
-    public FeatureModelBuilder fmBuilder = new FeatureModelBuilder();
+
+    public final FeatureModelBuilder fmBuilder;
+    private final ModelType modelType;
+
     private Set<LanguageLevel> importedLanguageLevels = new HashSet<>(Arrays.asList(LanguageLevel.BOOLEAN_LEVEL));
     private Stack<Feature> featureStack = new Stack<>();
     private Stack<Group> groupStack = new Stack<>();
@@ -69,6 +72,28 @@ public class UVLListener extends UVLJavaParserBaseListener {
     private Stack<Map<String, Attribute<?>>> attributeStack = new Stack<>();
 
     private List<ParseError> errorList = new LinkedList<>();
+
+    public UVLListener() {
+        this(ModelType.BASE);
+    }
+
+    public UVLListener(ModelType modelType) {
+        this.modelType = modelType;
+        FeatureModel featureModel = modelType == ModelType.BP ? new BPFeatureModel() : new FeatureModel();
+        this.fmBuilder = new FeatureModelBuilder(featureModel);
+    }
+
+    private boolean isBpModel() {
+        return modelType == ModelType.BP;
+    }
+
+    private boolean rejectIfBaseModel(String constructName, int lineNumber) {
+        if (isBpModel()) {
+            return false;
+        }
+        errorList.add(new ParseError(constructName + " is only supported for BPFeatureModel", lineNumber));
+        return true;
+    }
 
     @Override
     public void enterIncludes(UVLJavaParser.IncludesContext ctx) {
@@ -659,6 +684,9 @@ public class UVLListener extends UVLJavaParserBaseListener {
 
     @Override
     public void exitRequestedConstraint(UVLJavaParser.RequestedConstraintContext ctx) {
+        if (rejectIfBaseModel("requested constraint", ctx.getStart().getLine())) {
+            return;
+        }
         GlobalAttribute attribute = ParsingUtilities.getGlobalAttribute(ctx.reference().getText(), fmBuilder.getFeatureModel());
         RequestedConstraint constraint = new RequestedConstraint(attribute);
         constraintStack.push(constraint);
@@ -669,6 +697,9 @@ public class UVLListener extends UVLJavaParserBaseListener {
 
     @Override
     public void exitBlockedConstraint(UVLJavaParser.BlockedConstraintContext ctx) {
+        if (rejectIfBaseModel("blocked constraint", ctx.getStart().getLine())) {
+            return;
+        }
         GlobalAttribute attribute = ParsingUtilities.getGlobalAttribute(ctx.reference().getText(), fmBuilder.getFeatureModel());
         BlockedConstraint constraint = new BlockedConstraint(attribute);
         constraintStack.push(constraint);
@@ -679,6 +710,9 @@ public class UVLListener extends UVLJavaParserBaseListener {
 
     @Override
     public void exitWaitedForConstraint(UVLJavaParser.WaitedForConstraintContext ctx) {
+        if (rejectIfBaseModel("waitedFor constraint", ctx.getStart().getLine())) {
+            return;
+        }
         GlobalAttribute attribute = ParsingUtilities.getGlobalAttribute(ctx.reference().getText(), fmBuilder.getFeatureModel());
         WaitedForConstraint constraint = new WaitedForConstraint(attribute);
         constraintStack.push(constraint);
@@ -689,6 +723,9 @@ public class UVLListener extends UVLJavaParserBaseListener {
 
     @Override
     public void exitSelectedConstraint(UVLJavaParser.SelectedConstraintContext ctx) {
+        if (rejectIfBaseModel("selected constraint", ctx.getStart().getLine())) {
+            return;
+        }
         GlobalAttribute attribute = ParsingUtilities.getGlobalAttribute(ctx.reference().getText(), fmBuilder.getFeatureModel());
         SelectedConstraint constraint = new SelectedConstraint(attribute);
         constraintStack.push(constraint);
@@ -699,6 +736,9 @@ public class UVLListener extends UVLJavaParserBaseListener {
 
     @Override
     public void exitConflictingConstraint(UVLJavaParser.ConflictingConstraintContext ctx) {
+        if (rejectIfBaseModel("conflicting constraint", ctx.getStart().getLine())) {
+            return;
+        }
         List<VariableReference> list = ctx.reference().stream()
                 .map(referenceContext -> ParsingUtilities.getGlobalAttribute(referenceContext.getText(), fmBuilder.getFeatureModel()))
                 .map(attribute -> (VariableReference) attribute)
@@ -714,6 +754,9 @@ public class UVLListener extends UVLJavaParserBaseListener {
 
     @Override
     public void enterEnvConfigFeature(UVLJavaParser.EnvConfigFeatureContext ctx) {
+        if (rejectIfBaseModel("Env/Config top-level feature", ctx.getStart().getLine())) {
+            return;
+        }
         // Push a feature onto the featureStack so attribute handling works correctly
         String featureName = ctx.reference().getText().replace("\"", "");
         Feature feature = new Feature(featureName);
@@ -722,15 +765,19 @@ public class UVLListener extends UVLJavaParserBaseListener {
 
     @Override
     public void exitEnvConfigFeature(UVLJavaParser.EnvConfigFeatureContext ctx) {
+        if (rejectIfBaseModel("Env/Config top-level feature", ctx.getStart().getLine())) {
+            return;
+        }
         Feature feature = featureStack.pop();
+        BPFeatureModel featureModel = (BPFeatureModel) fmBuilder.getFeatureModel();
         if (feature.getFeatureName().equals("Env")) {
-            fmBuilder.getFeatureModel().setEnv(feature);
+            featureModel.setEnv(feature);
         } else if (feature.getFeatureName().equals("Config")) {
-            fmBuilder.getFeatureModel().setConfig(feature);
+            featureModel.setConfig(feature);
         } else {
             errorList.add(new ParseError("Only features named Env and Config are allowed as additional top-level features!"));
         }
-        fmBuilder.getFeatureModel().getFeatureMap().put(feature.getFeatureName(), feature);
+        featureModel.getFeatureMap().put(feature.getFeatureName(), feature);
     }
 
     public Constraint getConstraint() {

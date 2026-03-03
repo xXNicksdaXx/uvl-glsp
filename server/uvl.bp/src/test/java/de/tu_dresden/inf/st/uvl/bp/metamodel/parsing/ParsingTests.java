@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import de.tu_dresden.inf.st.uvl.bp.metamodel.main.ModelType;
 import de.tu_dresden.inf.st.uvl.bp.metamodel.main.UVLModelFactory;
 import de.tu_dresden.inf.st.uvl.bp.metamodel.model.FeatureModel;
 
@@ -221,9 +222,16 @@ public class ParsingTests {
 
     @Test
     void testBPModels() throws Exception {
-        testModelParsing(WATER_TANK);
-        testModelParsing(SMART_HOME);
-        testModelParsing(DRONE);
+        testModelParsing(WATER_TANK, true, ModelType.BP);
+        testModelParsing(SMART_HOME, true, ModelType.BP);
+        testModelParsing(DRONE, true, ModelType.BP);
+    }
+
+    @Test
+    void testBPModelWithWrongModelType() throws Exception {
+        testModelParsing(WATER_TANK, false, ModelType.BASE);
+        testModelParsing(SMART_HOME, false, ModelType.BASE);
+        testModelParsing(DRONE, false, ModelType.BASE);
     }
 
 
@@ -235,11 +243,15 @@ public class ParsingTests {
     }
 
     public static FeatureModel testModelParsing(String path, boolean expectSuccess) {
+        return testModelParsing(path, expectSuccess, ModelType.BASE);
+    }
+
+    public static FeatureModel testModelParsing(String path, boolean expectSuccess, ModelType modelType) {
         UVLModelFactory uvlModelFactory = new UVLModelFactory();
         FeatureModel result = null;
         boolean error = false;
         try {
-            result = uvlModelFactory.parse(Paths.get(path));
+            result = uvlModelFactory.parse(Paths.get(path), modelType);
         } catch (Exception e) {
             error = true;
         }

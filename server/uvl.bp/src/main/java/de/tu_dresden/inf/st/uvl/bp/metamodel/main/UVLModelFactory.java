@@ -73,10 +73,18 @@ public class UVLModelFactory {
      * @throws ParseError
      */
     public FeatureModel parse(Path uvlModelPath) throws ParseError {
+        return parse(uvlModelPath, ModelType.BASE);
+    }
+
+    public FeatureModel parse(Path uvlModelPath, ModelType modelType) throws ParseError {
         String content = Util.readFileContent(uvlModelPath);
         String projectRootForImports = uvlModelPath.getParent().toString();
 
-        return parse(content, projectRootForImports);
+        return parse(content, projectRootForImports, modelType);
+    }
+
+    public FeatureModel parseBP(Path uvlModelPath) throws ParseError {
+        return parse(uvlModelPath, ModelType.BP);
     }
 
     /**
@@ -88,10 +96,18 @@ public class UVLModelFactory {
      * @throws ParseError If there is an error during parsing or the construction of the feature model
      */
     public FeatureModel parse(String text, String rootPath) throws ParseError {
-        FeatureModel featureModel = parseFeatureModelWithImports(text, rootPath, new HashMap<>());
+        return parse(text, rootPath, ModelType.BASE);
+    }
+
+    public FeatureModel parse(String text, String rootPath, ModelType modelType) throws ParseError {
+        FeatureModel featureModel = parseFeatureModelWithImports(text, rootPath, new HashMap<>(), modelType);
         composeFeatureModelFromImports(featureModel);
         validateTypeLevelConstraints(featureModel);
         return featureModel;
+    }
+
+    public FeatureModel parseBP(String text, String rootPath) throws ParseError {
+        return parse(text, rootPath, ModelType.BP);
     }
 
     /**
@@ -104,6 +120,14 @@ public class UVLModelFactory {
      */
     public FeatureModel parse(String text) throws ParseError {
         return parse(text, System.getProperty("user.dir"));
+    }
+
+    public FeatureModel parse(String text, ModelType modelType) throws ParseError {
+        return parse(text, System.getProperty("user.dir"), modelType);
+    }
+
+    public FeatureModel parseBP(String text) throws ParseError {
+        return parse(text, ModelType.BP);
     }
 
     public Constraint parseConstraint(String constraintString) throws ParseError {
@@ -127,7 +151,7 @@ public class UVLModelFactory {
             }
         });
 
-        UVLListener uvlListener = new UVLListener();
+        UVLListener uvlListener = new UVLListener(ModelType.BASE);
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(uvlListener, UVLJavaParser.constraintLine());
 
@@ -279,7 +303,7 @@ public class UVLModelFactory {
         return rootPath + FileSystems.getDefault().getSeparator() + referencedImport.getNamespace().replace(".", FileSystems.getDefault().getSeparator()) + ".uvl";
     }
 
-    private FeatureModel parseFeatureModelWithImports(String text, String rootPath, Map<String, Import> visitedImports) {
+    private FeatureModel parseFeatureModelWithImports(String text, String rootPath, Map<String, Import> visitedImports, ModelType modelType) {
         //remove leading and trailing spaces (to be more robust)
         text = text.trim();
         UVLJavaLexer UVLJavaLexer = new UVLJavaLexer(CharStreams.fromString(text));
@@ -304,7 +328,7 @@ public class UVLModelFactory {
         });
 
 
-        UVLListener uvlListener = new UVLListener();
+        UVLListener uvlListener = new UVLListener(modelType == ModelType.BP ? ModelType.BP : ModelType.BASE);
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(uvlListener, UVLJavaParser.featureModel());
         FeatureModel featureModel = null;
@@ -333,7 +357,7 @@ public class UVLModelFactory {
                         String path = getPath(rootPath, importLine);
                         Path filePath = Paths.get(path);
                         String content = new String(Files.readAllBytes(filePath));
-                        FeatureModel subModel = parseFeatureModelWithImports(content, filePath.getParent().toString(), visitedImports);
+                        FeatureModel subModel = parseFeatureModelWithImports(content, filePath.getParent().toString(), visitedImports, modelType);
                         importLine.setFeatureModel(subModel);
                         subModel.getRootFeature().setRelatedImport(importLine);
                         visitedImports.put(importLine.getNamespace(), importLine);

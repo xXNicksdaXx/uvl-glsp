@@ -1,28 +1,25 @@
 package de.tu_dresden.inf.st.uvl.bp.metamodel.model.constraint;
 
-import de.tu_dresden.inf.st.uvl.bp.metamodel.model.building.VariableReference;
 import de.tu_dresden.inf.st.uvl.bp.metamodel.util.ConstantSymbols;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-
-public class NotConstraint extends Constraint {
-    private Constraint content;
+/**
+ * Represents a logical NOT constraint: {@code !content} or {@code !(content)}
+ *
+ * <p>All structural behaviour (single child, hashCode, equals, getReferences,
+ * replaceConstraintSubPart) is inherited from {@link UnaryConstraint}.</p>
+ */
+public class NotConstraint extends UnaryConstraint {
 
     public NotConstraint(Constraint content) {
-        this.content = content;
-    }
-
-    public Constraint getContent() {
-        return content;
+        super(content);
     }
 
     @Override
     public String toString(boolean withSubmodels, String currentAlias) {
+        Constraint content = getContent();
         StringBuilder result = new StringBuilder();
         result.append(ConstantSymbols.NOT);
-        if (content instanceof VariableReference || content instanceof ParenthesisConstraint) {
+        if (content instanceof LiteralConstraint || content instanceof ParenthesisConstraint) {
             result.append(content.toString(withSubmodels, currentAlias));
         } else {
             result.append(ConstantSymbols.PAREN_OPEN);
@@ -33,44 +30,7 @@ public class NotConstraint extends Constraint {
     }
 
     @Override
-    public List<Constraint> getConstraintSubParts() {
-        return Arrays.asList(content);
-    }
-
-    @Override
-    public void replaceConstraintSubPart(Constraint oldSubConstraint, Constraint newSubConstraint) {
-        if (content == oldSubConstraint) {
-            content = newSubConstraint;
-        }
-    }
-
-    @Override
     public Constraint clone() {
-        return new NotConstraint(content.clone());
+        return new NotConstraint(getContent().clone());
     }
-
-    @Override
-    public int hashCode(int level) {
-        return 31 * level + (content == null ? 0 : content.hashCode(1 + level));
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        NotConstraint other = (NotConstraint) obj;
-        return Objects.equals(content, other.content);
-    }
-
-    @Override
-    public List<VariableReference> getReferences() {
-        return content.getReferences();
-    }
-
-
-
 }

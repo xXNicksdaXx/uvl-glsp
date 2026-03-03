@@ -90,4 +90,3 @@ public class ConflictingConstraint extends Constraint {
         return Collections.unmodifiableList(references);
     }
 }
-

@@ -77,4 +77,3 @@ public abstract class AbstractBPEventConstraint extends Constraint {
         return List.of(reference);
     }
 }
-
