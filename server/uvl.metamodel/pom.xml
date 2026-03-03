@@ -9,13 +9,13 @@
         <version>0.0.1</version>
     </parent>
     <artifactId>uvl.metamodel</artifactId>
-    <description>Fork of java-fm-metamodel of UVL to extend it for Behavioral Programming (BP) usage</description>
+    <description>Fork of java-fm-metamodel and uvl-parser of UVL to extend it for Behavioral Programming (BP) usage</description>
     <url>https://git-st.inf.tu-dresden.de/stgroup/student-projects/2026/ma-nick-ruider</url>
 
     <licenses>
         <license>
-            <name>MIT License</name>
-            <url>https://opensource.org/licenses/MIT</url>
+            <name>GNU Lesser General Public License v3.0 or later</name>
+            <url>https://www.gnu.org/licenses/lgpl-3.0.html</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
