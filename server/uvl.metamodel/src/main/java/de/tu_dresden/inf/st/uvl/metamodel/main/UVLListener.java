@@ -235,7 +235,7 @@ public class UVLListener extends UVLJavaParserBaseListener {
 
     @Override
     public void enterAttributes(UVLJavaParser.AttributesContext ctx) {
-        attributeStack.push(new HashMap<>());
+        attributeStack.push(new LinkedHashMap<>());
     }
 
     @Override
