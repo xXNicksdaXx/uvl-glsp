@@ -1,0 +1,22 @@
+GNU LESSER GENERAL PUBLIC LICENSE
+Version 3, 29 June 2007
+
+Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+
+Everyone is permitted to copy and distribute verbatim copies
+of this license document, but changing it is not allowed.
+
+This module contains and extends work derived from:
+- https://github.com/Universal-Variability-Language/uvl-parser
+- https://github.com/Universal-Variability-Language/java-fm-metamodel
+
+Additional modifications:
+Copyright (c) 2026 Nick Ruider
+
+License grant:
+This module is distributed under the terms of the GNU Lesser General Public
+License, version 3 or (at your option) any later version (LGPL-3.0-or-later).
+
+You should have received a copy of the GNU Lesser General Public License along
+with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
+
