@@ -151,9 +151,6 @@
       }
     ]
   },
-  "files": [
-    "dist"
-  ],
   "workspaces": {
     "nohoist": [
       "**/@vscode/codicons",

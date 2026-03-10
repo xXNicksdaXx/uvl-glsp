@@ -6,12 +6,12 @@
     "outDir": "lib"
   },
   "include": ["src", "dist"],
-    "references": [
-      {
-        "path": "../../packages/command-contribution"
-      },
-      {
-        "path": "../webview"
-      }
-    ]
+  "references": [
+    {
+      "path": "../../packages/command-contribution"
+    },
+    {
+      "path": "../webview"
+    }
+  ]
 }
