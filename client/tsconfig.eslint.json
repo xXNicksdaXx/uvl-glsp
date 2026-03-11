@@ -9,6 +9,7 @@
     "**/.eslintrc.js"
   ],
   "include": [
+    "extensions/*/src",
     "packages/*/src",
     "vscode/*/src"
   ]

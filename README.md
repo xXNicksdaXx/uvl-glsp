@@ -14,15 +14,17 @@ UVL specifies variability models with a tree-like structure to represent the hie
 The project is organized as follows:
 
 - **[`server/`](./server):** Java-based Eclipse GLSP server for UVL diagram editing and BP-extension
-  - **[`uvl.glsp/`](./server/uvl.glsp):** Eclipse GLSP server for diagram editing
-- **[`client/`](./client):** TypeScript/JavaScript client applications and extensions
-    - **[`vscode/`](./client/vscode):** VS Code extension
-        - **[`extension/`](./client/vscode/extension):** Extension host process
-        - **[`webview/`](./client/vscode/webview):** Webview diagram editor
+  - **[`uvl.metamodel/`](./server/uvl.metamodel):** UVL metamodel implementation with custom extensions
+  - **[`uvl.glsp/`](./server/uvl.glsp):** Eclipse GLSP server for UVL diagram editing
+  - **[`uvl.bp.glsp/`](./server/uvl.bp.glsp):** Eclipse GLSP server including the BP-extension for UVL diagram editing
+  - **[`client/`](./client):** TypeScript/JavaScript client applications and extensions
     - **[`packages/`](./client/packages):** Shared packages and components
-        - **[`common/`](./client/packages/common):** Shared types and utilities
-        - **[`command-contribution/`](./client/packages/command-contribution):** VS Code command handlers
-        - **[`sprotty/`](./client/packages/sprotty):** Core diagram rendering
+      - **[`common/`](./client/packages/common):** Shared types and utilities
+      - **[`uvl-command-contribution/`](client/packages/uvl-command-contribution):** VS Code command handlers
+      - **[`uvl-sprotty/`](client/packages/uvl-sprotty):** Core diagram rendering
+    - **[`vscode/`](./client/vscode):** VS Code extension
+      - **[`extension/`](./client/vscode/extension):** Extension host process
+      - **[`webview/`](./client/vscode/webview):** Webview diagram editor
     - **[`workspace/`](./client/workspace):** Example workspace
 
 ## Prerequisites

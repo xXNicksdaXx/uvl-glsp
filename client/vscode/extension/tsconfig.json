@@ -8,7 +8,7 @@
   "include": ["src", "dist"],
     "references": [
       {
-        "path": "../../packages/command-contribution"
+        "path": "../../packages/uvl-command-contribution"
       },
       {
         "path": "../webview"

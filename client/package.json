@@ -18,6 +18,7 @@
     }
   ],
   "workspaces": [
+    "extensions/*",
     "packages/*",
     "vscode/*"
   ],
@@ -28,11 +29,12 @@
     "lint": "lerna run lint",
     "lint:fix": "lerna run lint:fix",
     "lint:ci": "lerna run lint:ci",
-    "package": "yarn sprotty build && yarn vs-code-webview bundle:prod && yarn vs-code-extension bundle:prod && yarn vs-code-extension package",
+    "package": "yarn uvl-sprotty build && yarn vs-code-webview bundle:prod && yarn vs-code-extension bundle:prod && yarn vs-code-extension package",
     "prepare": "yarn build",
-    "uvl-command-contribution": "yarn --cwd packages/command-contribution",
+    "uvl-bp-sprotty": "yarn --cwd extensions/bp-sprotty",
+    "uvl-command-contribution": "yarn --cwd packages/uvl-command-contribution",
     "uvl-common": "yarn --cwd packages/common",
-    "uvl-sprotty": "yarn --cwd packages/sprotty",
+    "uvl-sprotty": "yarn --cwd packages/uvl-sprotty",
     "vs-code-extension": "yarn --cwd vscode/extension",
     "vs-code-webview": "yarn --cwd vscode/webview",
     "watch:vs-code": "concurrently \"yarn vs-code-webview watch\" \"yarn vs-code-extension watch\""
