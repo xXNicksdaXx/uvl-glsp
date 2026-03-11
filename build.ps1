@@ -1,5 +1,6 @@
 param(
-    [string]$target = ""
+    [string]$target = "",
+    [string]$profile = "uvl"
 )
 
 $SERVER_DIR = "server"
@@ -16,6 +17,13 @@ function Invoke-BuildClient {
     Write-Host "Building client..."
     Push-Location $CLIENT_DIR
     yarn
+    Pop-Location
+}
+
+function Invoke-BuildVscode {
+    Write-Host "Building VS Code extension for profile '$profile'..."
+    Push-Location $CLIENT_DIR
+    yarn "package:$profile"
     Pop-Location
 }
 
@@ -40,6 +48,9 @@ switch ($target) {
     "client" {
         Invoke-BuildClient
     }
+    "vscode" {
+        Invoke-BuildVscode
+    }
     "clean" {
         Invoke-CleanServer
         Invoke-CleanClient
@@ -49,7 +60,7 @@ switch ($target) {
         Invoke-BuildClient
     }
     default {
-        Write-Host "Usage: .\build.ps1 [server|client|clean]"
+        Write-Host "Usage: .\build.ps1 [server|client|vscode|clean] [profile]"
         exit 1
     }
 }

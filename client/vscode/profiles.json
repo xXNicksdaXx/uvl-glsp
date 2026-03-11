@@ -1,0 +1,17 @@
+{
+  "defaultProfile": "uvl",
+  "profiles": [
+    {
+      "id": "uvl",
+      "serverJarPath": "../../server/uvl.glsp/target/uvl.glsp-0.2.0-glsp.jar",
+      "containerModuleIds": ["uvl-core"],
+      "commandContributionIds": ["uvl-default"]
+    },
+    {
+      "id": "uvl-bp",
+      "serverJarPath": "../../server/uvl.bp.glsp/target/uvl.bp.glsp-0.2.0-glsp.jar",
+      "containerModuleIds": ["uvl-core", "uvl-bp"],
+      "commandContributionIds": ["uvl-default"]
+    }
+  ]
+}

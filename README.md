@@ -143,10 +143,41 @@ To package the VS Code extension as a `.vsix` file, run:
 
 ```bash
 cd client
-yarn package
+yarn package:uvl
 ```
 
 The resulting `.vsix` file will be located in the `vscode/extension/dist` directory and can be installed in VS Code.
+
+Use `yarn package:uvl-bp` to build a BP profile artifact.
+
+You can also use the root build scripts:
+
+```powershell
+.\build.ps1 vscode uvl
+.\build.ps1 vscode uvl-bp
+```
+
+```bash
+./build.sh vscode uvl
+./build.sh vscode uvl-bp
+```
+
+## VS Code Extension Profiles
+
+The extension/webview build now uses static profiles configured in `client/vscode/profiles.json`.
+
+- `id`: unique profile id (for example `uvl`, `uvl-bp`)
+- `serverJarPath`: path to exactly one embedded GLSP server jar for that profile
+- `containerModuleIds`: sprotty/container module ids enabled in the webview build
+- `commandContributionIds` (optional): command contribution ids enabled in the extension build
+
+Choose the profile at build time via script arguments:
+
+```bash
+cd client
+yarn vs-code-webview bundle:prod --env profile=uvl-bp
+yarn vs-code-extension bundle:prod --env profile=uvl-bp
+```
 
 ## Resources
 

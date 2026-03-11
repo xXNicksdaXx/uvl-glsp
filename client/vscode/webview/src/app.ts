@@ -11,11 +11,14 @@ import 'reflect-metadata';
 import { ContainerConfiguration } from '@eclipse-glsp/client';
 import { GLSPStarter } from '@eclipse-glsp/vscode-integration-webview';
 import { Container } from 'inversify';
-import { initializeUvlDiagramContainer } from 'uvl-sprotty';
+import { initializeUvlDiagramContainer } from "uvl-sprotty";
+
+import { resolveWebviewPluginModules } from "./plugin-registry";
 
 class UvlDiagramStarter extends GLSPStarter {
     createContainer(...containerConfiguration: ContainerConfiguration): Container {
-        return initializeUvlDiagramContainer(new Container(), ...containerConfiguration);
+        const pluginModules = resolveWebviewPluginModules();
+        return initializeUvlDiagramContainer(new Container(), ...pluginModules, ...containerConfiguration);
     }
 }
 

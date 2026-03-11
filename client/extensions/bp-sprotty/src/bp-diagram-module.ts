@@ -8,10 +8,8 @@
 import {
     GEdge,
     configureModelElement,
-    ContainerConfiguration
 } from '@eclipse-glsp/client';
-import { Container, ContainerModule } from 'inversify';
-import { initializeUvlDiagramContainer } from 'uvl-sprotty';
+import { ContainerModule } from 'inversify';
 
 import { BPModelTypes } from './bp-model-types';
 import { BPEdgeView } from './bp-views';
@@ -33,19 +31,3 @@ export const bpDiagramModule = new ContainerModule((bind, unbind, isBound, rebin
 
     configureModelElement(context, BPModelTypes.BP_CONFLICTING, GEdge, BPEdgeView);
 });
-
-/**
- * Initializes the diagram DI container with the UVL base modules AND the BP extension module.
- *
- * This is the entry point used by the BP webview. Pass additional
- * {@link ContainerConfiguration} modules to extend behaviour further.
- *
- * @param container  The InversifyJS container to configure.
- * @param containerConfiguration  Additional container configuration modules.
- * @returns The initialized container.
- */
-export function initializeBpDiagramContainer(container: Container, ...containerConfiguration: ContainerConfiguration): Container {
-    return initializeUvlDiagramContainer(container, bpDiagramModule, ...containerConfiguration);
-}
-
-
