@@ -38,5 +38,6 @@
     <modules>
         <module>uvl.metamodel</module>
         <module>uvl.glsp</module>
+        <module>uvl.bp.glsp</module>
     </modules>
 </project>

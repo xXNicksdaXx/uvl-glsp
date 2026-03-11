@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/ma-nick-ruider.iml" filepath="$PROJECT_DIR$/.idea/ma-nick-ruider.iml" />
       <module fileurl="file://$PROJECT_DIR$/server/uvl.glsp/uvl.glsp.iml" filepath="$PROJECT_DIR$/server/uvl.glsp/uvl.glsp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/server/uvl.bp.glsp/uvl.bp.glsp.iml" filepath="$PROJECT_DIR$/server/uvl.bp.glsp/uvl.bp.glsp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/server/uvl.metamodel/uvl.metamodel.iml" filepath="$PROJECT_DIR$/server/uvl.metamodel/uvl.metamodel.iml" />
     </modules>
   </component>
 </project>

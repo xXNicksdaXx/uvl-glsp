@@ -6,6 +6,7 @@
 package de.tu_dresden.inf.st.uvl.glsp.model;
 
 import com.google.inject.Inject;
+import de.tu_dresden.inf.st.uvl.glsp.gmodel.UVLGModelFactory;
 import de.tu_dresden.inf.st.uvl.metamodel.exception.ParseErrorList;
 import de.tu_dresden.inf.st.uvl.metamodel.main.UVLModelFactory;
 import de.tu_dresden.inf.st.uvl.metamodel.model.FeatureModel;
@@ -54,14 +55,7 @@ public class UVLSourceModelStorage extends GModelStorage implements SourceModelS
 
         try {
             String content = Files.readString(Paths.get(filePath));
-            boolean isEmpty = content.trim().isEmpty();
-            if (isEmpty) {
-                modelState.setFeatureModel(new FeatureModel());
-                return;
-            }
-
-            UVLModelFactory uvlModelFactory = new UVLModelFactory();
-            FeatureModel featureModel = uvlModelFactory.parse(content);
+            FeatureModel featureModel = parseFeatureModel(content);
             modelState.setFeatureModel(featureModel);
         } catch (IndexOutOfBoundsException e) {
             modelState.setFeatureModel(new FeatureModel());
@@ -76,6 +70,16 @@ public class UVLSourceModelStorage extends GModelStorage implements SourceModelS
             LOGGER.error(e);
             throw new GLSPServerException("An unexpected error occurred during loading of the FeatureModel file: " + featureModelFile.toURI(), e);
         }
+    }
+
+    protected FeatureModel parseFeatureModel(final String content) {
+        boolean isEmpty = content.trim().isEmpty();
+        if (isEmpty) {
+            return new FeatureModel();
+        }
+
+        UVLModelFactory uvlModelFactory = new UVLModelFactory();
+        return uvlModelFactory.parse(content);
     }
 
     protected void loadGModel(final File notationFile) {
