@@ -50,8 +50,24 @@ setup.describe('Setup VSCode', () => {
         const vscodeExecutablePath = (await VSCodeStorage.read(integrationOptions.storagePath)).vscodeExecutablePath;
         try {
             await vscodeSetup!.install({vscodeExecutablePath});
-        } catch (error) {
-            installVsixViaCli(vscodeExecutablePath, integrationOptions.vsixId, integrationOptions.vsixPath);
+        } catch (error: unknown) {
+            const baseInstallMessage = error instanceof Error
+                ? `${error.message}${error.stack ? `\n${error.stack}` : ''}`
+                : `Unknown error: ${String(error)}`;
+
+            console.error(`[Extension] Default installation failed. Falling back to CLI install.\n${baseInstallMessage}`);
+
+            try {
+                installVsixViaCli(vscodeExecutablePath, integrationOptions.vsixId, integrationOptions.vsixPath);
+            } catch (fallbackError: unknown) {
+                const fallbackMessage = fallbackError instanceof Error
+                    ? `${fallbackError.message}${fallbackError.stack ? `\n${fallbackError.stack}` : ''}`
+                    : `Unknown fallback error: ${String(fallbackError)}`;
+
+                throw new Error(
+                    `[Extension] Both default and fallback installation failed.\nDefault failure:\n${baseInstallMessage}\nFallback failure:\n${fallbackMessage}`
+                );
+            }
         }
     });
 });

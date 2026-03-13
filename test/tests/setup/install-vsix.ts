@@ -8,22 +8,48 @@
 import { resolveCliArgsFromVSCodeExecutablePath } from "@vscode/test-electron";
 import * as cp from 'child_process';
 
+function formatSpawnError(result: cp.SpawnSyncReturns<string>, command: string, args: string[]): string {
+    const fragments = [
+        `command: ${command} ${args.join(' ')}`,
+        `status: ${result.status ?? 'null'}`,
+        `signal: ${result.signal ?? 'null'}`
+    ];
+
+    if (result.error?.message) {
+        fragments.push(`error: ${result.error.message}`);
+    }
+    if (result.stdout?.trim()) {
+        fragments.push(`stdout: ${result.stdout.trim()}`);
+    }
+    if (result.stderr?.trim()) {
+        fragments.push(`stderr: ${result.stderr.trim()}`);
+    }
+
+    return fragments.join(' | ');
+}
+
+function runVsCodeCli(cli: string, args: string[]): cp.SpawnSyncReturns<string> {
+    return cp.spawnSync(cli, args, {
+        encoding: 'utf-8',
+        stdio: 'pipe',
+        shell: process.platform === 'win32'
+    });
+}
+
 export function installVsixViaCli(vscodeExecutablePath: string, vsixId: string, vsixPath: string): void {
     const [cli, ...defaultArgs] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
 
-    // On Windows, invoke .cmd files through cmd.exe so Node spawnSync can execute them reliably.
-    cp.spawnSync('cmd.exe', ['/c', cli, ...defaultArgs, '--uninstall-extension', vsixId], {
-        encoding: 'utf-8',
-        stdio: 'inherit'
-    });
+    const uninstallArgs = [...defaultArgs, '--uninstall-extension', vsixId];
+    const uninstallResult = runVsCodeCli(cli, uninstallArgs);
 
-    const result = cp.spawnSync('cmd.exe', ['/c', cli, ...defaultArgs, '--install-extension', vsixPath], {
-        encoding: 'utf-8',
-        stdio: 'inherit'
-    });
+    if (uninstallResult.status !== 0 && uninstallResult.status !== null) {
+        console.warn(`[Extension] Fallback uninstall returned non-zero exit code. ${formatSpawnError(uninstallResult, cli, uninstallArgs)}`);
+    }
+
+    const installArgs = [...defaultArgs, '--install-extension', vsixPath];
+    const result = runVsCodeCli(cli, installArgs);
 
     if (result.status !== 0) {
-        const reason = result.error?.message ?? `exit code: ${result.status ?? 'unknown'}`;
-        throw new Error(`[Extension] Extension install failed (${reason})`);
+        throw new Error(`[Extension] Extension install failed (${formatSpawnError(result, cli, installArgs)})`);
     }
 }
