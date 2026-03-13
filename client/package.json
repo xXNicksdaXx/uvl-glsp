@@ -28,7 +28,7 @@
     "lint": "lerna run lint",
     "lint:fix": "lerna run lint:fix",
     "lint:ci": "lerna run lint:ci",
-    "package": "yarn sprotty build && yarn vs-code-webview bundle:prod && yarn vs-code-extension bundle:prod && yarn vs-code-extension package",
+    "package": "yarn uvl-sprotty build && yarn vs-code-webview bundle:prod && yarn vs-code-extension bundle:prod && yarn vs-code-extension package",
     "prepare": "yarn build",
     "uvl-command-contribution": "yarn --cwd packages/command-contribution",
     "uvl-common": "yarn --cwd packages/common",
