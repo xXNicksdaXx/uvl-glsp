@@ -1,4 +1,9 @@
-image: node:20-bookworm
+variables:
+  NODE_VERSION: 20
+  JAVA_VERSION: 21
+  DEBIAN_FRONTEND: "noninteractive"
+
+image: ubuntu:22.04
 
 stages:
   - build
@@ -8,10 +13,18 @@ stages:
 .setup_env: &setup_env
   before_script:
     - apt-get update -qq
-    # Install Java 21, Maven
-    - apt-get install -y -qq openjdk-21-jdk maven
-    # Install Lerna
-    - npm install -g lerna
+
+    # 1. Install prerequisites for adding external repositories
+    - apt-get install -y -qq curl ca-certificates gnupg
+    
+    # 2. Add the official NodeSource repository for Node.js
+    - curl -fsSL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash -
+    
+    # 3. Install Node.js, Java, Maven, Python, and Build Tools
+    - apt-get install -y -qq nodejs openjdk-$JAVA_VERSION-jdk maven
+    
+    # 4. Install Yarn (since raw Node.js doesn't bundle it) and Lerna globally
+    - npm install -g yarn lerna
 
 build_server:
   stage: build
@@ -42,6 +55,7 @@ run_playwright_tests:
   script:
     - cd test
     - yarn cache clean
+    - yarn playwright install --with-deps
     - yarn
     - yarn test
   needs:
