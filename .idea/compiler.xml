@@ -8,7 +8,14 @@
         <outputRelativeToContentRoot value="true" />
         <module name="uvl.metamodel" />
         <module name="uvl.glsp" />
+        <module name="uvl.bp.glsp" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="uvl.glsp" target="21" />
+    </bytecodeTargetLevel>
+    <bytecodeTargetLevel>
+      <module name="uvl.bp.glsp" target="21" />
+    </bytecodeTargetLevel>
   </component>
 </project>

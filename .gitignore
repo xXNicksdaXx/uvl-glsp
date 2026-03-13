@@ -1,7 +1,6 @@
 ### custom additions template
 tsconfig.tsbuildinfo
 lib
-workspace
 
 ### VisualStudioCode template
 .vscode/*

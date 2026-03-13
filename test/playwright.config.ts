@@ -24,7 +24,9 @@ const config: PlaywrightTestConfig<GLSPPlaywrightOptions> = {
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: process.env.CI ? [['html', { open: 'never' }], ['@estruyf/github-actions-reporter']] : [['html', { open: 'never' }]],
+  reporter: process.env.CI
+    ? [['junit', { outputFile: 'test-results/junit.xml' }], ['html', { open: 'never' }]]
+    : [['html', { open: 'never' }]],
   use: {
     actionTimeout: 0,
     trace: 'on-first-retry'
