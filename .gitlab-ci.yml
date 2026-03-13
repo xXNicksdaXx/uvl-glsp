@@ -5,48 +5,43 @@ variables:
 
 image: ubuntu:22.04
 
+# 1. Split the build stage to enforce sequential ordering
 stages:
-  - build
+  - build-server
+  - build-client
   - test
 
-# Define a reusable anchor for the setup steps
 .setup_env: &setup_env
   before_script:
     - apt-get update -qq
-
-    # 1. Install prerequisites for adding external repositories
     - apt-get install -y -qq curl ca-certificates gnupg
-    
-    # 2. Add the official NodeSource repository for Node.js
     - curl -fsSL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash -
-    
-    # 3. Install Node.js, Java, Maven, Python, and Build Tools
     - apt-get install -y -qq nodejs openjdk-$JAVA_VERSION-jdk maven
-    
-    # 4. Install Yarn (since raw Node.js doesn't bundle it) and Lerna globally
     - npm install -g yarn lerna
 
 build_server:
-  stage: build
+  stage: build-server
   <<: *setup_env
   script:
     - cd server
     - mvn --batch-mode clean verify
   artifacts:
     paths:
-      - server/
+      - "server/**/target/uvl.glsp-*-glsp.jar"
     expire_in: 1 hour
 
 build_client:
-  stage: build
+  stage: build-client
   <<: *setup_env
   script:
     - cd client
     - yarn cache clean
     - yarn
+  needs:
+    - build_server
   artifacts:
     paths:
-      - client/
+      - "client/**/**/*.vsix"
     expire_in: 1 hour
 
 run_playwright_tests:
@@ -64,6 +59,6 @@ run_playwright_tests:
   artifacts:
     when: always
     paths:
-      - test/playwright-report/
-      - test/test-results/
+      - "test/playwright-report/"
+      - "test/test-results/"
     expire_in: 7 days
