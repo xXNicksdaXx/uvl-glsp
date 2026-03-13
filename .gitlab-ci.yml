@@ -37,6 +37,7 @@ build_client:
     - cd client
     - yarn cache clean
     - yarn
+    - yarn package
   needs:
     - build_server
   artifacts:
@@ -50,7 +51,6 @@ run_playwright_tests:
   script:
     - cd test
     - yarn cache clean
-    - yarn playwright install --with-deps
     - yarn
     - yarn test
   needs:
