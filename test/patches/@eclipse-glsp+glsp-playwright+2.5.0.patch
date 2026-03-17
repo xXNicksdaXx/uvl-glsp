@@ -1,0 +1,35 @@
+diff --git a/node_modules/@eclipse-glsp/glsp-playwright/lib/integration/vscode/vscode.integration.js b/node_modules/@eclipse-glsp/glsp-playwright/lib/integration/vscode/vscode.integration.js
+index a49b2ac..c4b70dc 100644
+--- a/node_modules/@eclipse-glsp/glsp-playwright/lib/integration/vscode/vscode.integration.js
++++ b/node_modules/@eclipse-glsp/glsp-playwright/lib/integration/vscode/vscode.integration.js
+@@ -115,10 +115,10 @@ var VSCodeIntegrationUtils;
+ (function (VSCodeIntegrationUtils) {
+     function fullPath(config, path) {
+         const configPath = config.paths[path];
+-        if (configPath.startsWith('/')) {
++        if (platformPath.isAbsolute(configPath)) {
+             return configPath;
+         }
+-        return `${config.runFolder}/${configPath}`;
++        return platformPath.join(config.runFolder, configPath);
+     }
+     VSCodeIntegrationUtils.fullPath = fullPath;
+     function pathArgs(config) {
+diff --git a/node_modules/@eclipse-glsp/glsp-playwright/src/integration/vscode/vscode.integration.ts b/node_modules/@eclipse-glsp/glsp-playwright/src/integration/vscode/vscode.integration.ts
+index 6a42378..a5d0e09 100644
+--- a/node_modules/@eclipse-glsp/glsp-playwright/src/integration/vscode/vscode.integration.ts
++++ b/node_modules/@eclipse-glsp/glsp-playwright/src/integration/vscode/vscode.integration.ts
+@@ -165,11 +165,11 @@ export namespace VSCodeIntegrationUtils {
+     export function fullPath(config: VSCodeRunConfig, path: keyof RunPaths): string {
+         const configPath = config.paths[path];
+ 
+-        if (configPath.startsWith('/')) {
++        if (platformPath.isAbsolute(configPath)) {
+             return configPath;
+         }
+ 
+-        return `${config.runFolder}/${configPath}`;
++        return platformPath.join(config.runFolder, configPath);
+     }
+ 
+     export function pathArgs(config: VSCodeRunConfig): string[] {

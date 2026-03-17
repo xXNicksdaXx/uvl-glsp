@@ -25,11 +25,12 @@
     "tests"
   ],
   "scripts": {
-    "clean": "rimraf lib tsconfig.tsbuildinfo .vscode-test playwright-report test-results",
+    "clean": "rimraf lib tsconfig.tsbuildinfo .vscode-test playwright-report test-results playwright/.storage/vscode.setup.json playwright/uvl-vscode.vsix",
     "lint": "eslint --ext .ts ./src ./tests",
     "lint:fix": "eslint --ext .ts ./src ./tests --fix",
     "lint:ci": "yarn lint --output-file eslint_report.json --format json",
-    "prepare": "playwright install",
+    "postinstall": "patch-package",
+    "prepare": "playwright install chromium --with-deps",
     "test": "playwright test",
     "test:vscode": "yarn test --project=vscode",
     "test:vscode-setup": "yarn test --project=vscode-setup"
@@ -49,6 +50,7 @@
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-no-null": "^1.0.2",
+    "patch-package": "^8.0.0",
     "reflect-metadata": "~0.2.2",
     "rimraf": "5.0.10",
     "typescript": "^5.9.3",

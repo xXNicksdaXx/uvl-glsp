@@ -39,13 +39,6 @@ function runVsCodeCli(cli: string, args: string[]): cp.SpawnSyncReturns<string> 
 export function installVsixViaCli(vscodeExecutablePath: string, vsixId: string, vsixPath: string): void {
     const [cli, ...defaultArgs] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
 
-    const uninstallArgs = [...defaultArgs, '--uninstall-extension', vsixId];
-    const uninstallResult = runVsCodeCli(cli, uninstallArgs);
-
-    if (uninstallResult.status !== 0 && uninstallResult.status !== null) {
-        console.warn(`[Extension] Fallback uninstall returned non-zero exit code. ${formatSpawnError(uninstallResult, cli, uninstallArgs)}`);
-    }
-
     const installArgs = [...defaultArgs, '--install-extension', vsixPath];
     const result = runVsCodeCli(cli, installArgs);
 
