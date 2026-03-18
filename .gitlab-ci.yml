@@ -52,7 +52,7 @@ run_playwright_tests:
     - cd test
     - yarn cache clean
     - yarn
-    - xvfb-run --auto-servernum -- yarn test
+    - yarn test
   needs:
     - build_server
     - build_client
