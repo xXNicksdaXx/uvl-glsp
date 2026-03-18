@@ -14,7 +14,7 @@ stages:
 .setup_env: &setup_env
   before_script:
     - apt-get update -qq
-    - apt-get install -y -qq curl ca-certificates gnupg
+    - apt-get install -y -qq curl ca-certificates gnupg xvfb
     - curl -fsSL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash -
     - apt-get install -y -qq nodejs openjdk-$JAVA_VERSION-jdk maven
     - npm install -g yarn lerna
@@ -52,7 +52,7 @@ run_playwright_tests:
     - cd test
     - yarn cache clean
     - yarn
-    - yarn test
+    - xvfb-run --auto-servernum -- yarn test
   needs:
     - build_server
     - build_client
