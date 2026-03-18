@@ -151,10 +151,6 @@
       }
     ]
   },
-  "files": [
-    "dist",
-    "LICENSE"
-  ],
   "workspaces": {
     "nohoist": [
       "**/@vscode/codicons",
@@ -176,7 +172,9 @@
     "lint": "eslint --ext .ts,.tsx ./src",
     "lint:fix": "eslint --ext .ts,.tsx ./src --fix",
     "lint:ci": "yarn lint --output-file eslint_report.json --format json",
-    "package": "vsce package --yarn --out uvl-vscode.vsix",
+    "package": "node ./scripts/build-extension.js",
+    "package:uvl": "yarn package --env profile=uvl",
+    "package:uvl-bp": "yarn package --env profile=uvl-bp",
     "watch": "tsc -w",
     "watch:bundle": "webpack --watch"
   },

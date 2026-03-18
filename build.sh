@@ -49,6 +49,7 @@ case "$1" in
     build_client
     ;;
   vscode)
+    build_server
     build_vscode
     ;;
   clean)

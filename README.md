@@ -150,6 +150,17 @@ The resulting `.vsix` file will be located in the `vscode/extension/dist` direct
 
 Use `yarn package:uvl-bp` to build a BP profile artifact.
 
+The extension package script now delegates to `client/vscode/extension/scripts/build-extension.js`,
+which reads `name`, `displayName`, `description`, and `outFile` from the selected profile in
+`client/vscode/profiles.json`.
+
+Package a specific profile by passing the webpack-style environment argument:
+
+```bash
+cd client/vscode/extension
+yarn package --env profile=uvl-bp
+```
+
 You can also use the root build scripts:
 
 ```powershell
@@ -167,17 +178,13 @@ You can also use the root build scripts:
 The extension/webview build now uses static profiles configured in `client/vscode/profiles.json`.
 
 - `id`: unique profile id (for example `uvl`, `uvl-bp`)
+- `name`: extension identifier used for VSIX packaging
+- `displayName`: extension display name used for VSIX packaging
+- `outFile`: output VSIX file name written by `vsce package --out`
+- `description` (optional): profile-specific extension description
 - `serverJarPath`: path to exactly one embedded GLSP server jar for that profile
 - `containerModuleIds`: sprotty/container module ids enabled in the webview build
 - `commandContributionIds` (optional): command contribution ids enabled in the extension build
-
-Choose the profile at build time via script arguments:
-
-```bash
-cd client
-yarn vs-code-webview bundle:prod --env profile=uvl-bp
-yarn vs-code-extension bundle:prod --env profile=uvl-bp
-```
 
 ## Resources
 
