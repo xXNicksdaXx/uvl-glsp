@@ -11,6 +11,7 @@
       <list>
         <option value="$PROJECT_DIR$/server/pom.xml" />
         <option value="$PROJECT_DIR$/server/uvl.glsp/pom.xml" />
+        <option value="$PROJECT_DIR$/server/uvl.bp.glsp/pom.xml" />
         <option value="$PROJECT_DIR$/server/uvl.metamodel/pom.xml" />
       </list>
     </option>

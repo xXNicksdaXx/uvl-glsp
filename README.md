@@ -14,15 +14,17 @@ UVL specifies variability models with a tree-like structure to represent the hie
 The project is organized as follows:
 
 - **[`server/`](./server):** Java-based Eclipse GLSP server for UVL diagram editing and BP-extension
-  - **[`uvl.glsp/`](./server/uvl.glsp):** Eclipse GLSP server for diagram editing
-- **[`client/`](./client):** TypeScript/JavaScript client applications and extensions
-    - **[`vscode/`](./client/vscode):** VS Code extension
-        - **[`extension/`](./client/vscode/extension):** Extension host process
-        - **[`webview/`](./client/vscode/webview):** Webview diagram editor
+  - **[`uvl.metamodel/`](./server/uvl.metamodel):** UVL metamodel implementation with custom extensions
+  - **[`uvl.glsp/`](./server/uvl.glsp):** Eclipse GLSP server for UVL diagram editing
+  - **[`uvl.bp.glsp/`](./server/uvl.bp.glsp):** Eclipse GLSP server including the BP-extension for UVL diagram editing
+  - **[`client/`](./client):** TypeScript/JavaScript client applications and extensions
     - **[`packages/`](./client/packages):** Shared packages and components
-        - **[`common/`](./client/packages/common):** Shared types and utilities
-        - **[`command-contribution/`](./client/packages/command-contribution):** VS Code command handlers
-        - **[`sprotty/`](./client/packages/sprotty):** Core diagram rendering
+      - **[`common/`](./client/packages/common):** Shared types and utilities
+      - **[`uvl-command-contribution/`](client/packages/uvl-command-contribution):** VS Code command handlers
+      - **[`uvl-sprotty/`](client/packages/uvl-sprotty):** Core diagram rendering
+    - **[`vscode/`](./client/vscode):** VS Code extension
+      - **[`extension/`](./client/vscode/extension):** Extension host process
+      - **[`webview/`](./client/vscode/webview):** Webview diagram editor
     - **[`workspace/`](./client/workspace):** Example workspace
 
 ## Prerequisites
@@ -141,10 +143,48 @@ To package the VS Code extension as a `.vsix` file, run:
 
 ```bash
 cd client
-yarn package
+yarn package:uvl
 ```
 
 The resulting `.vsix` file will be located in the `vscode/extension/dist` directory and can be installed in VS Code.
+
+Use `yarn package:uvl-bp` to build a BP profile artifact.
+
+The extension package script now delegates to `client/vscode/extension/scripts/build-extension.js`,
+which reads `name`, `displayName`, `description`, and `outFile` from the selected profile in
+`client/vscode/profiles.json`.
+
+Package a specific profile by passing the webpack-style environment argument:
+
+```bash
+cd client/vscode/extension
+yarn package --env profile=uvl-bp
+```
+
+You can also use the root build scripts:
+
+```powershell
+.\build.ps1 vscode uvl
+.\build.ps1 vscode uvl-bp
+```
+
+```bash
+./build.sh vscode uvl
+./build.sh vscode uvl-bp
+```
+
+## VS Code Extension Profiles
+
+The extension/webview build now uses static profiles configured in `client/vscode/profiles.json`.
+
+- `id`: unique profile id (for example `uvl`, `uvl-bp`)
+- `name`: extension identifier used for VSIX packaging
+- `displayName`: extension display name used for VSIX packaging
+- `outFile`: output VSIX file name written by `vsce package --out`
+- `description` (optional): profile-specific extension description
+- `serverJarPath`: path to exactly one embedded GLSP server jar for that profile
+- `containerModuleIds`: sprotty/container module ids enabled in the webview build
+- `commandContributionIds` (optional): command contribution ids enabled in the extension build
 
 ## Resources
 

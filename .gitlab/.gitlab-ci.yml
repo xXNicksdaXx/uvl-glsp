@@ -1,0 +1,84 @@
+variables:
+  NODE_VERSION: 20
+  JAVA_VERSION: 21
+  DEBIAN_FRONTEND: "noninteractive"
+
+image: ubuntu:22.04
+
+stages:
+  - build-server
+  - build-client
+  - release
+
+.setup_env: &setup_env
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y -qq curl ca-certificates gnupg xvfb
+    - curl -fsSL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash -
+    - apt-get install -y -qq nodejs openjdk-$JAVA_VERSION-jdk maven
+    - npm install -g yarn lerna
+
+build_server:
+  stage: build-server
+  <<: *setup_env
+  script:
+    - cd server
+    - mvn --batch-mode clean verify
+  artifacts:
+    paths:
+      - "server/**/target/uvl*.glsp-*-glsp.jar"
+    expire_in: 1 hour
+
+build_uvl:
+  stage: build-client
+  <<: *setup_env
+  script:
+    - cd client
+    - yarn cache clean
+    - yarn
+    - yarn package:uvl
+  needs:
+    - build_server
+  artifacts:
+    paths:
+      - "client/vscode/extension/uvl-vscode.vsix"
+    expire_in: 7 days
+
+build_uvl_bp:
+  stage: build-client
+  <<: *setup_env
+  script:
+    - cd client
+    - yarn cache clean
+    - yarn
+    - yarn package:uvl-bp
+  needs:
+    - build_server
+  artifacts:
+    paths:
+      - "client/vscode/extension/uvl-bp-vscode.vsix"
+    expire_in: 7 days
+
+create_release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs:
+    - job: build_uvl
+      artifacts: true
+    - job: build_uvl_bp
+      artifacts: true
+  rules:
+    - if: $CI_COMMIT_TAG # Ensures this only runs when a tag is pushed (e.g., v1.0.0)
+  script:
+    - echo "Creating release for $CI_COMMIT_TAG"
+  release:
+    name: 'Release $CI_COMMIT_TAG'
+    description: 'Automated release created from pipeline'
+    tag_name: '$CI_COMMIT_TAG'
+    ref: '$CI_COMMIT_SHA'
+    assets:
+      links:
+        - name: 'uvl-vscode.vsix'
+          url: '$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/raw/client/vscode/extension/uvl-vscode.vsix?job=build_uvl'
+        - name: 'uvl-bp-vscode.vsix'
+          url: '$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/raw/client/vscode/extension/uvl-bp-vscode.vsix?job=build_uvl_bp'

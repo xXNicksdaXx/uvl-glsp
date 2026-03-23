@@ -1,6 +1,6 @@
 {
   "name": "uvl-vscode-extension",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": "true",
   "description": "Extension for the Universal Variability Language (UVL), using a GLSP-based diagram editor inside VSCode",
   "categories": [
@@ -151,9 +151,6 @@
       }
     ]
   },
-  "files": [
-    "dist"
-  ],
   "workspaces": {
     "nohoist": [
       "**/@vscode/codicons",
@@ -162,14 +159,22 @@
   },
   "scripts": {
     "build": "yarn compile && yarn bundle",
+    "build:uvl": "yarn compile && yarn bundle --env profile=uvl",
+    "build:uvl-bp": "yarn compile && yarn bundle --env profile=uvl-bp",
     "bundle": "webpack",
+    "bundle:uvl": "webpack --env profile=uvl",
+    "bundle:uvl-bp": "webpack --env profile=uvl-bp",
     "bundle:prod": "webpack --config ./webpack.prod.js",
+    "bundle:prod:uvl": "webpack --config ./webpack.prod.js --env profile=uvl",
+    "bundle:prod:uvl-bp": "webpack --config ./webpack.prod.js --env profile=uvl-bp",
     "clean": "rimraf lib dist tsconfig.tsbuildinfo uvl-vscode.vsix",
     "compile": "tsc -b",
     "lint": "eslint --ext .ts,.tsx ./src",
     "lint:fix": "eslint --ext .ts,.tsx ./src --fix",
     "lint:ci": "yarn lint --output-file eslint_report.json --format json",
-    "package": "vsce package --yarn --out uvl-vscode.vsix",
+    "package": "node ./scripts/build-extension.js",
+    "package:uvl": "yarn package --env profile=uvl",
+    "package:uvl-bp": "yarn package --env profile=uvl-bp",
     "watch": "tsc -w",
     "watch:bundle": "webpack --watch"
   },
@@ -180,11 +185,11 @@
     "@eclipse-glsp/vscode-integration": "2.5.0",
     "@types/node": "^18.11.9",
     "@types/vscode": "^1.80.0",
-    "@vscode/vsce": "^2.19.0",
+    "@vscode/vsce": "^3.7.1",
     "copy-webpack-plugin": "^13.0.1",
     "ts-loader": "^9.5.4",
-    "uvl-command-contribution": "0.2.0",
-    "uvl-vscode-webview": "0.2.0",
+    "uvl-command-contribution": "0.2.1",
+    "uvl-vscode-webview": "0.2.1",
     "webpack": "5.104.1",
     "webpack-cli": "^5.1.4",
     "webpack-merge": "^5.10.0"

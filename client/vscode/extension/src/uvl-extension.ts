@@ -14,11 +14,13 @@ import {
     GlspVscodeConnector,
     SocketGlspVscodeServer
 } from '@eclipse-glsp/vscode-integration/node';
-import { configureUVLCommandContributions } from 'uvl-command-contribution';
 import * as path from 'path';
 import * as process from 'process';
 import * as vscode from 'vscode';
+import { configureBuildProfileCommandContributions } from './plugin-registry';
 import UVLEditorProvider from "./uvl-editor-provider";
+
+declare const __UVL_SERVER_JAR_NAME__: string;
 
 export const LOG_DIR = path.join(__dirname, '..', 'logs');
 
@@ -30,7 +32,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     const port = JSON.parse(process.env.GLSP_SERVER_PORT || DEFAULT_SERVER_PORT);
 
     if (process.env.GLSP_SERVER_DEBUG !== 'true') {
-        const modulePath = vscode.Uri.joinPath(context.extensionUri, 'dist', 'uvl-0.2.0-glsp.jar').fsPath;
+        const modulePath = vscode.Uri.joinPath(context.extensionUri, 'dist', __UVL_SERVER_JAR_NAME__).fsPath;
         serverProcess = new GlspSocketServerLauncher({
             executable: modulePath,
             socketConnectionOptions: { port: port },
@@ -71,5 +73,5 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     await minimalServer.start();
 
     configureDefaultCommands({ extensionContext: context, connector: glspVscodeConnector, diagramPrefix: 'uvl' });
-    configureUVLCommandContributions({ extensionContext: context, connector: glspVscodeConnector, diagramPrefix: 'uvl' });
+    configureBuildProfileCommandContributions({ extensionContext: context, connector: glspVscodeConnector, diagramPrefix: 'uvl' });
 }

@@ -1,12 +1,11 @@
 {
-  "name": "uvl-command-contribution",
-  "version": "0.2.0",
+  "name": "uvl-sprotty",
+  "version": "0.2.1",
   "private": "true",
-  "description": "Command contribution package for the UVL GLSP VSCode client",
+  "description": "Sprotty diagram elements for the UVL GLSP client",
   "keywords": [
     "glsp",
-    "commands",
-    "menus",
+    "diagram",
     "uvl"
   ],
   "repository": {
@@ -28,7 +27,8 @@
   "types": "lib/index",
   "files": [
     "lib",
-    "src"
+    "src",
+    "css"
   ],
   "scripts": {
     "build": "tsc -b",
@@ -39,9 +39,10 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@eclipse-glsp/vscode-integration": "2.5.0",
-    "@types/vscode": "^1.80.0",
-    "inversify": "^6.1.3"
+    "@eclipse-glsp/client": "2.5.0",
+    "balloon-css": "^1.2.0",
+    "inversify": "^6.1.3",
+    "uvl-common": "0.2.1"
   },
   "devDependencies": {
     "reflect-metadata": "~0.2.2"

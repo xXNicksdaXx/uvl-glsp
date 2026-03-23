@@ -7,6 +7,7 @@ package de.tu_dresden.inf.st.uvl.glsp.launch;
 
 import de.tu_dresden.inf.st.uvl.glsp.UVLDiagramModule;
 import org.apache.commons.cli.ParseException;
+import org.eclipse.glsp.server.di.DiagramModule;
 import org.eclipse.glsp.server.di.ServerModule;
 import org.eclipse.glsp.server.launch.DefaultCLIParser;
 import org.eclipse.glsp.server.launch.GLSPServerLauncher;
@@ -24,7 +25,7 @@ import org.eclipse.glsp.server.utils.LaunchUtil;
  * The launcher is intended to be used as the main class for running
  * the UVL diagram editor backend.
  */
-public final class UVLServerLauncher {
+public class UVLServerLauncher {
 
     /**
      * Starts the UVL GLSP server with the provided command-line arguments.
@@ -39,7 +40,16 @@ public final class UVLServerLauncher {
      *             <code>--host</code> and <code>--port</code>
      */
     public static void main(final String[] args) {
-        String processName = "UVLGlspServer";
+        new UVLServerLauncher().launch(args);
+    }
+
+    /**
+     * Launches the server with the given arguments.
+     *
+     * @param args the command-line arguments
+     */
+    public void launch(final String[] args) {
+        String processName = getProcessName();
         try {
             // Initialize the CLI parser with the provided arguments
             DefaultCLIParser parser = new DefaultCLIParser(args, processName);
@@ -49,11 +59,9 @@ public final class UVLServerLauncher {
             String host = parser.parseHostname();
 
             // Create and configure the server module with the UVL diagram module
-            ServerModule UVLServerModule = new ServerModule()
-                    .configureDiagramModule(new UVLDiagramModule());
-
+            ServerModule serverModule = createServerModule();
             // Start the GLSP server as a socket server with the specified parameters
-            GLSPServerLauncher launcher = new SocketGLSPServerLauncher(UVLServerModule);
+            GLSPServerLauncher launcher = new SocketGLSPServerLauncher(serverModule);
             launcher.start(host, port, parser);
         } catch (ParseException ex) {
             // Print the error and display help if argument parsing fails
@@ -63,9 +71,30 @@ public final class UVLServerLauncher {
     }
 
     /**
-     * Private constructor to prevent instantiation of this utility class.
+     * Returns the process name for this launcher.
+     *
+     * @return the process name
      */
-    private UVLServerLauncher() {
-        // Prevent instantiation
+    protected String getProcessName() {
+        return "UVLGlspServer";
+    }
+
+    /**
+     * Creates and configures the server module.
+     *
+     * @return the server module
+     */
+    protected ServerModule createServerModule() {
+        return new ServerModule().configureDiagramModule(createDiagramModule());
+    }
+
+    /**
+     * Creates the diagram module used by the server.
+     * Can be overridden by subclasses to provide a custom diagram module.
+     *
+     * @return the diagram module
+     */
+    protected DiagramModule createDiagramModule() {
+        return new UVLDiagramModule();
     }
 }

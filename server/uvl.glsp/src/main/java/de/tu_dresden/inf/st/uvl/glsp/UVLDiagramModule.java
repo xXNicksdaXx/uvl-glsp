@@ -8,7 +8,7 @@ package de.tu_dresden.inf.st.uvl.glsp;
 import com.google.inject.Singleton;
 import de.tu_dresden.inf.st.uvl.glsp.handler.*;
 import de.tu_dresden.inf.st.uvl.glsp.layout.UVLTreeLayoutEngine;
-import de.tu_dresden.inf.st.uvl.glsp.model.UVLGModelFactory;
+import de.tu_dresden.inf.st.uvl.glsp.gmodel.UVLGModelFactory;
 import de.tu_dresden.inf.st.uvl.glsp.model.UVLModelState;
 import de.tu_dresden.inf.st.uvl.glsp.model.UVLModelStateImpl;
 import de.tu_dresden.inf.st.uvl.glsp.model.UVLSourceModelStorage;

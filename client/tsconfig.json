@@ -9,10 +9,13 @@
       "path": "./packages/common"
     },
     {
-      "path": "./packages/sprotty"
+      "path": "./packages/uvl-sprotty"
     },
     {
-      "path": "./packages/command-contribution"
+      "path": "./packages/uvl-command-contribution"
+    },
+    {
+      "path": "./extensions/bp-sprotty"
     },
     {
       "path": "./vscode/extension"
