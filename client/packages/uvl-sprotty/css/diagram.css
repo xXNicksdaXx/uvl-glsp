@@ -59,8 +59,16 @@ svg {
 }
 
 .sprotty-edge {
-    stroke: black;
+    stroke: var(--vscode-editor-foreground);
     stroke-width: 1px;
+}
+
+body.vscode-light .sprotty-edge {
+    stroke: black;
+}
+
+body.vscode-dark .sprotty-edge {
+    stroke: lightgrey;
 }
 
 .separator-line {
@@ -99,7 +107,6 @@ svg {
 
 .optional .circle {
     fill: white;
-
 }
 
 .sector {
@@ -128,7 +135,7 @@ svg {
 }
 
 .triangle {
-    stroke: black !important;
+    stroke: var(--vscode-editor-foreground) !important;
     fill: white;
 }
 
@@ -138,6 +145,7 @@ svg {
 }
 
 .edge-label {
+    fill: var(--vscode-editor-foreground) !important;
     font-size: 8px !important;
     font-weight: normal;
     text-anchor: start;

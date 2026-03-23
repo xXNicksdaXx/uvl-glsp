@@ -38,11 +38,12 @@ import { UVLModelTypes } from 'uvl-common';
 import 'balloon-css/balloon.min.css';
 import '../css/diagram.css';
 
+import { CircleEdgeView, DoubleArrowEdgeView, SectorEdgeView, SingleArrowEdgeView } from "./edge-views";
 import { CenteredAnchor } from "./features/center-anchor-computer";
 import { EditableCompartmentSelectionFeedback } from './features/feedback';
 import { UVLPolylineEdgeRouter } from "./features/uvl-polyline-edge-router";
-import { EditableGLabel, EditableGCompartment, LabeledNode } from "./model";
-import { CircleEdgeView, DoubleArrowEdgeView, LabeledNodeView, SectorEdgeView, SingleArrowEdgeView } from "./views";
+import { EditableGCompartment, EditableGLabel, LabeledNode } from "./model";
+import { LabeledNodeView } from './node-views';
 
 const uvlDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = {bind, unbind, isBound, rebind};
