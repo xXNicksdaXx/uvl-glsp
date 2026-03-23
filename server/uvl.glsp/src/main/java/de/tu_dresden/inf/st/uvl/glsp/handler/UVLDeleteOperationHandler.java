@@ -110,18 +110,27 @@ public class UVLDeleteOperationHandler extends GModelOperationHandler<DeleteOper
 
         GModelElement element = gModelElement.get();
         if (element.getType().equals(UVLModelTypes.ATTRIBUTE)) {
-            int index = GModelUtil.extractAttributeIndex(elementId);
             String featureId = GModelUtil.extractUUID(elementId);
+            if (featureId == null) {
+                throw new IllegalStateException("Feature ID not found for attribute: " + elementId);
+            }
 
             Feature feature = modelState.getIndex().getUVLObject(featureId, Feature.class).orElseThrow(
                     () -> new IllegalStateException("Feature not found for attribute: " + elementId));
-            String attributeName = feature.getAttributes().keySet().stream().skip(index).findFirst().orElse(null);
-            feature.getAttributes().remove(attributeName);
 
-            if (ConstraintUtil.featureAttributeIsInConstraint(feature, attributeName, modelState.getFeatureModel())) {
+            GModelUtil.ResolvedAttribute resolvedAttribute = GModelUtil.resolveAttribute(feature, elementId)
+                    .orElseThrow(() -> new IllegalArgumentException("Could not resolve attribute from ID: " + elementId));
+
+            String attributeName = resolvedAttribute.attribute().getName();
+            resolvedAttribute.parentMap().remove(resolvedAttribute.mapKey());
+
+            // Constraints reference only top-level attributes
+            if (resolvedAttribute.path().size() == 1
+                    && ConstraintUtil.featureAttributeIsInConstraint(feature, attributeName, modelState.getFeatureModel())) {
                 ConstraintUtil.removeFeatureAttributeInConstraints(feature, attributeName, modelState.getFeatureModel());
             }
         }
+        modelState.updateIndex();
         return true;
     }
 

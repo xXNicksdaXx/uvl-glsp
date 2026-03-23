@@ -5,11 +5,16 @@
  */
 package de.tu_dresden.inf.st.uvl.glsp.utils;
 
+import de.tu_dresden.inf.st.uvl.metamodel.model.Attribute;
+import de.tu_dresden.inf.st.uvl.metamodel.model.Feature;
 import org.eclipse.glsp.graph.GLabel;
 import org.eclipse.glsp.graph.GModelElement;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -84,4 +89,90 @@ public class GModelUtil {
         }
         return -1;
     }
+
+    /**
+     * Extracts all attribute indices from a potentially nested attribute id.
+     * Example: "<featureId>_attribute_0_attribute_2_name" -> [0, 2].
+     */
+    public static List<Integer> extractAttributePath(final String input) {
+        if (input == null) {
+            return Collections.emptyList();
+        }
+
+        Matcher matcher = Pattern.compile("attribute_(\\d+)").matcher(input);
+        List<Integer> path = new ArrayList<>();
+        while (matcher.find()) {
+            path.add(Integer.parseInt(matcher.group(1)));
+        }
+        return path;
+    }
+
+    public static Optional<ResolvedAttribute> resolveAttribute(final Feature feature, final String elementId) {
+        return resolveAttribute(feature, extractAttributePath(elementId));
+    }
+
+    public static Optional<ResolvedAttribute> resolveAttribute(final Feature feature, final List<Integer> path) {
+        if (feature == null || path == null || path.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Map<String, Attribute<?>> currentMap = feature.getAttributes();
+        Attribute<?> currentAttribute = null;
+        String currentKey = null;
+
+        for (int depth = 0; depth < path.size(); depth++) {
+            int index = path.get(depth);
+            Map.Entry<String, Attribute<?>> entryAtIndex = entryAtIndex(currentMap, index);
+            if (entryAtIndex == null) {
+                return Optional.empty();
+            }
+
+            currentKey = entryAtIndex.getKey();
+            currentAttribute = entryAtIndex.getValue();
+
+            if (depth < path.size() - 1) {
+                Optional<Map<String, Attribute<?>>> nextMap = asAttributeMap(currentAttribute);
+                if (nextMap.isEmpty()) {
+                    return Optional.empty();
+                }
+                currentMap = nextMap.get();
+            }
+        }
+
+        return Optional.of(new ResolvedAttribute(currentAttribute, currentMap, currentKey, List.copyOf(path)));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Optional<Map<String, Attribute<?>>> asAttributeMap(final Attribute<?> attribute) {
+        if (attribute == null || !(attribute.getValue() instanceof Map<?, ?> rawMap)) {
+            return Optional.empty();
+        }
+        for (Map.Entry<?, ?> entry : rawMap.entrySet()) {
+            if (!(entry.getKey() instanceof String) || !(entry.getValue() instanceof Attribute)) {
+                return Optional.empty();
+            }
+        }
+        return Optional.of((Map<String, Attribute<?>>) rawMap);
+    }
+
+    private static Map.Entry<String, Attribute<?>> entryAtIndex(final Map<String, Attribute<?>> attributes, final int index) {
+        if (attributes == null || index < 0 || index >= attributes.size()) {
+            return null;
+        }
+        int i = 0;
+        for (Map.Entry<String, Attribute<?>> entry : attributes.entrySet()) {
+            if (i == index) {
+                return entry;
+            }
+            i++;
+        }
+        return null;
+    }
+
+    public record ResolvedAttribute(
+            Attribute<?> attribute,
+            Map<String, Attribute<?>> parentMap,
+            String mapKey,
+            List<Integer> path
+    ) {}
 }

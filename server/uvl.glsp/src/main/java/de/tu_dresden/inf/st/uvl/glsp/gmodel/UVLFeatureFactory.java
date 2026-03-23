@@ -21,6 +21,7 @@ import org.eclipse.glsp.graph.builder.impl.GLayoutOptions;
 import org.eclipse.glsp.graph.builder.impl.GNodeBuilder;
 import org.eclipse.glsp.graph.util.GConstants;
 
+import java.util.Map;
 import java.util.Optional;
 
 public class UVLFeatureFactory extends AbstractGModelFactory<Feature, GNode> {
@@ -113,8 +114,73 @@ public class UVLFeatureFactory extends AbstractGModelFactory<Feature, GNode> {
     }
 
     protected GCompartment createAttribute(final String id, final int index, final Attribute<?> attribute) {
-        String attributeId = id + "_attribute_" + index;
+        return createAttribute(id + "_attribute_" + index, attribute, 0);
+    }
 
+    protected GCompartment createAttribute(final String attributeId, final Attribute<?> attribute, final int indentLevel) {
+        Map<String, Attribute<?>> subAttributes = getSubAttributes(attribute);
+
+        if (subAttributes == null) {
+            return createLeafAttribute(attributeId, attribute, indentLevel);
+        }
+
+        GCompartmentBuilder attributeCompartmentBuilder = new GCompartmentBuilder(UVLModelTypes.ATTRIBUTE)
+                .id(attributeId)
+                .addCssClass("attribute")
+                .layout(GConstants.Layout.VBOX)
+                .layoutOptions(new GLayoutOptions()
+                        .hAlign(GConstants.HAlign.LEFT)
+                        .resizeContainer(true))
+                .add(new GCompartmentBuilder(DefaultTypes.COMPARTMENT)
+                        .id(attributeId + "_open")
+                        .layout(GConstants.Layout.HBOX)
+                        .layoutOptions(new GLayoutOptions()
+                                .hAlign(GConstants.HAlign.LEFT)
+                                .resizeContainer(true))
+                        .add(new GLabelBuilder(DefaultTypes.LABEL)
+                                .text(indent(indentLevel))
+                                .build())
+                        .add(new GLabelBuilder(UVLModelTypes.ATTRIBUTE_NAME)
+                                .id(attributeId + "_name")
+                                .text(attribute.getName())
+                                .build())
+                        .add(new GLabelBuilder(DefaultTypes.LABEL)
+                                .text(" = {")
+                                .build())
+                        .build());
+
+        GCompartmentBuilder childrenCompartmentBuilder = new GCompartmentBuilder(DefaultTypes.COMPARTMENT)
+                .id(attributeId + "_children")
+                .layout(GConstants.Layout.VBOX)
+                .layoutOptions(new GLayoutOptions()
+                        .hAlign(GConstants.HAlign.LEFT)
+                        .resizeContainer(true));
+
+        int childIndex = 0;
+        for (Attribute<?> subAttribute : subAttributes.values()) {
+            childrenCompartmentBuilder.add(createAttribute(attributeId + "_attribute_" + childIndex, subAttribute, indentLevel + 1));
+            childIndex++;
+        }
+
+        return attributeCompartmentBuilder
+                .add(childrenCompartmentBuilder.build())
+                .add(new GCompartmentBuilder(DefaultTypes.COMPARTMENT)
+                        .id(attributeId + "_close")
+                        .layout(GConstants.Layout.HBOX)
+                        .layoutOptions(new GLayoutOptions()
+                                .hAlign(GConstants.HAlign.LEFT)
+                                .resizeContainer(true))
+                        .add(new GLabelBuilder(DefaultTypes.LABEL)
+                                .text(indent(indentLevel))
+                                .build())
+                        .add(new GLabelBuilder(DefaultTypes.LABEL)
+                                .text("}")
+                                .build())
+                        .build())
+                .build();
+    }
+
+    protected GCompartment createLeafAttribute(final String attributeId, final Attribute<?> attribute, final int indentLevel) {
         return new GCompartmentBuilder(UVLModelTypes.ATTRIBUTE)
                 .id(attributeId)
                 .addCssClass("attribute")
@@ -125,6 +191,9 @@ public class UVLFeatureFactory extends AbstractGModelFactory<Feature, GNode> {
                         .paddingRight(2)
                         .paddingBottom(2.0)
                         .resizeContainer(true))
+                .add(new GLabelBuilder(DefaultTypes.LABEL)
+                        .text(indent(indentLevel))
+                        .build())
                 .add(new GLabelBuilder(UVLModelTypes.ATTRIBUTE_NAME)
                         .id(attributeId + "_name")
                         .text(attribute.getName())
@@ -137,6 +206,25 @@ public class UVLFeatureFactory extends AbstractGModelFactory<Feature, GNode> {
                         .text(formatAttributeValue(attribute))
                         .build())
                 .build();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Map<String, Attribute<?>> getSubAttributes(final Attribute<?> attribute) {
+        Object value = attribute.getValue();
+        if (!(value instanceof Map<?, ?> rawMap)) {
+            return null;
+        }
+
+        for (Map.Entry<?, ?> entry : rawMap.entrySet()) {
+            if (!(entry.getKey() instanceof String) || !(entry.getValue() instanceof Attribute)) {
+                return null;
+            }
+        }
+        return (Map<String, Attribute<?>>) rawMap;
+    }
+
+    protected String indent(final int indentLevel) {
+        return "  ".repeat(Math.max(0, indentLevel));
     }
 
     protected String formatAttributeValue(final Attribute<?> attribute) {

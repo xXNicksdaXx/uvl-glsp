@@ -21,6 +21,8 @@ import org.eclipse.glsp.server.gmodel.GModelApplyLabelEditOperationHandler;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 public class UVLApplyLabelEditOperationHandler extends GModelApplyLabelEditOperationHandler {
 
@@ -75,55 +77,62 @@ public class UVLApplyLabelEditOperationHandler extends GModelApplyLabelEditOpera
     }
 
     protected void  updateAttributeName(GLabel label, Feature feature, String newName) {
-        // get previous attribute name & value
-        String previousName = label.getText();
-        Attribute<?> previousAttribute = feature.getAttributes().get(previousName);
-        if (previousAttribute == null) {
-            throw new IllegalArgumentException("No attribute found for name " + previousName + " in feature " + feature.getFeatureName());
+        GModelUtil.ResolvedAttribute resolvedAttribute = GModelUtil.resolveAttribute(feature, label.getId())
+                .orElseThrow(() -> new IllegalArgumentException("No attribute found for label ID: " + label.getId()));
+
+        String previousName = resolvedAttribute.attribute().getName();
+        if (resolvedAttribute.parentMap().containsKey(newName) && !Objects.equals(newName, resolvedAttribute.mapKey())) {
+            throw new IllegalArgumentException("An attribute with the name '" + newName + "' already exists at this level.");
         }
 
         // update GModel
         label.setText(newName);
 
-        // update Feature Attribute
-        Attribute<?> newAttribute = new Attribute<>(newName, previousAttribute.getValue(), feature);
-        feature.getAttributes().putIfAbsent(newName, newAttribute);
-        feature.getAttributes().remove(previousName);
+        // update Feature Attribute while preserving insertion order
+        Attribute<?> newAttribute = new Attribute<>(newName, resolvedAttribute.attribute().getValue(), feature);
+        replaceMapEntry(resolvedAttribute.parentMap(), resolvedAttribute.mapKey(), newName, newAttribute);
 
-        // update expression references if the attribute is used in any constraints
-        if (ConstraintUtil.featureAttributeIsInConstraint(feature, previousName, modelState.getFeatureModel())) {
+        // Constraints can only reference top-level attributes via feature.attribute
+        if (resolvedAttribute.path().size() == 1
+                && ConstraintUtil.featureAttributeIsInConstraint(feature, previousName, modelState.getFeatureModel())) {
             ConstraintUtil.updateFeatureAttributeInConstraints(feature, previousName, newName, modelState.getFeatureModel());
         }
     }
 
     protected void updateAttributeValue(GLabel label, Feature feature, String newValue) {
-        // get attribute index from label ID
-        int index = GModelUtil.extractAttributeIndex(label.getId());
-        if (index == -1) {
-            throw new IllegalArgumentException("No valid attribute index found in label ID: " + label.getId());
-        }
-
-        if (index >= feature.getAttributes().size()) {
-            throw new IllegalArgumentException("Attribute index " + index + " is out of bounds for feature with " + feature.getAttributes().size() + " attributes.");
-        }
-
-        String attributeKey = feature.getAttributes().keySet().stream().skip(index).findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Attribute index " + index + " is out of bounds for feature with " + feature.getAttributes().size() + " attributes."));
-        Attribute<?> previousAttribute = feature.getAttributes().get(attributeKey);
-        if (previousAttribute == null) {
-            throw new IllegalArgumentException("No attribute found for key " + attributeKey + " in feature " + feature.getFeatureName());
-        }
+        GModelUtil.ResolvedAttribute resolvedAttribute = GModelUtil.resolveAttribute(feature, label.getId())
+                .orElseThrow(() -> new IllegalArgumentException("No attribute found for label ID: " + label.getId()));
 
         // update GModel
         label.setText(newValue);
 
         // update Feature Attribute
-        Attribute<?> newAttribute = new Attribute<>(
+        Attribute<?> previousAttribute = resolvedAttribute.attribute();
+        Attribute<Object> updatedAttribute = new Attribute<>(
                 previousAttribute.getName(),
                 TypeCastingUtil.convertStringToBestType(newValue),
                 feature
         );
-        feature.getAttributes().replace(attributeKey, newAttribute);
+        replaceMapEntry(resolvedAttribute.parentMap(), resolvedAttribute.mapKey(), resolvedAttribute.mapKey(), updatedAttribute);
+    }
+
+    protected void replaceMapEntry(final Map<String, Attribute<?>> attributes, final String oldKey,
+                                   final String newKey, final Attribute<?> attribute) {
+        if (Objects.equals(oldKey, newKey)) {
+            attributes.put(oldKey, attribute);
+            return;
+        }
+
+        Map<String, Attribute<?>> reorderedAttributes = new LinkedHashMap<>();
+        for (Map.Entry<String, Attribute<?>> entry : attributes.entrySet()) {
+            if (entry.getKey().equals(oldKey)) {
+                reorderedAttributes.put(newKey, attribute);
+            } else {
+                reorderedAttributes.put(entry.getKey(), entry.getValue());
+            }
+        }
+        attributes.clear();
+        attributes.putAll(reorderedAttributes);
     }
 
     protected void updateFeatureCardinality(GLabel label, Feature feature, String newName) {
