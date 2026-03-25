@@ -14,6 +14,8 @@ import { DefaultTypes } from '@eclipse-glsp/client';
  * For corresponding server-side types, see <code>UVLModelTypes.java</code>.
  */
 export namespace UVLModelTypes {
+    export const STRUCTURED_COMPARTMENT = `${DefaultTypes.COMPARTMENT}:structured`;
+
     export const CONSTRAINT_BOX = `${DefaultTypes.NODE}:constraintBox`;
     export const CONSTRAINT = `${DefaultTypes.COMPARTMENT}:constraint`;
     export const CONSTRAINT_TEXT = `${DefaultTypes.LABEL}:constraint`;

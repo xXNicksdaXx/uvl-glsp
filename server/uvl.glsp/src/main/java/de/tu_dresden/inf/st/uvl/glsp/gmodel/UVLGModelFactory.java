@@ -80,6 +80,7 @@ public class UVLGModelFactory implements GModelFactory {
 
         root.getChildren().add(createConstraintBox(getComplexConstraints(featureModel)));
     }
+
     protected GNode createConstraintBox(final Collection<Constraint> constraints) {
         UVLModelIndex index = modelState.getIndex();
 

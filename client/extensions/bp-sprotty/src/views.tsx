@@ -8,9 +8,15 @@
 import {
     GEdge,
     GEdgeView,
+    GNode,
+    GPort,
+    GShapeElement,
+    Hoverable,
     IViewArgs,
     Point,
-    RenderingContext
+    RenderingContext,
+    Selectable,
+    ShapeView
 } from '@eclipse-glsp/client';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
@@ -47,3 +53,27 @@ export class BPEdgeView extends GEdgeView {
     }
 }
 
+@injectable()
+export class TriangularNodeView extends ShapeView {
+    render(node: Readonly<GShapeElement & Hoverable & Selectable>, context: RenderingContext, args?: IViewArgs): VNode | undefined {
+        if (!this.isVisible(node, context)) {
+            return undefined;
+        }
+
+        const width = Math.max(0, node.bounds.width);
+        const height = Math.max(0, node.bounds.height);
+        const triangle = `M ${width / 2},0 L ${width},${height} L 0,${height} Z`;
+
+        return <g>
+            <path
+                class-sprotty-node={node instanceof GNode}
+                class-sprotty-port={node instanceof GPort}
+                class-mouseover={node.hoverFeedback}
+                class-selected={node.selected}
+                x="0" y="0"
+                d={triangle}>
+            </path>
+            {context.renderChildren(node)}
+        </g>;
+    }
+}

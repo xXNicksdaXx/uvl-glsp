@@ -6,7 +6,6 @@
  *
  ****************************************************************************/
 
-export * from './bp-diagram-module';
 export * from './bp-model-types';
-export * from './bp-views';
-
+export * from './views';
+export * from './bp-diagram-module';

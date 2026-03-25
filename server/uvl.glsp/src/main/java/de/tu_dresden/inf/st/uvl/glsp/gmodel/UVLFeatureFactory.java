@@ -6,6 +6,7 @@
 package de.tu_dresden.inf.st.uvl.glsp.gmodel;
 
 import de.tu_dresden.inf.st.uvl.glsp.UVLModelTypes;
+import de.tu_dresden.inf.st.uvl.glsp.gmodel.generic.AbstractSingleGModelFactory;
 import de.tu_dresden.inf.st.uvl.glsp.model.UVLModelIndex;
 import de.tu_dresden.inf.st.uvl.glsp.utils.FeatureModelUtil;
 import de.tu_dresden.inf.st.uvl.metamodel.model.Attribute;
@@ -22,12 +23,15 @@ import org.eclipse.glsp.graph.builder.impl.GNodeBuilder;
 import org.eclipse.glsp.graph.util.GConstants;
 
 import java.util.Map;
-import java.util.Optional;
 
-public class UVLFeatureFactory extends AbstractGModelFactory<Feature, GNode> {
+public class UVLFeatureFactory extends AbstractSingleGModelFactory<Feature, GNode> {
 
     @Override
     protected GNode create(final Feature feature) {
+        return createFeature(feature);
+    }
+
+    protected GNode createFeature(final Feature feature) {
         UVLModelIndex index = modelState.getIndex();
         String id = index.getIdFor(feature).orElseThrow(
                 () -> new IllegalStateException("Feature not indexed: " + feature.getFeatureName())
@@ -45,15 +49,7 @@ public class UVLFeatureFactory extends AbstractGModelFactory<Feature, GNode> {
                 .add(buildHeader(id, feature.getFeatureName(), feature.getCardinality()))
                 .add(buildAttributeCompartment(id, feature));
 
-        Optional<GNode> node = index.getGModelElement(feature, GNode.class);
-        if (node.isPresent()) {
-            nodeBuilder.position(node.get().getPosition());
-            nodeBuilder.size(node.get().getSize());
-        } else {
-            // initialize with default position and size
-            nodeBuilder.position(0, 0);
-            nodeBuilder.size(64, 32);
-        }
+        applyNodeData(nodeBuilder, id);
         return nodeBuilder.build();
     }
 
@@ -75,21 +71,25 @@ public class UVLFeatureFactory extends AbstractGModelFactory<Feature, GNode> {
                 .add(headerLabel);
 
         if (cardinality != null) {
-            GLabel cardinalityLabel = new GLabelBuilder(UVLModelTypes.CARDINALITY_LABEL)
-                    .id(id + "_cardinality_label")
-                    .text(FeatureModelUtil.getCardinalityText(cardinality))
-                    .build();
-            headerBuilder
-                    .add(new GLabelBuilder(DefaultTypes.LABEL)
-                            .text(" [")
-                            .build())
-                    .add(cardinalityLabel)
-                    .add(new GLabelBuilder(DefaultTypes.LABEL)
-                            .text("]")
-                            .build());
+            addCardinality(cardinality, id,  headerBuilder);
         }
 
         return headerBuilder.build();
+    }
+
+    protected void addCardinality(final Cardinality cardinality, final String id, GCompartmentBuilder compartmentBuilder) {
+        GLabel cardinalityLabel = new GLabelBuilder(UVLModelTypes.CARDINALITY_LABEL)
+                .id(id + "_cardinality_label")
+                .text(FeatureModelUtil.getCardinalityText(cardinality))
+                .build();
+        compartmentBuilder
+                .add(new GLabelBuilder(DefaultTypes.LABEL)
+                        .text(" [")
+                        .build())
+                .add(cardinalityLabel)
+                .add(new GLabelBuilder(DefaultTypes.LABEL)
+                        .text("]")
+                        .build());
     }
 
     protected GCompartment buildAttributeCompartment(final String id, final Feature feature) {

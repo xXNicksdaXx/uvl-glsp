@@ -150,3 +150,29 @@ body.vscode-dark .sprotty-edge {
     font-weight: normal;
     text-anchor: start;
 }
+
+.bp-event {
+    stroke: black !important;
+    stroke-width: 1px !important;
+}
+
+.bp-event-requested {
+    fill: forestgreen !important;
+}
+
+.bp-event-waited-for {
+    fill: gold !important;
+}
+
+.bp-event-blocked {
+    fill: orangered !important;
+}
+
+.bp-event.mouseover {
+    stroke-width: 1.5px !important;
+}
+
+.sprotty-compartment.node\:b-thread-events {
+    fill: transparent;
+    stroke: transparent;
+}

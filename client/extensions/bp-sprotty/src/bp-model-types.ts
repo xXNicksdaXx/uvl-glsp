@@ -9,20 +9,25 @@
 import { DefaultTypes } from '@eclipse-glsp/client';
 
 /**
- * Defines string constants for all element types that are specific to the UVL BP extension.
+ * Defines string constants for all element types used in UVL BP diagrams.
  * <p>
- * These types are in addition to the base UVL types from the {@code uvl-common} package.
+ * For corresponding server-side types, see <code>BPModelTypes.java</code>.
  */
 export namespace BPModelTypes {
     export const BP_ENV = `${DefaultTypes.NODE}:env`;
     export const BP_CONFIG = `${DefaultTypes.NODE}:config`;
-    export const BP_THREAD = `${DefaultTypes.NODE}:thread`;
 
-    export const BP_REQUESTED  = `${DefaultTypes.EDGE}:bp-requested`;
-    export const BP_BLOCKED     = `${DefaultTypes.EDGE}:bp-blocked`;
-    export const BP_WAITED_FOR  = `${DefaultTypes.EDGE}:bp-waited-for`;
-    export const BP_SELECTED    = `${DefaultTypes.EDGE}:bp-selected`;
-    export const BP_CONFLICTING = `${DefaultTypes.EDGE}:bp-conflicting`;
+    export const B_THREAD = `${DefaultTypes.NODE}:b-thread`;
+
+    export const REQUESTED_EVENT = `${DefaultTypes.NODE}:requested-event`;
+    export const BLOCKED_EVENT = `${DefaultTypes.NODE}:blocked-event`;
+    export const WAITED_FOR_EVENT = `${DefaultTypes.NODE}:waited-for-event`;
+
+    export const REQUESTED  = `${DefaultTypes.EDGE}:requested`;
+    export const BLOCKED     = `${DefaultTypes.EDGE}:blocked`;
+    export const WAITED_FOR  = `${DefaultTypes.EDGE}:waited-for`;
+    export const SELECTED    = `${DefaultTypes.EDGE}:selected`;
+    export const CONFLICTING = `${DefaultTypes.EDGE}:conflicting`;
 
 }
 

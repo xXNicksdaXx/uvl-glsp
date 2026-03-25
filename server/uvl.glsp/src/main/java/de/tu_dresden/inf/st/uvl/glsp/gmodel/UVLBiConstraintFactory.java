@@ -6,6 +6,7 @@
 package de.tu_dresden.inf.st.uvl.glsp.gmodel;
 
 import de.tu_dresden.inf.st.uvl.glsp.UVLModelTypes;
+import de.tu_dresden.inf.st.uvl.glsp.gmodel.generic.AbstractSingleGModelFactory;
 import de.tu_dresden.inf.st.uvl.glsp.model.UVLModelIndex;
 import de.tu_dresden.inf.st.uvl.metamodel.model.building.VariableReference;
 import de.tu_dresden.inf.st.uvl.metamodel.model.constraint.Constraint;
@@ -18,7 +19,7 @@ import org.eclipse.glsp.graph.util.GConstants;
 
 import static de.tu_dresden.inf.st.uvl.glsp.utils.ConstraintUtil.convertConstraintTypeToModelType;
 
-public class UVLBiConstraintFactory extends AbstractGModelFactory<Constraint, GEdge> {
+public class UVLBiConstraintFactory extends AbstractSingleGModelFactory<Constraint, GEdge> {
 
     @Override
     public GEdge create(final Constraint constraint) {

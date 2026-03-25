@@ -6,6 +6,7 @@
 package de.tu_dresden.inf.st.uvl.glsp.gmodel;
 
 import de.tu_dresden.inf.st.uvl.glsp.UVLModelTypes;
+import de.tu_dresden.inf.st.uvl.glsp.gmodel.generic.AbstractCollectedGModelFactory;
 import de.tu_dresden.inf.st.uvl.glsp.model.UVLModelIndex;
 import de.tu_dresden.inf.st.uvl.glsp.utils.FeatureModelUtil;
 import de.tu_dresden.inf.st.uvl.glsp.utils.GroupUtil;
@@ -24,7 +25,7 @@ import java.util.List;
 public class UVLGroupFactory extends AbstractCollectedGModelFactory<Group, GEdge> {
 
     @Override
-    protected Collection<GEdge> create(final Group group) {
+    public Collection<GEdge> create(final Group group) {
         UVLModelIndex index = modelState.getIndex();
         List<GEdge> edges = new ArrayList<>();
 

@@ -15,8 +15,7 @@ import org.eclipse.glsp.graph.DefaultTypes;
  * This class is not intended to be instantiated.
  */
 public final class UVLModelTypes {
-
-    public static final String CONSTRAINT_BOX = DefaultTypes.NODE    + ":constraintBox";
+    public static final String CONSTRAINT_BOX = DefaultTypes.NODE + ":constraintBox";
     public static final String CONSTRAINT = DefaultTypes.COMPARTMENT + ":constraint";
     public static final String CONSTRAINT_TEXT = DefaultTypes.LABEL + ":constraint";
 
