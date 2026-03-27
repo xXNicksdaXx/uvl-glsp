@@ -8,6 +8,7 @@ package de.tu_dresden.inf.st.uvl.glsp;
 import org.eclipse.glsp.graph.DefaultTypes;
 import org.eclipse.glsp.server.diagram.BaseDiagramConfiguration;
 import org.eclipse.glsp.server.types.EdgeTypeHint;
+import org.eclipse.glsp.server.types.ElementTypeHint;
 import org.eclipse.glsp.server.types.ShapeTypeHint;
 
 import java.util.List;
@@ -76,5 +77,12 @@ public class UVLDiagramConfiguration extends BaseDiagramConfiguration {
                                 List.of(UVLModelTypes.FEATURE),
                                 List.of(UVLModelTypes.FEATURE))
                 );
+        }
+
+        protected <T extends ElementTypeHint> void replaceTypeHints(final List<T> typeHints, final List<T> newTypeHints) {
+                for (T newTypeHint : newTypeHints) {
+                        typeHints.replaceAll(typeHint ->
+                                typeHint.getElementTypeId().equals(newTypeHint.getElementTypeId()) ? newTypeHint : typeHint);
+                }
         }
 }

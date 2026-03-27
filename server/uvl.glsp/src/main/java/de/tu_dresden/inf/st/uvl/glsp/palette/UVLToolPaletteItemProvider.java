@@ -25,7 +25,7 @@ public class UVLToolPaletteItemProvider implements ToolPaletteItemProvider {
         );
     }
 
-    private PaletteItem elements() {
+    protected PaletteItem elements() {
         List<PaletteItem> elements = List.of(
                 node(UVLModelTypes.FEATURE, "Feature"),
                 node(UVLModelTypes.ATTRIBUTE, "Attribute"),
@@ -33,7 +33,7 @@ public class UVLToolPaletteItemProvider implements ToolPaletteItemProvider {
         return PaletteItem.createPaletteGroup("elements", "Elements", elements, "symbol-property", "A");
     }
 
-    private PaletteItem relations() {
+    protected PaletteItem relations() {
         List<PaletteItem> relations = List.of(
                 edge(UVLModelTypes.MANDATORY, "Mandatory"),
                 edge(UVLModelTypes.OPTIONAL, "Optional"),
@@ -43,7 +43,7 @@ public class UVLToolPaletteItemProvider implements ToolPaletteItemProvider {
         return PaletteItem.createPaletteGroup("relations", "Relations", relations, "symbol-property", "B");
     }
 
-    private PaletteItem constraints() {
+    protected PaletteItem constraints() {
         List<PaletteItem> constraints = List.of(
                 edge(UVLModelTypes.EQUIVALENCE, "Equivalence"),
                 edge(UVLModelTypes.IMPLICATION, "Implication")
@@ -62,7 +62,7 @@ public class UVLToolPaletteItemProvider implements ToolPaletteItemProvider {
      *
      * @return A {@link PaletteItem} that triggers node creation when selected
      */
-    private PaletteItem node(String elementTypeId, String label) {
+    protected PaletteItem node(String elementTypeId, String label) {
         return new PaletteItem(elementTypeId, label, new TriggerNodeCreationAction(elementTypeId));
     }
 
@@ -77,7 +77,7 @@ public class UVLToolPaletteItemProvider implements ToolPaletteItemProvider {
      *
      * @return A {@link PaletteItem} that triggers edge creation when selected
      */
-    private PaletteItem edge(String elementTypeId, String label) {
+    protected PaletteItem edge(String elementTypeId, String label) {
         return new PaletteItem(elementTypeId, label, new TriggerEdgeCreationAction(elementTypeId));
     }
 

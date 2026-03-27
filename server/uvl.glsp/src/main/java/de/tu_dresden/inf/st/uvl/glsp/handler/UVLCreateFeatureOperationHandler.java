@@ -35,8 +35,16 @@ public class UVLCreateFeatureOperationHandler extends GModelCreateOperationHandl
     @Inject
     protected ActionDispatcher actionDispatcher;
 
+    protected UVLCreateFeatureOperationHandler(final String... elementTypeIds) {
+        super(elementTypeIds);
+    }
+
     UVLCreateFeatureOperationHandler() {
-        super(UVLModelTypes.FEATURE);
+        this(UVLModelTypes.FEATURE);
+    }
+
+    protected String getCreatedNodeType() {
+        return UVLModelTypes.FEATURE;
     }
 
     @Override
@@ -110,7 +118,7 @@ public class UVLCreateFeatureOperationHandler extends GModelCreateOperationHandl
         String id = UUID.randomUUID().toString();
 
         // generate a new GNode with a label containing the feature name
-        GNodeBuilder nodeBuilder = new GNodeBuilder(UVLModelTypes.FEATURE)
+        GNodeBuilder nodeBuilder = new GNodeBuilder(getCreatedNodeType())
                 .id(id)
                 .add(new GLabelBuilder(DefaultTypes.LABEL)
                         .id(id + "_label")
