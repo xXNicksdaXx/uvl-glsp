@@ -19,9 +19,11 @@ export namespace BPModelTypes {
 
     export const B_THREAD = `${DefaultTypes.NODE}:b-thread`;
 
-    export const REQUESTED_EVENT = `${DefaultTypes.NODE}:requested-event`;
-    export const BLOCKED_EVENT = `${DefaultTypes.NODE}:blocked-event`;
-    export const WAITED_FOR_EVENT = `${DefaultTypes.NODE}:waited-for-event`;
+    export const REQUESTED_EVENT = `${DefaultTypes.COMPARTMENT}:requested-event`;
+    export const BLOCKED_EVENT = `${DefaultTypes.COMPARTMENT}:blocked-event`;
+    export const WAITED_FOR_EVENT = `${DefaultTypes.COMPARTMENT}:waited-for-event`;
+    export const EVENT_NAME = `${DefaultTypes.LABEL}:eventName`;
+    export const EVENT_PRIORITY = `${DefaultTypes.LABEL}:eventPriority`;
 
     export const REQUESTED  = `${DefaultTypes.EDGE}:requested`;
     export const BLOCKED     = `${DefaultTypes.EDGE}:blocked`;

@@ -86,14 +86,8 @@ body.vscode-dark .sprotty-edge {
 }
 
 .cursive-title {
-    font-size: 14px !important;
+    font-size: 10px !important;
     font-weight: normal;
-    font-style: italic;
-}
-
-.bold-cursive-title {
-    font-size: 14px !important;
-    font-weight: bold;
     font-style: italic;
 }
 
@@ -149,30 +143,4 @@ body.vscode-dark .sprotty-edge {
     font-size: 8px !important;
     font-weight: normal;
     text-anchor: start;
-}
-
-.bp-event {
-    stroke: black !important;
-    stroke-width: 1px !important;
-}
-
-.bp-event-requested {
-    fill: forestgreen !important;
-}
-
-.bp-event-waited-for {
-    fill: gold !important;
-}
-
-.bp-event-blocked {
-    fill: orangered !important;
-}
-
-.bp-event.mouseover {
-    stroke-width: 1.5px !important;
-}
-
-.sprotty-compartment.node\:b-thread-events {
-    fill: transparent;
-    stroke: transparent;
 }

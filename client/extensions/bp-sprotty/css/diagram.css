@@ -1,0 +1,14 @@
+.bp-event-requested {
+    stroke: none !important;
+    fill: forestgreen !important;
+}
+
+.bp-event-waited-for {
+    stroke: none !important;
+    fill: gold !important;
+}
+
+.bp-event-blocked {
+    stroke: none !important;
+    fill: orangered !important;
+}

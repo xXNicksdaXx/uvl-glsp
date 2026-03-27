@@ -14,7 +14,7 @@ import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import { svg } from 'sprotty';
 
-import { LabeledNode } from "./model";
+import {ConstraintBoxNode, FeatureNode, LabeledNode} from "./model";
 
 // Workaround for typing issues: Creating elements returns a `JSX.Element` instead of a `VNode`, which causes compilation errors.
 // Therefore, type the VNode elements as `any` to avoid these problems.
@@ -24,9 +24,9 @@ import { LabeledNode } from "./model";
 const JSX = { createElement: svg };
 
 @injectable()
-export class LabeledNodeView extends RectangularNodeView {
+export abstract class SeparatorNodeView<T extends LabeledNode> extends RectangularNodeView {
 
-    override render(node: LabeledNode, context: RenderingContext, args?: IViewArgs): VNode | undefined {
+    override render(node: T, context: RenderingContext, args?: IViewArgs): VNode | undefined {
         if (!this.isVisible(node, context)) {
             return undefined;
         }
@@ -42,23 +42,47 @@ export class LabeledNodeView extends RectangularNodeView {
                     class-selected={node.selected}
                     class-mouseover={node.hoverFeedback}
                 />
-
-                {this.renderSeparatorLine(node)}
-
+                {this.renderSeparatorLines(node)}
                 {context.renderChildren(node)}
             </g>
         );
     }
 
-    protected renderSeparatorLine(node: LabeledNode): VNode {
+    protected abstract renderSeparatorLines(node: T): VNode | undefined;
+
+    protected createSeparatorLine(height: number, width: number): VNode {
         return (
             <line
                 x1={0}
-                y1={Math.max(0, node.headerContainer.bounds.height)}
-                x2={Math.max(0, node.bounds.width)}
-                y2={Math.max(0, node.headerContainer.bounds.height)}
+                y1={Math.max(0, height)}
+                x2={Math.max(0, width)}
+                y2={Math.max(0, height)}
                 class-separator-line={true}
             />
         );
+    }
+}
+
+@injectable()
+export class FeatureNodeView extends SeparatorNodeView<FeatureNode> {
+
+    renderSeparatorLines(node: FeatureNode): VNode | undefined {
+        return (
+            node.hasAttributes()
+                ? this.createSeparatorLine(node.headerContainer.bounds.height, node.bounds.width)
+                : undefined
+        )
+    }
+}
+
+@injectable()
+export class ConstraintBoxNodeView extends SeparatorNodeView<ConstraintBoxNode> {
+
+    renderSeparatorLines(node: ConstraintBoxNode): VNode | undefined {
+        return (
+            node.hasConstraints()
+                ? this.createSeparatorLine(node.headerContainer.bounds.height, node.bounds.width)
+                : undefined
+        )
     }
 }

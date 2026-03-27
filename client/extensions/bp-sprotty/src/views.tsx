@@ -8,23 +8,50 @@
 import {
     GEdge,
     GEdgeView,
-    GNode,
-    GPort,
-    GShapeElement,
-    Hoverable,
     IViewArgs,
     Point,
-    RenderingContext,
-    Selectable,
-    ShapeView
+    RenderingContext
 } from '@eclipse-glsp/client';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import { svg } from 'sprotty';
 
+import { BThreadNode } from "./model";
+import {SeparatorNodeView} from "uvl-sprotty";
+
 // Workaround for typing issues with JSX / VNode – see uvl-sprotty views.tsx
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: svg };
+
+@injectable()
+export class BThreadNodeView extends SeparatorNodeView<BThreadNode> {
+
+    protected override renderSeparatorLines(node: BThreadNode): VNode | undefined {
+        const showAttributes = node.hasAttributes();
+        const showEvents = node.hasEvents();
+
+        if (!showAttributes && !showEvents) {
+            return undefined;
+        }
+
+        return (
+            <g>
+                {showAttributes
+                    ? this.createSeparatorLine(
+                        node.headerContainer.bounds.height,
+                        node.bounds.width
+                    )
+                    : undefined}
+                {showEvents
+                    ? this.createSeparatorLine(
+                        node.headerContainer.bounds.height + node.attributeContainer.bounds.height,
+                        node.bounds.width
+                    )
+                    : undefined}
+            </g>
+        );
+    }
+}
 
 /**
  * Simple dashed edge view used to render all BP event constraint edges.
@@ -50,30 +77,5 @@ export class BPEdgeView extends GEdgeView {
                 d={path}
             />
         ) as unknown as VNode;
-    }
-}
-
-@injectable()
-export class TriangularNodeView extends ShapeView {
-    render(node: Readonly<GShapeElement & Hoverable & Selectable>, context: RenderingContext, args?: IViewArgs): VNode | undefined {
-        if (!this.isVisible(node, context)) {
-            return undefined;
-        }
-
-        const width = Math.max(0, node.bounds.width);
-        const height = Math.max(0, node.bounds.height);
-        const triangle = `M ${width / 2},0 L ${width},${height} L 0,${height} Z`;
-
-        return <g>
-            <path
-                class-sprotty-node={node instanceof GNode}
-                class-sprotty-port={node instanceof GPort}
-                class-mouseover={node.hoverFeedback}
-                class-selected={node.selected}
-                x="0" y="0"
-                d={triangle}>
-            </path>
-            {context.renderChildren(node)}
-        </g>;
     }
 }

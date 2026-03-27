@@ -20,9 +20,11 @@ public final class BPModelTypes {
 
     public static final String B_THREAD = DefaultTypes.NODE + ":b-thread";
 
-    public static final String REQUESTED_EVENT = DefaultTypes.NODE + ":requested-event";
-    public static final String BLOCKED_EVENT = DefaultTypes.NODE + ":blocked-event";
-    public static final String WAITED_FOR_EVENT = DefaultTypes.NODE + ":waited-for-event";
+    public static final String REQUESTED_EVENT = DefaultTypes.COMPARTMENT + ":requested-event";
+    public static final String BLOCKED_EVENT = DefaultTypes.COMPARTMENT + ":blocked-event";
+    public static final String WAITED_FOR_EVENT = DefaultTypes.COMPARTMENT + ":waited-for-event";
+    public static final String EVENT_NAME = DefaultTypes.LABEL + ":eventName";
+    public static final String EVENT_PRIORITY = DefaultTypes.LABEL + ":eventPriority";
 
     public static final String REQUESTED = DefaultTypes.EDGE + ":requested";
     public static final String BLOCKED = DefaultTypes.EDGE + ":blocked";

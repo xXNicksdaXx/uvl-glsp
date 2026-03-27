@@ -56,6 +56,7 @@ public class UVLFeatureFactory extends AbstractSingleGModelFactory<Feature, GNod
     protected GCompartment buildHeader(final String id, final String name, final Cardinality cardinality) {
         GLabel headerLabel = new GLabelBuilder(UVLModelTypes.FEATURE_NAME)
                 .id(id + "_header_label")
+                .addCssClass("bold-title")
                 .text(name)
                 .build();
         GCompartmentBuilder headerBuilder = new GCompartmentBuilder(DefaultTypes.COMPARTMENT_HEADER)
