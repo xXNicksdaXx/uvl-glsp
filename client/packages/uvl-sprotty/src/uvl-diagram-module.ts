@@ -37,6 +37,7 @@ import { UVLModelTypes } from 'uvl-common';
 
 import 'balloon-css/balloon.min.css';
 import '../css/diagram.css';
+import '../css/tool-palette.css';
 
 import { CircleEdgeView, DoubleArrowEdgeView, SectorEdgeView, SingleArrowEdgeView } from "./edge-views";
 import { CenteredAnchor } from "./features/center-anchor-computer";
