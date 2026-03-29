@@ -1,6 +1,6 @@
 {
   "name": "uvl-bp-sprotty",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "private": "true",
   "description": "Sprotty diagram elements for the UVL BP GLSP client extension",
   "keywords": [
@@ -42,7 +42,7 @@
   "dependencies": {
     "@eclipse-glsp/client": "2.5.0",
     "inversify": "^6.1.3",
-    "uvl-sprotty": "0.2.1"
+    "uvl-sprotty": "0.3.0"
   },
   "devDependencies": {
     "reflect-metadata": "~0.2.2"

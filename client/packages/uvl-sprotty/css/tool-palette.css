@@ -1,0 +1,75 @@
+/****************************************************************************
+ *
+ * Copyright © 2026 Nick Ruider. All rights reserved.
+ * This work is licensed under the terms of the MIT license.
+ * For a copy, see <https://opensource.org/licenses/MIT>.
+ *
+ ****************************************************************************/
+
+/* Css for main container */
+.tool-palette {
+    border-color: var(--vscode-editorWidget-border);
+    color: var(--vscode-foreground);
+    box-shadow:
+    4px 0 4px 0 var(--vscode-widget-shadow),
+        0 4px 4px 0 var(--vscode-widget-shadow);
+}
+
+/* Css for header compartment */
+.palette-header {
+    background: var(--vscode-sideBarSectionHeader-background);
+    border-color: var(--vscode-editorWidget-border);
+}
+
+.header-tools i {
+    border-color: transparent;
+}
+
+.header-tools i:hover {
+    background: var(--vscode-toolbar-hoverBackground);
+}
+
+.header-tools .clicked {
+    background: var(--vscode-list-activeSelectionBackground);
+    border-color: var(--vscode-focusBorder);
+}
+
+/*Css for palette body compartment */
+.palette-body {
+    background: var(--vscode-editorWidget-background);
+    border-color: var(--vscode-editorWidget-border);
+}
+
+.tool-group {
+    background: var(--vscode-editor-background);
+}
+
+.group-header {
+    background: var(--vscode-sideBarSectionHeader-background);
+}
+
+.group-header:hover {
+    background: var(--vscode-sideBarSectionHeader-background);
+}
+
+.tool-button {
+    background: var(--vscode-editor-background);
+}
+
+.tool-button:hover {
+    background: var(--vscode-list-hoverBackground);
+}
+
+.tool-button.clicked {
+    background: var(--vscode-list-activeSelectionBackground);
+}
+
+.minimize-palette-button {
+    color: var(--vscode-icon-foreground);
+}
+
+.search-input {
+    background: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    border-color: var(--vscode-input-border);
+}

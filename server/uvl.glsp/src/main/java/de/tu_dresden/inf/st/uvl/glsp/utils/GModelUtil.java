@@ -5,15 +5,24 @@
  */
 package de.tu_dresden.inf.st.uvl.glsp.utils;
 
+import de.tu_dresden.inf.st.uvl.metamodel.model.Attribute;
+import de.tu_dresden.inf.st.uvl.metamodel.model.Feature;
 import org.eclipse.glsp.graph.GLabel;
 import org.eclipse.glsp.graph.GModelElement;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GModelUtil {
+    private static final Pattern ATTRIBUTE_OR_EVENT_SEGMENT_PATTERN = Pattern.compile("_(attribute|event)\\[([^\\]]+)]");
 
     /**
      * Finds the parent GModelElement of a given GLabel by extracting the UUID from the label's ID and traversing up the model hierarchy.
@@ -62,26 +71,88 @@ public class GModelUtil {
     }
 
     /**
-     * Extracts the attribute index from a given string.
-     * @param input The string containing the attribute index (e.g., "550e8400-e29b-41d4-a716-446655440000_attribute_0_name")
-     * @return The extracted attribute index as an integer, or -1 if no valid index is found.
+     * Extracts a name-based attribute/event path from a potentially nested element id.
+     * Example: "<featureId>_attribute[name]_attribute[nested]_name" -> ["name", "nested"].
      */
-    public static int extractAttributeIndex(String input) {
-        if (input == null) return -1;
+    public static List<String> extractAttributePath(final String input) {
+        if (input == null) {
+            return Collections.emptyList();
+        }
 
-        // Regex pattern to match "attribute_{index}", "attribute_{index}_name" or "attribute_{index}_value"
-        String regex = "attribute_(\\d+)(?:_name|_value)?";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(input);
+        Matcher matcher = ATTRIBUTE_OR_EVENT_SEGMENT_PATTERN.matcher(input);
+        List<String> path = new ArrayList<>();
+        while (matcher.find()) {
+            path.add(decodeIdSegment(matcher.group(2)));
+        }
+        return path;
+    }
 
-        if (matcher.find()) {
-            String indexString = matcher.group(1);
-            try {
-                return Integer.parseInt(indexString);
-            } catch (Exception e) {
-                return -1;
+    public static String appendAttributeSegment(final String parentId, final String attributeName) {
+        return parentId + "_attribute[" + encodeIdSegment(attributeName) + "]";
+    }
+
+    public static String appendEventSegment(final String parentId, final String eventName) {
+        return parentId + "_event[" + encodeIdSegment(eventName) + "]";
+    }
+
+    public static String encodeIdSegment(final String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
+    }
+
+    public static String decodeIdSegment(final String value) {
+        return URLDecoder.decode(value, StandardCharsets.UTF_8);
+    }
+
+    public static Optional<ResolvedAttribute> resolveAttribute(final Feature feature, final String elementId) {
+        return resolveAttribute(feature, extractAttributePath(elementId));
+    }
+
+    public static Optional<ResolvedAttribute> resolveAttribute(final Feature feature, final List<String> path) {
+        if (feature == null || path == null || path.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Map<String, Attribute<?>> currentMap = feature.getAttributes();
+        Attribute<?> currentAttribute = null;
+        String currentKey = null;
+
+        for (int depth = 0; depth < path.size(); depth++) {
+            String name = path.get(depth);
+            currentAttribute = currentMap.get(name);
+            if (currentAttribute == null) {
+                return Optional.empty();
+            }
+            currentKey = name;
+
+            if (depth < path.size() - 1) {
+                Optional<Map<String, Attribute<?>>> nextMap = asAttributeMap(currentAttribute);
+                if (nextMap.isEmpty()) {
+                    return Optional.empty();
+                }
+                currentMap = nextMap.get();
             }
         }
-        return -1;
+
+        return Optional.of(new ResolvedAttribute(currentAttribute, currentMap, currentKey, List.copyOf(path)));
     }
+
+    @SuppressWarnings("unchecked")
+    public static Optional<Map<String, Attribute<?>>> asAttributeMap(final Attribute<?> attribute) {
+        if (attribute == null || !(attribute.getValue() instanceof Map<?, ?> rawMap)) {
+            return Optional.empty();
+        }
+        for (Map.Entry<?, ?> entry : rawMap.entrySet()) {
+            if (!(entry.getKey() instanceof String) || !(entry.getValue() instanceof Attribute)) {
+                return Optional.empty();
+            }
+        }
+        return Optional.of((Map<String, Attribute<?>>) rawMap);
+    }
+
+    public record ResolvedAttribute(
+            Attribute<?> attribute,
+            Map<String, Attribute<?>> parentMap,
+            String mapKey,
+            List<String> path
+    ) {}
 }

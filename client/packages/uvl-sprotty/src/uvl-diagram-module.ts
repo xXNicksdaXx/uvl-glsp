@@ -37,12 +37,14 @@ import { UVLModelTypes } from 'uvl-common';
 
 import 'balloon-css/balloon.min.css';
 import '../css/diagram.css';
+import '../css/tool-palette.css';
 
+import { CircleEdgeView, DoubleArrowEdgeView, SectorEdgeView, SingleArrowEdgeView } from "./edge-views";
 import { CenteredAnchor } from "./features/center-anchor-computer";
-import { EditableCompartmentSelectionFeedback } from './features/feedback';
+import { EditableCompartmentSelectionFeedback } from './features/selection-feedback';
 import { UVLPolylineEdgeRouter } from "./features/uvl-polyline-edge-router";
-import { EditableGLabel, EditableGCompartment, LabeledNode } from "./model";
-import { CircleEdgeView, DoubleArrowEdgeView, LabeledNodeView, SectorEdgeView, SingleArrowEdgeView } from "./views";
+import { ConstraintBoxNode, EditableGCompartment, EditableGLabel, FeatureNode } from "./model";
+import { ConstraintBoxNodeView, FeatureNodeView } from './node-views';
 
 const uvlDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = {bind, unbind, isBound, rebind};
@@ -71,11 +73,11 @@ const uvlDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => 
     });
 
     // Register custom model elements and their views
-    configureModelElement(context, UVLModelTypes.CONSTRAINT_BOX, LabeledNode, LabeledNodeView);
+    configureModelElement(context, UVLModelTypes.CONSTRAINT_BOX, ConstraintBoxNode, ConstraintBoxNodeView);
     configureModelElement(context, UVLModelTypes.CONSTRAINT, EditableGCompartment, GCompartmentView);
     configureModelElement(context, UVLModelTypes.CONSTRAINT_TEXT, EditableGLabel, GLabelView);
 
-    configureModelElement(context, UVLModelTypes.FEATURE, LabeledNode, LabeledNodeView);
+    configureModelElement(context, UVLModelTypes.FEATURE, FeatureNode, FeatureNodeView);
     configureModelElement(context, UVLModelTypes.FEATURE_NAME, EditableGLabel, GLabelView);
 
     configureModelElement(context, UVLModelTypes.ATTRIBUTE, EditableGCompartment, GCompartmentView);

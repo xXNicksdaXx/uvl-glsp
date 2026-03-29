@@ -1,5 +1,5 @@
 {
-  "version": "0.2.1",
+  "version": "0.2.0",
   "configurations": [
     {
       "type": "java",
@@ -10,6 +10,21 @@
       "classPaths": [
         "${workspaceFolder}/server/uvl.glsp/target/classes",
         "${workspaceFolder}/server/uvl.glsp/target/dependency/*"
+      ],
+      "args": [
+        "--port",
+        "5007"
+      ]
+    },
+    {
+      "type": "java",
+      "name": "Launch UVL BP GLSP Server",
+      "request": "launch",
+      "mainClass": "de.tu_dresden.inf.st.uvl.bp.glsp.launch.BPServerLauncher",
+      "projectName": "uvl.bp.glsp",
+      "classPaths": [
+        "${workspaceFolder}/server/uvl.bp.glsp/target/classes",
+        "${workspaceFolder}/server/uvl.bp.glsp/target/dependency/*"
       ],
       "args": [
         "--port",

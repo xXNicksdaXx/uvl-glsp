@@ -7,4 +7,6 @@
  ****************************************************************************/
 
 export * from './model';
+export * from './node-views';
+export * from './edge-views';
 export * from './uvl-diagram-module';

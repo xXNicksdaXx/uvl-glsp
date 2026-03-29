@@ -77,7 +77,8 @@ public class UVLDiagramModule extends DiagramModule {
         binding.add(UVLDeleteOperationHandler.class);
 
         binding.add(UVLCreateFeatureOperationHandler.class);
-        binding.add(UVLCreateFeatureElementOperationHandler.class);
+        binding.add(UVLCreateAttributeOperationHandler.class);
+        binding.add(UVLCreateFeatureCardinalityOperationHandler.class);
         binding.add(UVLCreateRelationEdgeOperationHandler.class);
         binding.add(UVLCreateGroupCardinalityEdgeOperationHandler.class);
         binding.add(UVLCreateBiConstraintEdgeOperationHandler.class);

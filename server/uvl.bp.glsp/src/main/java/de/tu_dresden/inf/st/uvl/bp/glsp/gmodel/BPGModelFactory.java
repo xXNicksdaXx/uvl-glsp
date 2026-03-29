@@ -1,0 +1,38 @@
+/*
+ * Copyright © 2026 Nick Ruider. All rights reserved.
+ * This work is licensed under the terms of the MIT license.
+ * For a copy, see <https://opensource.org/licenses/MIT>.
+ */
+package de.tu_dresden.inf.st.uvl.bp.glsp.gmodel;
+
+import com.google.inject.Inject;
+import de.tu_dresden.inf.st.uvl.glsp.gmodel.UVLGModelFactory;
+import de.tu_dresden.inf.st.uvl.metamodel.model.FeatureModel;
+import org.eclipse.glsp.graph.GGraph;
+
+import java.util.Collection;
+
+import static de.tu_dresden.inf.st.uvl.glsp.utils.FeatureModelUtil.*;
+
+public class BPGModelFactory extends UVLGModelFactory {
+
+    @Inject
+    protected BPFeatureFactory bpFeatureFactory;
+
+    protected void fillRootElement(GGraph root, FeatureModel featureModel) {
+        featureModel.getFeatureMap().values().stream()
+                .map(bpFeatureFactory::create)
+                .forEachOrdered(root.getChildren()::add);
+
+        getAllGroups(featureModel).stream()
+                .map(groupFactory::create)
+                .flatMap(Collection::stream)
+                .forEachOrdered(root.getChildren()::add);
+
+        getEdgeConstraints(featureModel).stream()
+                .map(biConstraintFactory::create)
+                .forEachOrdered(root.getChildren()::add);
+
+        root.getChildren().add(createConstraintBox(getComplexConstraints(featureModel)));
+    }
+}

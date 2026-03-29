@@ -6,18 +6,11 @@
  *
  ****************************************************************************/
 
-/*
- * SVG border for the Sprotty diagram area.
- * Visually separates the diagram from the rest of the UI.
- */
+/* Base Canvas And Defaults */
 svg {
     fill: transparent;
 }
 
-/*
- * Sprotty node, component, and label fill.
- * Uses context-fill so Sprotty can dynamically set colors.
- */
 .sprotty-node,
 .sprotty-comp,
 .sprotty-label,
@@ -25,18 +18,11 @@ svg {
     fill: context-fill;
 }
 
-/*
- * Default font size for all text in Sprotty diagrams.
- * Ensures consistent text appearance.
- */
 .sprotty text {
     font-size: 12px;
 }
 
-/*
- * Node appearance for different node types.
- * These classes are set for specific node types.
- */
+/* Node Styling */
 .sprotty-node {
     fill: white;
     stroke: black !important;
@@ -58,8 +44,9 @@ svg {
     stroke-width: 0.5;
 }
 
+/* General Edge And Line Styling */
 .sprotty-edge {
-    stroke: black;
+    stroke: var(--vscode-editor-foreground) !important;
     stroke-width: 1px;
 }
 
@@ -68,38 +55,37 @@ svg {
     stroke-width: 1px;
 }
 
-/*
- * Label styles for node titles.
- * Used to highlight important text in nodes.
- */
+/* Label And Text Size */
 .bold-title {
     font-size: 14px !important;
     font-weight: bold;
 }
 
 .cursive-title {
-    font-size: 14px !important;
+    font-size: 10px !important;
     font-weight: normal;
     font-style: italic;
 }
 
-.bold-cursive-title {
-    font-size: 14px !important;
-    font-weight: bold;
-    font-style: italic;
+.attributes .sprotty-label {
+    font-size: 10px !important;
+    font-weight: normal;
 }
 
-.filler-label {
-    font-size: 4px !important;
+.edge-label {
+    fill: var(--vscode-editor-foreground) !important;
+    font-size: 8px !important;
+    font-weight: normal;
+    text-anchor: start;
 }
 
+/* Constraint Elements */
 .mandatory .circle {
     fill: black;
 }
 
 .optional .circle {
     fill: white;
-
 }
 
 .sector {
@@ -123,22 +109,11 @@ svg {
     fill: black;
 }
 
-.constraint-edge {
-    stroke-dasharray: 6;
-}
-
 .triangle {
-    stroke: black !important;
+    stroke: var(--vscode-editor-foreground) !important;
     fill: white;
 }
 
-.attributes .sprotty-label {
-    font-size: 10px !important;
-    font-weight: normal;
-}
-
-.edge-label {
-    font-size: 8px !important;
-    font-weight: normal;
-    text-anchor: start;
+.constraint-edge {
+    stroke-dasharray: 6;
 }

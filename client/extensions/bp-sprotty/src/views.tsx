@@ -16,9 +16,42 @@ import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import { svg } from 'sprotty';
 
+import { BThreadNode } from "./model";
+import {SeparatorNodeView} from "uvl-sprotty";
+
 // Workaround for typing issues with JSX / VNode – see uvl-sprotty views.tsx
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: svg };
+
+@injectable()
+export class BThreadNodeView extends SeparatorNodeView<BThreadNode> {
+
+    protected override renderSeparatorLines(node: BThreadNode): VNode | undefined {
+        const showAttributes = node.hasAttributes();
+        const showEvents = node.hasEvents();
+
+        if (!showAttributes && !showEvents) {
+            return undefined;
+        }
+
+        return (
+            <g>
+                {showAttributes
+                    ? this.createSeparatorLine(
+                        node.headerContainer.bounds.height,
+                        node.bounds.width
+                    )
+                    : undefined}
+                {showEvents
+                    ? this.createSeparatorLine(
+                        node.headerContainer.bounds.height + node.attributeContainer.bounds.height,
+                        node.bounds.width
+                    )
+                    : undefined}
+            </g>
+        );
+    }
+}
 
 /**
  * Simple dashed edge view used to render all BP event constraint edges.
@@ -46,4 +79,3 @@ export class BPEdgeView extends GEdgeView {
         ) as unknown as VNode;
     }
 }
-

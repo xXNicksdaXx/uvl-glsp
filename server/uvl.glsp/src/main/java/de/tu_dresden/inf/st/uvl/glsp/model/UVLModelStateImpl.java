@@ -48,8 +48,8 @@ public class UVLModelStateImpl extends DefaultGModelState implements UVLModelSta
     public void updateRoot(final GModelRoot newRoot) {
         setRoot(newRoot);
         this.index = getOrUpdateIndex(newRoot);
-        if (this.featureModel != null) {
-            getIndex().indexFeatureModel(this.featureModel);
+        if (getFeatureModel() != null) {
+            getIndex().indexFeatureModel(getFeatureModel());
         }
     }
 

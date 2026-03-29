@@ -1,6 +1,6 @@
 {
   "name": "uvl-client",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -25,13 +25,15 @@
   "scripts": {
     "all": "yarn clean && yarn install --ignore-scripts && yarn lint && yarn build",
     "build": "lerna run build",
+    "build:uvl": "yarn uvl-sprotty build && yarn vs-code-webview bundle:prod:uvl && yarn vs-code-extension bundle:prod:uvl",
+    "build:uvl-bp": "yarn uvl-sprotty build && yarn uvl-bp-sprotty build && yarn vs-code-webview bundle:prod:uvl-bp && yarn vs-code-extension bundle:prod:uvl-bp",
     "clean": "lerna run clean",
     "lint": "lerna run lint",
     "lint:fix": "lerna run lint:fix",
     "lint:ci": "lerna run lint:ci",
     "package": "yarn package:uvl",
-    "package:uvl": "yarn uvl-sprotty build && yarn vs-code-webview bundle:prod:uvl && yarn vs-code-extension bundle:prod:uvl && yarn vs-code-extension package --env profile=uvl",
-    "package:uvl-bp": "yarn uvl-sprotty build && yarn uvl-bp-sprotty build && yarn vs-code-webview bundle:prod:uvl-bp && yarn vs-code-extension bundle:prod:uvl-bp && yarn vs-code-extension package --env profile=uvl-bp",
+    "package:uvl": "yarn build:uvl && yarn vs-code-extension package --env profile=uvl",
+    "package:uvl-bp": "yarn build:uvl-bp && yarn vs-code-extension package --env profile=uvl-bp",
     "prepare": "yarn build",
     "uvl-bp-sprotty": "yarn --cwd extensions/bp-sprotty",
     "uvl-command-contribution": "yarn --cwd packages/uvl-command-contribution",

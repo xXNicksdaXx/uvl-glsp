@@ -56,6 +56,38 @@ export class LabeledNode extends RectangularNode implements WithEditableLabel, N
     }
 }
 
+export class FeatureNode extends LabeledNode {
+    get attributeContainer(): GCompartment {
+        return <GCompartment>(
+            this.children.find(element => element.type === DefaultTypes.COMPARTMENT && element.id.endsWith('_attribute_compartment'))
+        );
+    }
+
+    hasAttributes(): boolean {
+        let container = this.attributeContainer;
+        if (container) {
+            return container.children.length !== 0;
+        }
+        return false;
+    }
+}
+
+export class ConstraintBoxNode extends LabeledNode {
+    get constraintContainer(): GCompartment {
+        return <GCompartment>(
+            this.children.find(element => element.type === DefaultTypes.COMPARTMENT && element.id === 'constraint_box_compartment')
+        );
+    }
+
+    hasConstraints(): boolean {
+        let container = this.constraintContainer;
+        if (container) {
+            return container.children.length !== 0;
+        }
+        return false;
+    }
+}
+
 export class EditableGLabel extends GLabel implements EditableLabel {
     override hasFeature(feature: symbol): boolean {
         return super.hasFeature(feature) || feature === editLabelFeature;

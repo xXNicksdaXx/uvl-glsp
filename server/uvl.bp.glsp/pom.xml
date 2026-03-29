@@ -6,7 +6,7 @@
 
 <groupId>de.tu_dresden.inf.st</groupId>
 <artifactId>uvl.bp.glsp</artifactId>
-<version>0.2.1</version>
+<version>0.3.0</version>
 <description>GLSP server component for UVL BP extension</description>
 <url>https://git-st.inf.tu-dresden.de/stgroup/student-projects/2026/ma-nick-ruider</url>
 
@@ -53,7 +53,7 @@
     <eclipse.lsp4j.version>0.24.0</eclipse.lsp4j.version>
     <apache.logging.log4j.version>2.25.1</apache.logging.log4j.version>
     <uvl.metamodel.version>1.2.1</uvl.metamodel.version>
-    <uvl.glsp.version>0.2.1</uvl.glsp.version>
+    <uvl.glsp.version>0.3.0</uvl.glsp.version>
 </properties>
 
 <dependencies>
