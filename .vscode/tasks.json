@@ -39,7 +39,7 @@
       "label": "Start UVL Server",
       "type": "shell",
       "group": "test",
-      "command": "java -jar target/uvl.glsp-0.3.0-glsp.jar",
+      "command": "java -jar target/uvl.glsp-0.3.1-glsp.jar",
       "options": {
         "cwd": "${workspaceFolder}/server/uvl.glsp"
       },
@@ -53,7 +53,7 @@
       "label": "Start UVL BP Server",
       "type": "shell",
       "group": "test",
-      "command": "java -jar target/uvl.bp.glsp-0.3.0-glsp.jar",
+      "command": "java -jar target/uvl.bp.glsp-0.3.1-glsp.jar",
       "options": {
         "cwd": "${workspaceFolder}/server/uvl.bp.glsp"
       },
