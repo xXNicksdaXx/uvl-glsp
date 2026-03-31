@@ -1,9 +1,9 @@
 variables:
   NODE_VERSION: 20
-  JAVA_VERSION: 21
+  JAVA_VERSION: 25
   DEBIAN_FRONTEND: "noninteractive"
 
-image: ubuntu:22.04
+image: ubuntu:24.04
 
 stages:
   - build-server
