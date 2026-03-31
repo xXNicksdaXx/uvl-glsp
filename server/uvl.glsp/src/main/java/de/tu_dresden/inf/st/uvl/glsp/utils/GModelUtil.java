@@ -64,7 +64,7 @@ public final class GModelUtil {
    */
   public static String extractUUID(String input) {
     if (input == null) {
-        return null;
+      return null;
     }
 
     // Regex pattern for a standard UUID (8-4-4-4-12 hex digits)
@@ -79,7 +79,7 @@ public final class GModelUtil {
     }
 
     if (matches.isEmpty()) {
-        return null;
+      return null;
     }
     return String.join("_", matches);
   }
