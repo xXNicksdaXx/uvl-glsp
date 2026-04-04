@@ -5,7 +5,6 @@
     <option name="PROGRAM_PARAMETERS" value="--port=5007" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="de.tu_dresden.inf.st.glsp.uvl.launch.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

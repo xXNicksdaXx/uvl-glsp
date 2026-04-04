@@ -25,7 +25,7 @@ public class UVLCreateAttributeOperationHandler
   @Inject protected UVLModelState modelState;
 
   UVLCreateAttributeOperationHandler() {
-    super(UVLModelTypes.ATTRIBUTE, UVLModelTypes.CARDINALITY_LABEL);
+    super(UVLModelTypes.ATTRIBUTE);
   }
 
   @Override
