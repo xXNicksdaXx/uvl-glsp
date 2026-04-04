@@ -16,6 +16,8 @@ import de.tu_dresden.inf.st.uvl.bp.glsp.model.BPModelState;
 import de.tu_dresden.inf.st.uvl.bp.glsp.model.BPModelStateImpl;
 import de.tu_dresden.inf.st.uvl.bp.glsp.model.BPSourceModelStorage;
 import de.tu_dresden.inf.st.uvl.bp.glsp.palette.BPToolPaletteItemProvider;
+import de.tu_dresden.inf.st.uvl.bp.glsp.service.FMBPEventListenerService;
+import de.tu_dresden.inf.st.uvl.bp.glsp.service.BPServerSentEventsService;
 import de.tu_dresden.inf.st.uvl.glsp.UVLDiagramModule;
 import de.tu_dresden.inf.st.uvl.glsp.handler.*;
 import org.eclipse.glsp.server.di.MultiBinding;
@@ -31,6 +33,7 @@ public class BPDiagramModule extends UVLDiagramModule {
   protected void configure() {
     super.configure();
     configureBPModelState(bindGModelState());
+    configureServices();
   }
 
   @Override
@@ -70,5 +73,9 @@ public class BPDiagramModule extends UVLDiagramModule {
 
   protected void configureBPModelState(final Class<? extends BPModelState> bpStateClass) {
     bind(BPModelState.class).to(bpStateClass).in(Singleton.class);
+  }
+
+  protected void configureServices() {
+    bind(BPServerSentEventsService.class).to(FMBPEventListenerService.class).asEagerSingleton();
   }
 }
