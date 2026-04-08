@@ -1,12 +1,11 @@
 /*
- * Copyright Â© 2026 Nick Ruider. All rights reserved.
+ * Copyright © 2026 Nick Ruider. All rights reserved.
  * This work is licensed under the terms of the MIT license.
  * For a copy, see <https://opensource.org/licenses/MIT>.
  */
 
 package de.tu_dresden.inf.st.uvl.bp.glsp.service;
 
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -25,14 +24,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /** SSE implementation that connects to a FMBP endpoint and automatically reconnects. */
 @Singleton
-public class FMBPEventListenerService implements BPServerSentEventsService {
+public class FMBPEventListenerService implements ServerSentEventsService {
 
-  private static final Logger LOGGER = LogManager.getLogger(FMBPEventListenerService.class.getName());
+  private static final Logger LOGGER =
+      LogManager.getLogger(FMBPEventListenerService.class.getName());
   private static final URI DEFAULT_ENDPOINT = URI.create("http://localhost:8099");
   private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
   private static final Duration DEFAULT_HEALTH_POLL_INTERVAL = Duration.ofSeconds(10);
@@ -47,10 +48,8 @@ public class FMBPEventListenerService implements BPServerSentEventsService {
   private final AtomicBoolean running;
   private final AtomicLong highFrequencyPollingUntilEpochMillis;
   private final List<Consumer<String>> listeners;
-
   private volatile CompletableFuture<?> streamTask;
 
-  @Inject
   public FMBPEventListenerService() {
     this.httpClient = HttpClient.newBuilder().connectTimeout(CONNECT_TIMEOUT).build();
     this.endpoint = URI.create(System.getProperty(ENDPOINT_PROPERTY, DEFAULT_ENDPOINT.toString()));
@@ -58,7 +57,6 @@ public class FMBPEventListenerService implements BPServerSentEventsService {
     this.running = new AtomicBoolean(false);
     this.highFrequencyPollingUntilEpochMillis = new AtomicLong(0);
     this.listeners = new CopyOnWriteArrayList<>();
-    start();
   }
 
   @Override
@@ -139,17 +137,16 @@ public class FMBPEventListenerService implements BPServerSentEventsService {
               .build();
 
       try {
-        HttpResponse<java.util.stream.Stream<String>> response =
+        HttpResponse<Stream<String>> response =
             httpClient.send(request, HttpResponse.BodyHandlers.ofLines());
 
         if (response.statusCode() < 200 || response.statusCode() >= 300) {
-          LOGGER.warn(
-              "SSE endpoint returned status " + response.statusCode() + ". Reconnecting...");
+          LOGGER.warn("SSE endpoint returned status {}. Reconnecting...", response.statusCode());
           sleepBeforeReconnect();
           continue;
         }
 
-        consumeSseLines(response.body());
+        consumeResponse(response.body());
       } catch (IOException e) {
         LOGGER.warn("SSE connection failed. Reconnecting...", e);
         sleepBeforeReconnect();
@@ -234,7 +231,7 @@ public class FMBPEventListenerService implements BPServerSentEventsService {
     return endpoint.resolve("/events");
   }
 
-  protected void consumeSseLines(final java.util.stream.Stream<String> lines) {
+  protected void consumeResponse(final Stream<String> lines) {
     StringBuilder dataBuffer = new StringBuilder();
     try (lines) {
       Iterator<String> iterator = lines.iterator();
@@ -267,7 +264,7 @@ public class FMBPEventListenerService implements BPServerSentEventsService {
     String payload = dataBuffer.toString();
     dataBuffer.setLength(0);
 
-    LOGGER.info("SSE payload received: {}", payload);
+    LOGGER.trace("SSE payload received: {}", payload);
 
     for (Consumer<String> listener : listeners) {
       try {

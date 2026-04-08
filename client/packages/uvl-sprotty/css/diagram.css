@@ -117,3 +117,14 @@ svg {
 .constraint-edge {
     stroke-dasharray: 6;
 }
+
+/* Highlight Glow */
+.sprotty .highlight-glow {
+    filter: drop-shadow(0 0 6px rgba(255, 196, 0, 0.9)) drop-shadow(0 0 2px rgba(255, 196, 0, 1));
+}
+
+.sprotty-node.highlight-glow,
+.sprotty-edge.highlight-glow {
+    stroke: #ffc400 !important;
+    stroke-width: 2px !important;
+}

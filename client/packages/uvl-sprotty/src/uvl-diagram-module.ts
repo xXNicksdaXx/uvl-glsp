@@ -7,6 +7,7 @@
  ****************************************************************************/
 import {
     bindAsService,
+    configureActionHandler,
     configureDefaultModelElements,
     configureModelElement,
     ConsoleLogger,
@@ -33,7 +34,7 @@ import {
 } from '@eclipse-glsp/client';
 import { Container, ContainerModule } from 'inversify';
 
-import { UVLModelTypes } from 'uvl-common';
+import { HighlightElementAction, HighlightElementActionResponse, UVLModelTypes } from 'uvl-common';
 
 import 'balloon-css/balloon.min.css';
 import '../css/diagram.css';
@@ -42,6 +43,7 @@ import '../css/tool-palette.css';
 import { CircleEdgeView, DoubleArrowEdgeView, SectorEdgeView, SingleArrowEdgeView } from "./edge-views";
 import { CenteredAnchor } from "./features/center-anchor-computer";
 import { EditableCompartmentSelectionFeedback } from './features/selection-feedback';
+import { HighlightElementsActionHandler } from './features/highlight-action-handler';
 import { UVLPolylineEdgeRouter } from "./features/uvl-polyline-edge-router";
 import { ConstraintBoxNode, EditableGCompartment, EditableGLabel, FeatureNode } from "./model";
 import { ConstraintBoxNodeView, FeatureNodeView } from './node-views';
@@ -66,6 +68,10 @@ const uvlDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => 
     bindAsService(context, TYPES.IAnchorComputer, CenteredAnchor);
     bind(UVLPolylineEdgeRouter).toSelf().inSingletonScope();
     rebind(GLSPPolylineEdgeRouter).toService(UVLPolylineEdgeRouter);
+
+    bind(HighlightElementsActionHandler).toSelf().inSingletonScope();
+    configureActionHandler(context, HighlightElementAction.KIND, HighlightElementsActionHandler);
+    configureActionHandler(context, HighlightElementActionResponse.KIND, HighlightElementsActionHandler);
 
     configureDefaultModelElements(context);
     overrideModelElement(context, DefaultTypes.SHAPE_PRE_RENDERED, GShapedPreRenderedElement, PreRenderedView, {

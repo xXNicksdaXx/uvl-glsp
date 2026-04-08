@@ -17,9 +17,11 @@ import de.tu_dresden.inf.st.uvl.bp.glsp.model.BPModelStateImpl;
 import de.tu_dresden.inf.st.uvl.bp.glsp.model.BPSourceModelStorage;
 import de.tu_dresden.inf.st.uvl.bp.glsp.palette.BPToolPaletteItemProvider;
 import de.tu_dresden.inf.st.uvl.bp.glsp.service.FMBPEventListenerService;
-import de.tu_dresden.inf.st.uvl.bp.glsp.service.BPServerSentEventsService;
+import de.tu_dresden.inf.st.uvl.bp.glsp.service.FMBPHighlightActionDispatchService;
+import de.tu_dresden.inf.st.uvl.bp.glsp.service.ServerSentEventsService;
 import de.tu_dresden.inf.st.uvl.glsp.UVLDiagramModule;
-import de.tu_dresden.inf.st.uvl.glsp.handler.*;
+import de.tu_dresden.inf.st.uvl.glsp.handler.UVLApplyLabelEditOperationHandler;
+import de.tu_dresden.inf.st.uvl.glsp.handler.UVLDeleteOperationHandler;
 import org.eclipse.glsp.server.di.MultiBinding;
 import org.eclipse.glsp.server.diagram.DiagramConfiguration;
 import org.eclipse.glsp.server.features.core.model.GModelFactory;
@@ -33,7 +35,6 @@ public class BPDiagramModule extends UVLDiagramModule {
   protected void configure() {
     super.configure();
     configureBPModelState(bindGModelState());
-    configureServices();
   }
 
   @Override
@@ -71,11 +72,15 @@ public class BPDiagramModule extends UVLDiagramModule {
     return BPToolPaletteItemProvider.class;
   }
 
-  protected void configureBPModelState(final Class<? extends BPModelState> bpStateClass) {
-    bind(BPModelState.class).to(bpStateClass).in(Singleton.class);
+  @Override
+  protected void configureAdditionals() {
+    super.configureAdditionals();
+
+    bind(ServerSentEventsService.class).to(FMBPEventListenerService.class).in(Singleton.class);
+    bind(FMBPHighlightActionDispatchService.class).in(Singleton.class);
   }
 
-  protected void configureServices() {
-    bind(BPServerSentEventsService.class).to(FMBPEventListenerService.class).asEagerSingleton();
+  protected void configureBPModelState(final Class<? extends BPModelState> bpStateClass) {
+    bind(BPModelState.class).to(bpStateClass).in(Singleton.class);
   }
 }

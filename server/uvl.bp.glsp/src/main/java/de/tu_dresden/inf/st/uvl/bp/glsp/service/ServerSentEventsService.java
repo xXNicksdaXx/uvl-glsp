@@ -1,5 +1,5 @@
 /*
- * Copyright Â© 2026 Nick Ruider. All rights reserved.
+ * Copyright © 2026 Nick Ruider. All rights reserved.
  * This work is licensed under the terms of the MIT license.
  * For a copy, see <https://opensource.org/licenses/MIT>.
  */
@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 /**
  * Injectable service that maintains a Server-Sent Events (SSE) connection for the BP GLSP server.
  */
-public interface BPServerSentEventsService {
+public interface ServerSentEventsService {
 
   /** Starts the SSE listener if it is not already running. */
   void start();

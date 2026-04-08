@@ -7,6 +7,7 @@
 package de.tu_dresden.inf.st.uvl.glsp;
 
 import com.google.inject.Singleton;
+import de.tu_dresden.inf.st.uvl.glsp.actions.HighlightElementActionHandler;
 import de.tu_dresden.inf.st.uvl.glsp.gmodel.UVLGModelFactory;
 import de.tu_dresden.inf.st.uvl.glsp.handler.UVLApplyLabelEditOperationHandler;
 import de.tu_dresden.inf.st.uvl.glsp.handler.UVLCreateAttributeOperationHandler;
@@ -74,6 +75,7 @@ public class UVLDiagramModule extends DiagramModule {
     super.configureActionHandlers(binding);
 
     binding.add(GModelRequestClipboardDataActionHandler.class);
+    binding.add(HighlightElementActionHandler.class);
   }
 
   @Override
