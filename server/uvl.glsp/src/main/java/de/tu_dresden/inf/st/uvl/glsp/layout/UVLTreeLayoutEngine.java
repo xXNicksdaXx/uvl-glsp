@@ -11,13 +11,10 @@ import de.tu_dresden.inf.st.uvl.glsp.model.UVLModelIndex;
 import de.tu_dresden.inf.st.uvl.glsp.model.UVLModelState;
 import de.tu_dresden.inf.st.uvl.metamodel.model.Feature;
 import de.tu_dresden.inf.st.uvl.metamodel.model.Group;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import org.eclipse.glsp.graph.GDimension;
-import org.eclipse.glsp.graph.GEdge;
-import org.eclipse.glsp.graph.GGraph;
-import org.eclipse.glsp.graph.GModelElement;
-import org.eclipse.glsp.graph.GModelRoot;
-import org.eclipse.glsp.graph.GNode;
+import org.eclipse.glsp.graph.*;
 import org.eclipse.glsp.graph.util.GraphUtil;
 import org.eclipse.glsp.server.layout.LayoutEngine;
 import org.eclipse.glsp.server.operations.LayoutOperation;
@@ -54,6 +51,9 @@ public class UVLTreeLayoutEngine implements LayoutEngine {
 
     // Transfer the computed layout back to the model state
     transferLayout(rootNode);
+
+    // place additional elements (e.g., constraint box)
+    postProcessLayout(rootNode);
 
     // Remove all routing points from edges
     removeRoutingPoints();
@@ -218,6 +218,46 @@ public class UVLTreeLayoutEngine implements LayoutEngine {
     }
   }
 
+  public void postProcessLayout(final WalkersNode root) {
+    // Build an ordered pipeline and place each element from left to right.
+    double currentX = getMinimumXOfTree(root);
+    double modelBottomY = getMaximumHeightOfTree(root) + LEVEL_SPACING;
+    List<GShapeElement> pipeline = buildPostProcessPipeline(root);
+    for (GShapeElement shapeElement : pipeline) {
+      currentX = positionPostProcessElement(shapeElement, currentX, modelBottomY);
+    }
+  }
+
+  protected List<GShapeElement> buildPostProcessPipeline(final WalkersNode root) {
+    List<GShapeElement> pipeline = new ArrayList<>();
+    modelState.getIndex().getGModelElement("constraint_box", GNode.class).ifPresent(pipeline::add);
+    return pipeline;
+  }
+
+  protected double positionPostProcessElement(
+      final GShapeElement shapeElement, final double x, final double y) {
+    shapeElement.setPosition(GraphUtil.point(x, y));
+    return x + shapeElement.getSize().getWidth() + SIBLING_GAP;
+  }
+
+  protected double getMinimumXOfTree(final WalkersNode root) {
+    // Minimum absolute left edge among all nodes in the tree.
+    double minX = root.x;
+    for (WalkersNode child : root.children) {
+      minX = Math.min(minX, getMinimumXOfTree(child));
+    }
+    return minX;
+  }
+
+  protected double getMaximumHeightOfTree(final WalkersNode root) {
+    // Maximum absolute bottom edge among all nodes in the tree.
+    double maxHeight = root.y + root.height;
+    for (WalkersNode child : root.children) {
+      maxHeight = Math.max(maxHeight, getMaximumHeightOfTree(child));
+    }
+    return maxHeight;
+  }
+
   private void removeRoutingPoints() {
     modelState
         .getIndex()
@@ -301,16 +341,5 @@ public class UVLTreeLayoutEngine implements LayoutEngine {
     for (WalkersNode child : node.children) {
       shiftTree(child, amount);
     }
-  }
-
-  // --- Static Methods ---
-  public static boolean requiresLayoutOperation(GModelRoot root) {
-    long count =
-        root.getChildren().stream()
-            .filter(element -> element instanceof GNode)
-            .map(element -> (GNode) element)
-            .filter(node -> node.getPosition().getX() == 0 && node.getPosition().getY() == 0)
-            .count();
-    return count > 1;
   }
 }

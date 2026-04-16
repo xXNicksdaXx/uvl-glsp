@@ -28,7 +28,7 @@ public class UVLFeatureFactory extends AbstractSingleGModelFactory<Feature, GNod
   @Inject protected UVLAttributeFactory attributeFactory;
 
   @Override
-  protected GNode create(final Feature feature) {
+  public GNode create(final Feature feature) {
     return createFeature(feature);
   }
 

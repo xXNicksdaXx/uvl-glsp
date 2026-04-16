@@ -12,6 +12,7 @@ import de.tu_dresden.inf.st.uvl.bp.glsp.handler.BPApplyLabelEditOperationHandler
 import de.tu_dresden.inf.st.uvl.bp.glsp.handler.BPCreateBThreadOperationHandler;
 import de.tu_dresden.inf.st.uvl.bp.glsp.handler.BPCreateEventOperationHandler;
 import de.tu_dresden.inf.st.uvl.bp.glsp.handler.BPDeleteOperationHandler;
+import de.tu_dresden.inf.st.uvl.bp.glsp.layout.BPTreeLayoutEngine;
 import de.tu_dresden.inf.st.uvl.bp.glsp.model.BPModelState;
 import de.tu_dresden.inf.st.uvl.bp.glsp.model.BPModelStateImpl;
 import de.tu_dresden.inf.st.uvl.bp.glsp.model.BPSourceModelStorage;
@@ -58,6 +59,11 @@ public class BPDiagramModule extends UVLDiagramModule {
   }
 
   @Override
+  protected Class<? extends org.eclipse.glsp.server.layout.LayoutEngine> bindLayoutEngine() {
+    return BPTreeLayoutEngine.class;
+  }
+
+  @Override
   protected void configureOperationHandlers(final MultiBinding<OperationHandler<?>> binding) {
     super.configureOperationHandlers(binding);
 
@@ -76,8 +82,8 @@ public class BPDiagramModule extends UVLDiagramModule {
   protected void configureAdditionals() {
     super.configureAdditionals();
 
-    bind(ServerSentEventsService.class).to(FMBPEventListenerService.class).in(Singleton.class);
-    bind(FMBPHighlightActionDispatchService.class).in(Singleton.class);
+    bind(ServerSentEventsService.class).to(FMBPEventListenerService.class).asEagerSingleton();
+    bind(FMBPHighlightActionDispatchService.class).asEagerSingleton();
   }
 
   protected void configureBPModelState(final Class<? extends BPModelState> bpStateClass) {

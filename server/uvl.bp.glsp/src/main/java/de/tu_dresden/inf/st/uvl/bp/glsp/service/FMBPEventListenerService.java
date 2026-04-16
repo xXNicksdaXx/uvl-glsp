@@ -57,6 +57,7 @@ public class FMBPEventListenerService implements ServerSentEventsService {
     this.running = new AtomicBoolean(false);
     this.highFrequencyPollingUntilEpochMillis = new AtomicLong(0);
     this.listeners = new CopyOnWriteArrayList<>();
+    start();
   }
 
   @Override

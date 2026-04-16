@@ -12,7 +12,6 @@ import com.google.inject.Singleton;
 import de.tu_dresden.inf.st.uvl.bp.glsp.model.BPModelState;
 import de.tu_dresden.inf.st.uvl.bp.glsp.utils.BTypeUtil;
 import de.tu_dresden.inf.st.uvl.glsp.actions.HighlightElementAction;
-
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.*;
@@ -50,6 +49,10 @@ public class FMBPHighlightActionDispatchService {
     Optional<Path> sourcePath = parseSourcePath(parsedPayload);
     if (sourcePath.isPresent()) {
       Map<String, String> options = modelState.getClientOptions();
+      if (options == null) {
+        return;
+      }
+
       String sourceUri = options.get("sourceUri");
       Path expectedSourcePath = Path.of(URI.create(sourceUri));
       if (!sourcePath.get().equals(expectedSourcePath)) {

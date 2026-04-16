@@ -10,16 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WalkersNode {
-  String id;
-  String label;
-  double width;
-  double height;
-
+  public String id;
+  public String label;
+  public double width;
+  public double height;
   // Algorithm-specific fields
-  double x, y;
-  double prelim, modifier;
-  WalkersNode parent;
-  List<WalkersNode> children = new ArrayList<>();
+  public double x, y;
+  public double prelim, modifier;
+  public WalkersNode parent;
+  public List<WalkersNode> children = new ArrayList<>();
 
   public WalkersNode(String id, String label, double width, double height) {
     this.id = id;

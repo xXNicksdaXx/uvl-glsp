@@ -16,7 +16,7 @@ import org.eclipse.glsp.graph.DefaultTypes;
  * <p>This class is not intended to be instantiated.
  */
 public final class BPModelTypes {
-  public static final String BP_ENV = DefaultTypes.NODE + "env";
+  public static final String BP_ENV = DefaultTypes.NODE + ":env";
   public static final String BP_CONFIG = DefaultTypes.NODE + ":config";
 
   public static final String B_THREAD = DefaultTypes.NODE + ":b-thread";

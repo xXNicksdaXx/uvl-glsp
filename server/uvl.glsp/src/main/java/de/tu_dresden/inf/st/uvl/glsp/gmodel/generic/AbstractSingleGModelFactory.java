@@ -12,5 +12,5 @@ import org.eclipse.glsp.graph.GModelElement;
 public abstract class AbstractSingleGModelFactory<E extends UVLObject, T extends GModelElement>
     extends AbstractGModelFactory {
 
-  protected abstract T create(E object);
+  public abstract T create(E object);
 }
