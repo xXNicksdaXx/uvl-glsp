@@ -17,6 +17,7 @@ import de.tu_dresden.inf.st.uvl.bp.glsp.model.BPModelState;
 import de.tu_dresden.inf.st.uvl.bp.glsp.model.BPModelStateImpl;
 import de.tu_dresden.inf.st.uvl.bp.glsp.model.BPSourceModelStorage;
 import de.tu_dresden.inf.st.uvl.bp.glsp.palette.BPToolPaletteItemProvider;
+import de.tu_dresden.inf.st.uvl.bp.glsp.service.FMBPContextUpdateService;
 import de.tu_dresden.inf.st.uvl.bp.glsp.service.FMBPEventListenerService;
 import de.tu_dresden.inf.st.uvl.bp.glsp.service.FMBPHighlightActionDispatchService;
 import de.tu_dresden.inf.st.uvl.bp.glsp.service.ServerSentEventsService;
@@ -84,6 +85,7 @@ public class BPDiagramModule extends UVLDiagramModule {
 
     bind(ServerSentEventsService.class).to(FMBPEventListenerService.class).asEagerSingleton();
     bind(FMBPHighlightActionDispatchService.class).asEagerSingleton();
+    bind(FMBPContextUpdateService.class).asEagerSingleton();
   }
 
   protected void configureBPModelState(final Class<? extends BPModelState> bpStateClass) {

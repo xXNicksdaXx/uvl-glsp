@@ -6,6 +6,7 @@
 
 package de.tu_dresden.inf.st.uvl.bp.glsp.service;
 
+import com.google.gson.Gson;
 import com.google.inject.Singleton;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -15,7 +16,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -42,15 +46,17 @@ public class FMBPEventListenerService implements ServerSentEventsService {
   private static final Duration HEALTH_REQUEST_TIMEOUT = Duration.ofSeconds(2);
   private static final String ENDPOINT_PROPERTY = "uvl.bp.sse.endpoint";
 
+  private final Gson gson;
   private final HttpClient httpClient;
   private final URI endpoint;
   private final ExecutorService executor;
   private final AtomicBoolean running;
   private final AtomicLong highFrequencyPollingUntilEpochMillis;
-  private final List<Consumer<String>> listeners;
+  private final List<ListenerRegistration> listeners;
   private volatile CompletableFuture<?> streamTask;
 
   public FMBPEventListenerService() {
+    this.gson = new Gson();
     this.httpClient = HttpClient.newBuilder().connectTimeout(CONNECT_TIMEOUT).build();
     this.endpoint = URI.create(System.getProperty(ENDPOINT_PROPERTY, DEFAULT_ENDPOINT.toString()));
     this.executor = Executors.newSingleThreadExecutor(r -> new Thread(r, "bp-sse-listener"));
@@ -103,13 +109,19 @@ public class FMBPEventListenerService implements ServerSentEventsService {
   }
 
   @Override
-  public void addDataListener(final Consumer<String> listener) {
-    listeners.add(listener);
+  public void addDataListener(final Consumer<ParsedServerSentEvent> listener) {
+    addDataListener(listener, new String[0]);
   }
 
   @Override
-  public void removeDataListener(final Consumer<String> listener) {
-    listeners.remove(listener);
+  public void addDataListener(
+      final Consumer<ParsedServerSentEvent> listener, final String... eventTypes) {
+    listeners.add(new ListenerRegistration(listener, normalizeEventTypes(eventTypes)));
+  }
+
+  @Override
+  public void removeDataListener(final Consumer<ParsedServerSentEvent> listener) {
+    listeners.removeIf(registration -> registration.listener().equals(listener));
   }
 
   @Override
@@ -267,12 +279,55 @@ public class FMBPEventListenerService implements ServerSentEventsService {
 
     LOGGER.trace("SSE payload received: {}", payload);
 
-    for (Consumer<String> listener : listeners) {
-      try {
-        listener.accept(payload);
-      } catch (RuntimeException e) {
-        LOGGER.warn("SSE listener callback threw an exception.", e);
+    parsePayload(payload)
+        .ifPresent(
+            parsedEvent -> {
+              for (ListenerRegistration listener : listeners) {
+                if (!listener.accepts(parsedEvent)) {
+                  continue;
+                }
+
+                try {
+                  listener.listener().accept(parsedEvent);
+                } catch (RuntimeException e) {
+                  LOGGER.warn("SSE listener callback threw an exception.", e);
+                }
+              }
+            });
+  }
+
+  protected Optional<ParsedServerSentEvent> parsePayload(final String payload) {
+    try {
+      Object root = gson.fromJson(payload, Object.class);
+      if (root instanceof java.util.Map<?, ?> map) {
+        return Optional.of(ParsedServerSentEvent.from(payload, map));
       }
+    } catch (RuntimeException runtimeException) {
+      LOGGER.debug(
+          "Unable to parse SSE payload as JSON, falling back to raw payload.", runtimeException);
+    }
+    return Optional.empty();
+  }
+
+  protected Set<String> normalizeEventTypes(final String... eventTypes) {
+    Set<String> normalized = new LinkedHashSet<>();
+    if (eventTypes == null) {
+      return normalized;
+    }
+
+    for (String eventType : eventTypes) {
+      if (eventType != null && !eventType.isBlank()) {
+        normalized.add(eventType.trim());
+      }
+    }
+    return normalized;
+  }
+
+  protected record ListenerRegistration(
+      Consumer<ParsedServerSentEvent> listener, Set<String> eventTypes) {
+
+    boolean accepts(final ParsedServerSentEvent event) {
+      return eventTypes.isEmpty() || event.hasType(eventTypes.toArray(String[]::new));
     }
   }
 

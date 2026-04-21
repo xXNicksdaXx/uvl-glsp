@@ -31,18 +31,26 @@ public interface ServerSentEventsService {
   URI getEndpoint();
 
   /**
-   * Registers a listener that receives decoded SSE payloads from the data field.
+   * Registers a listener that receives parsed SSE payloads.
    *
-   * @param listener callback for incoming data payloads
+   * @param listener callback for incoming SSE payloads
    */
-  void addDataListener(Consumer<String> listener);
+  void addDataListener(Consumer<ParsedServerSentEvent> listener);
+
+  /**
+   * Registers a listener that receives parsed SSE payloads for the given event types only.
+   *
+   * @param listener callback for incoming SSE payloads
+   * @param eventTypes optional event types that should be forwarded to the listener
+   */
+  void addDataListener(Consumer<ParsedServerSentEvent> listener, String... eventTypes);
 
   /**
    * Unregisters a previously registered listener.
    *
    * @param listener callback to remove
    */
-  void removeDataListener(Consumer<String> listener);
+  void removeDataListener(Consumer<ParsedServerSentEvent> listener);
 
   /**
    * Enables higher-frequency health polling for a short time window.
