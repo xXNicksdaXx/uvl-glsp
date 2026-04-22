@@ -1,6 +1,7 @@
 package de.tu_dresden.inf.st.uvl.glsp.actions;
 
 import com.google.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.eclipse.glsp.graph.GModelRoot;
@@ -31,12 +32,15 @@ public class UVLComputedBoundsActionHandler extends ComputedBoundsActionHandler 
           && action.getRevision().get().doubleValue() == model.getRevision()) {
         LayoutUtil.applyBounds(model, action, modelState);
 
+        List<Action> actions = new ArrayList<>();
+
         if (requiresRelayout(model)) {
           layoutEngine.layout(Optional.of(new LayoutOperation()));
+          actions.add(new SaveModelAction());
         }
 
-        sourceModelStorage.saveSourceModel(new SaveModelAction());
-        return submissionHandler.submitModelDirectly();
+        actions.addAll(submissionHandler.submitModelDirectly());
+        return actions;
       }
     }
     return none();

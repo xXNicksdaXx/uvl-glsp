@@ -6,6 +6,8 @@
 
 package de.tu_dresden.inf.st.uvl.bp.glsp.service;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -16,14 +18,16 @@ public record ParsedServerSentEvent(
     Map<String, Object> payload,
     Optional<String> type,
     Optional<String> source,
+    Optional<Instant> timestamp,
     Map<String, Object> data) {
 
   public static ParsedServerSentEvent from(final String rawPayload, final Map<?, ?> payload) {
     Map<String, Object> normalizedPayload = normalizeMap(payload);
     Optional<String> type = extractString(normalizedPayload, "type");
     Optional<String> source = extractString(normalizedPayload, "source");
-    Map<String, Object> data = extractMap(normalizedPayload, "data");
-    return new ParsedServerSentEvent(rawPayload, normalizedPayload, type, source, data);
+    Optional<Instant> timestamp = extractTimestamp(normalizedPayload);
+    Map<String, Object> data = extractMap(normalizedPayload);
+    return new ParsedServerSentEvent(rawPayload, normalizedPayload, type, source, timestamp, data);
   }
 
   public boolean hasType(final String... eventTypes) {
@@ -43,9 +47,8 @@ public record ParsedServerSentEvent(
         .orElse(false);
   }
 
-  private static Map<String, Object> extractMap(
-      final Map<String, Object> payload, final String key) {
-    Object value = payload.get(key);
+  private static Map<String, Object> extractMap(final Map<String, Object> payload) {
+    Object value = payload.get("data");
     if (value instanceof Map<?, ?> rawMap) {
       return normalizeMap(rawMap);
     }
@@ -57,6 +60,18 @@ public record ParsedServerSentEvent(
     Object value = payload.get(key);
     if (value instanceof String stringValue && !stringValue.isBlank()) {
       return Optional.of(stringValue.trim());
+    }
+    return Optional.empty();
+  }
+
+  private static Optional<Instant> extractTimestamp(final Map<String, Object> payload) {
+    Object value = payload.get("timestamp");
+    if (value instanceof String stringValue && !stringValue.isBlank()) {
+      try {
+        return Optional.of(OffsetDateTime.parse(stringValue.trim()).toInstant());
+      } catch (RuntimeException ignored) {
+        return Optional.empty();
+      }
     }
     return Optional.empty();
   }

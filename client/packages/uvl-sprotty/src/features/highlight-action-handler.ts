@@ -22,8 +22,15 @@ import {
 import { inject, injectable } from 'inversify';
 
 const HIGHLIGHT_CLASS = 'highlight-glow';
+const HIGHLIGHT_TIMEOUT_MS = 10000; // 10 seconds
 
-const activeHighlightsByRoot = new Map<string, Set<string>>();
+interface HighlightState {
+    active: Set<string>;
+    timeoutId: ReturnType<typeof setTimeout> | null;
+    mostRecentId: string | null;
+}
+
+const activeHighlightsByRoot = new WeakMap<object, HighlightState>();
 
 @injectable()
 export class HighlightElementsActionHandler implements IActionHandler {
@@ -66,129 +73,168 @@ function applyHighlight(
     elementIds: ReadonlyArray<string>,
     highlighted: boolean
 ): CommandReturn {
+    const root = context.root;
+    const index = root.index;
+    const state = getActiveHighlightsState(root as object);
     let modelChanged = false;
-    const activeHighlights = getActiveHighlights(context);
 
     if (highlighted) {
-        const nextHighlightedIds = new Set<string>();
+        // Get the most recent (last) element ID
+        const mostRecentId = elementIds.length > 0 ? elementIds[elementIds.length - 1] : null;
 
-        for (const rawId of elementIds) {
-            const id = rawId?.trim();
-            if (!id) {
-                continue;
-            }
-
-            const element = context.root.index.getById(id);
-            if (!element) {
-                continue;
-            }
-
-            nextHighlightedIds.add(id);
+        // Cancel any existing timeout
+        if (state.timeoutId !== null) {
+            clearTimeout(state.timeoutId);
         }
 
-        if (setsEqual(activeHighlights, nextHighlightedIds)) {
-            return { model: context.root, modelChanged: false };
+        // Early exit: check if any element is actually new
+        let hasNewElements = false;
+        for (const id of elementIds) {
+            if (!state.active.has(id)) {
+                hasNewElements = true;
+                break;
+            }
         }
 
-        for (const activeId of activeHighlights) {
-            const activeElement = context.root.index.getById(activeId);
-            if (!activeElement) {
-                continue;
+        if (!hasNewElements && elementIds.length === state.active.size) {
+            // Same highlights, but reset the timer for the most recent
+            if (mostRecentId) {
+                state.mostRecentId = mostRecentId;
+                state.timeoutId = setTimeout(() => {
+                    clearHighlightElement(root, index, state, mostRecentId);
+                }, HIGHLIGHT_TIMEOUT_MS);
             }
-
-            const nextClasses = toggleHighlightClass(activeElement.cssClasses, false);
-            if (!classesChanged(activeElement.cssClasses, nextClasses)) {
-                continue;
-            }
-
-            activeElement.cssClasses = nextClasses;
-            modelChanged = true;
+            return { model: root, modelChanged: false };
         }
 
-        activeHighlights.clear();
-
-        for (const id of nextHighlightedIds) {
-            const element = context.root.index.getById(id);
-            if (!element) {
-                continue;
+        const nextHighlightedIds = new Set(elementIds);
+        
+        // Remove highlights from elements no longer in the set (single pass)
+        for (const activeId of state.active) {
+            if (!nextHighlightedIds.has(activeId)) {
+                const activeElement = index.getById(activeId);
+                if (activeElement) {
+                    const nextClasses = updateHighlightClass(activeElement.cssClasses, false);
+                    if (nextClasses) {
+                        activeElement.cssClasses = nextClasses;
+                        modelChanged = true;
+                    }
+                }
             }
+        }
 
-            const nextClasses = toggleHighlightClass(element.cssClasses, true);
-            if (!classesChanged(element.cssClasses, nextClasses)) {
-                activeHighlights.add(id);
-                continue;
+        // Add highlights to new elements (single pass)
+        for (const id of elementIds) {
+            if (!state.active.has(id)) {
+                const element = index.getById(id);
+                if (element) {
+                    const nextClasses = updateHighlightClass(element.cssClasses, true);
+                    if (nextClasses) {
+                        element.cssClasses = nextClasses;
+                        modelChanged = true;
+                    }
+                }
             }
+        }
 
-            element.cssClasses = nextClasses;
-            activeHighlights.add(id);
-            modelChanged = true;
+        state.active.clear();
+        nextHighlightedIds.forEach(id => state.active.add(id));
+
+        // Set timeout for the most recent element
+        if (mostRecentId) {
+            state.mostRecentId = mostRecentId;
+            state.timeoutId = setTimeout(() => {
+                clearHighlightElement(root, index, state, mostRecentId);
+            }, HIGHLIGHT_TIMEOUT_MS);
         }
     } else {
-        for (const rawId of elementIds) {
-            const id = rawId?.trim();
-            if (!id) {
-                continue;
+        // Cancel any existing timeout
+        if (state.timeoutId !== null) {
+            clearTimeout(state.timeoutId);
+            state.timeoutId = null;
+        }
+        state.mostRecentId = null;
+
+        for (const id of elementIds) {
+            const element = index.getById(id);
+            if (element) {
+                const nextClasses = updateHighlightClass(element.cssClasses, false);
+                if (nextClasses) {
+                    element.cssClasses = nextClasses;
+                    modelChanged = true;
+                }
             }
+            state.active.delete(id);
+        }
+    }
 
-            const element = context.root.index.getById(id);
-            activeHighlights.delete(id);
+    return { model: root, modelChanged };
+}
 
-            if (!element) {
-                continue;
-            }
+function getActiveHighlightsState(root: object): HighlightState {
+    let state = activeHighlightsByRoot.get(root);
+    if (!state) {
+        state = {
+            active: new Set<string>(),
+            timeoutId: null,
+            mostRecentId: null
+        };
+        activeHighlightsByRoot.set(root, state);
+    }
 
-            const nextClasses = toggleHighlightClass(element.cssClasses, false);
-            if (!classesChanged(element.cssClasses, nextClasses)) {
-                continue;
-            }
+    return state;
+}
 
+function clearHighlightElement(
+    root: object,
+    index: any,
+    state: HighlightState,
+    elementId: string
+): void {
+    const element = index.getById(elementId);
+    if (element) {
+        const nextClasses = updateHighlightClass(element.cssClasses, false);
+        if (nextClasses) {
             element.cssClasses = nextClasses;
-            modelChanged = true;
+        }
+    }
+    state.active.delete(elementId);
+    state.mostRecentId = null;
+    state.timeoutId = null;
+}
+
+function updateHighlightClass(cssClasses: ReadonlyArray<string> | undefined, highlighted: boolean): string[] | undefined {
+    const classes = cssClasses ?? [];
+    let hasHighlightClass = false;
+    let highlightIndex = -1;
+
+    // Single pass: find highlight class and track position
+    for (let i = 0; i < classes.length; i++) {
+        if (classes[i] === HIGHLIGHT_CLASS) {
+            hasHighlightClass = true;
+            highlightIndex = i;
+            break;
         }
     }
 
-    return { model: context.root, modelChanged };
-}
-
-function getActiveHighlights(context: CommandExecutionContext): Set<string> {
-    const rootId = (context.root as { id?: string }).id ?? 'root';
-    let activeHighlights = activeHighlightsByRoot.get(rootId);
-    if (!activeHighlights) {
-        activeHighlights = new Set<string>();
-        activeHighlightsByRoot.set(rootId, activeHighlights);
+    // No change needed
+    if (highlighted === hasHighlightClass) {
+        return undefined;
     }
 
-    return activeHighlights;
-}
-
-function classesChanged(previousClasses: ReadonlyArray<string> | undefined, nextClasses: ReadonlyArray<string>): boolean {
-    const currentClasses = previousClasses ?? [];
-    return currentClasses.length !== nextClasses.length
-        || currentClasses.some((cssClass, index) => cssClass !== nextClasses[index]);
-}
-
-function setsEqual(left: ReadonlySet<string>, right: ReadonlySet<string>): boolean {
-    if (left.size !== right.size) {
-        return false;
-    }
-
-    for (const value of left) {
-        if (!right.has(value)) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-function toggleHighlightClass(cssClasses: ReadonlyArray<string> | undefined, highlighted: boolean): string[] {
-    const classSet = new Set(cssClasses ?? []);
-
+    // Add highlight class
     if (highlighted) {
-        classSet.add(HIGHLIGHT_CLASS);
-    } else {
-        classSet.delete(HIGHLIGHT_CLASS);
+        return classes.length === 0 ? [HIGHLIGHT_CLASS] : [...classes, HIGHLIGHT_CLASS];
     }
 
-    return [...classSet];
+    // Remove highlight class - build new array without it in one pass
+    const nextClasses = new Array<string>(classes.length - 1);
+    let writeIdx = 0;
+    for (let i = 0; i < classes.length; i++) {
+        if (i !== highlightIndex) {
+            nextClasses[writeIdx++] = classes[i];
+        }
+    }
+
+    return nextClasses;
 }

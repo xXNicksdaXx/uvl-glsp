@@ -44,6 +44,7 @@ public class FMBPEventListenerService implements ServerSentEventsService {
   private static final Duration HIGH_FREQUENCY_HEALTH_POLL_INTERVAL = Duration.ofSeconds(2);
   private static final Duration HIGH_FREQUENCY_POLL_WINDOW = Duration.ofMinutes(2);
   private static final Duration HEALTH_REQUEST_TIMEOUT = Duration.ofSeconds(2);
+  private static final Duration MAX_EVENT_AGE = Duration.ofSeconds(2);
   private static final String ENDPOINT_PROPERTY = "uvl.bp.sse.endpoint";
 
   private final Gson gson;
@@ -280,6 +281,7 @@ public class FMBPEventListenerService implements ServerSentEventsService {
     LOGGER.trace("SSE payload received: {}", payload);
 
     parsePayload(payload)
+        .filter(this::isFreshEvent)
         .ifPresent(
             parsedEvent -> {
               for (ListenerRegistration listener : listeners) {
@@ -294,6 +296,15 @@ public class FMBPEventListenerService implements ServerSentEventsService {
                 }
               }
             });
+  }
+
+  protected boolean isFreshEvent(final ParsedServerSentEvent event) {
+    return event
+        .timestamp()
+        .map(
+            timestamp ->
+                Duration.between(timestamp, java.time.Instant.now()).compareTo(MAX_EVENT_AGE) <= 0)
+        .orElse(true);
   }
 
   protected Optional<ParsedServerSentEvent> parsePayload(final String payload) {
