@@ -7,6 +7,7 @@
 package de.tu_dresden.inf.st.uvl.glsp;
 
 import com.google.inject.Singleton;
+import de.tu_dresden.inf.st.uvl.glsp.actions.UVLComputedBoundsActionHandler;
 import de.tu_dresden.inf.st.uvl.glsp.gmodel.UVLGModelFactory;
 import de.tu_dresden.inf.st.uvl.glsp.handler.UVLApplyLabelEditOperationHandler;
 import de.tu_dresden.inf.st.uvl.glsp.handler.UVLCreateAttributeOperationHandler;
@@ -25,6 +26,7 @@ import org.eclipse.glsp.server.actions.ActionHandler;
 import org.eclipse.glsp.server.di.DiagramModule;
 import org.eclipse.glsp.server.di.MultiBinding;
 import org.eclipse.glsp.server.diagram.DiagramConfiguration;
+import org.eclipse.glsp.server.features.core.model.ComputedBoundsActionHandler;
 import org.eclipse.glsp.server.features.core.model.GModelFactory;
 import org.eclipse.glsp.server.features.core.model.SourceModelStorage;
 import org.eclipse.glsp.server.features.toolpalette.ToolPaletteItemProvider;
@@ -74,6 +76,7 @@ public class UVLDiagramModule extends DiagramModule {
     super.configureActionHandlers(binding);
 
     binding.add(GModelRequestClipboardDataActionHandler.class);
+    binding.rebind(ComputedBoundsActionHandler.class, UVLComputedBoundsActionHandler.class);
   }
 
   @Override

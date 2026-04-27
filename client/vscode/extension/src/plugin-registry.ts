@@ -8,6 +8,7 @@
 
 
 import { CommandContext } from '@eclipse-glsp/vscode-integration';
+import { configureSSECommandContributions } from 'sse-command-contribution';
 import { configureUVLCommandContributions } from 'uvl-command-contribution';
 interface CommandContributionEntry {
     readonly configureCommands: (context: CommandContext) => void;
@@ -18,6 +19,9 @@ declare const __UVL_COMMAND_CONTRIBUTION_IDS__: readonly string[];
 const commandContributionRegistry: Record<string, CommandContributionEntry> = {
     'uvl-default': {
         configureCommands: configureUVLCommandContributions
+    },
+    'uvl-bp-sse': {
+        configureCommands: configureSSECommandContributions
     }
 };
 

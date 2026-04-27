@@ -7,17 +7,25 @@
 package de.tu_dresden.inf.st.uvl.bp.glsp;
 
 import com.google.inject.Singleton;
+import de.tu_dresden.inf.st.uvl.bp.glsp.actions.SSEControlActionHandler;
 import de.tu_dresden.inf.st.uvl.bp.glsp.gmodel.BPGModelFactory;
 import de.tu_dresden.inf.st.uvl.bp.glsp.handler.BPApplyLabelEditOperationHandler;
 import de.tu_dresden.inf.st.uvl.bp.glsp.handler.BPCreateBThreadOperationHandler;
 import de.tu_dresden.inf.st.uvl.bp.glsp.handler.BPCreateEventOperationHandler;
 import de.tu_dresden.inf.st.uvl.bp.glsp.handler.BPDeleteOperationHandler;
+import de.tu_dresden.inf.st.uvl.bp.glsp.layout.BPTreeLayoutEngine;
 import de.tu_dresden.inf.st.uvl.bp.glsp.model.BPModelState;
 import de.tu_dresden.inf.st.uvl.bp.glsp.model.BPModelStateImpl;
 import de.tu_dresden.inf.st.uvl.bp.glsp.model.BPSourceModelStorage;
 import de.tu_dresden.inf.st.uvl.bp.glsp.palette.BPToolPaletteItemProvider;
+import de.tu_dresden.inf.st.uvl.bp.glsp.service.FMBPContextUpdateService;
+import de.tu_dresden.inf.st.uvl.bp.glsp.service.FMBPEventListenerService;
+import de.tu_dresden.inf.st.uvl.bp.glsp.service.FMBPHighlightActionDispatchService;
+import de.tu_dresden.inf.st.uvl.bp.glsp.service.ServerSentEventsService;
 import de.tu_dresden.inf.st.uvl.glsp.UVLDiagramModule;
-import de.tu_dresden.inf.st.uvl.glsp.handler.*;
+import de.tu_dresden.inf.st.uvl.glsp.handler.UVLApplyLabelEditOperationHandler;
+import de.tu_dresden.inf.st.uvl.glsp.handler.UVLDeleteOperationHandler;
+import org.eclipse.glsp.server.actions.ActionHandler;
 import org.eclipse.glsp.server.di.MultiBinding;
 import org.eclipse.glsp.server.diagram.DiagramConfiguration;
 import org.eclipse.glsp.server.features.core.model.GModelFactory;
@@ -54,6 +62,18 @@ public class BPDiagramModule extends UVLDiagramModule {
   }
 
   @Override
+  protected void configureActionHandlers(final MultiBinding<ActionHandler> binding) {
+    super.configureActionHandlers(binding);
+
+    binding.add(SSEControlActionHandler.class);
+  }
+
+  @Override
+  protected Class<? extends org.eclipse.glsp.server.layout.LayoutEngine> bindLayoutEngine() {
+    return BPTreeLayoutEngine.class;
+  }
+
+  @Override
   protected void configureOperationHandlers(final MultiBinding<OperationHandler<?>> binding) {
     super.configureOperationHandlers(binding);
 
@@ -66,6 +86,15 @@ public class BPDiagramModule extends UVLDiagramModule {
   @Override
   protected Class<? extends ToolPaletteItemProvider> bindToolPaletteItemProvider() {
     return BPToolPaletteItemProvider.class;
+  }
+
+  @Override
+  protected void configureAdditionals() {
+    super.configureAdditionals();
+
+    bind(ServerSentEventsService.class).to(FMBPEventListenerService.class).asEagerSingleton();
+    bind(FMBPHighlightActionDispatchService.class).asEagerSingleton();
+    bind(FMBPContextUpdateService.class).asEagerSingleton();
   }
 
   protected void configureBPModelState(final Class<? extends BPModelState> bpStateClass) {

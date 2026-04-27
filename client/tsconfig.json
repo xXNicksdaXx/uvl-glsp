@@ -18,6 +18,9 @@
       "path": "./extensions/bp-sprotty"
     },
     {
+      "path": "./extensions/sse-command-contribution"
+    },
+    {
       "path": "./vscode/extension"
     },
     {

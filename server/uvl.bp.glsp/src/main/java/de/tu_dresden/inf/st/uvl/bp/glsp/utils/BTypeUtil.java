@@ -8,10 +8,45 @@ package de.tu_dresden.inf.st.uvl.bp.glsp.utils;
 
 import de.tu_dresden.inf.st.uvl.bp.glsp.BPModelTypes;
 import de.tu_dresden.inf.st.uvl.metamodel.model.Attribute;
+import de.tu_dresden.inf.st.uvl.metamodel.model.BPFeatureModel;
 import de.tu_dresden.inf.st.uvl.metamodel.model.Feature;
+import java.util.List;
 import java.util.Map;
 
 public class BTypeUtil {
+
+  public static boolean isConfigFeature(final Feature feature) {
+    boolean hasName = feature.getFeatureName().equals("Config");
+    boolean hasAttribute =
+        feature.getAttributes().values().stream()
+            .filter(attr -> attr.getName().equals("type"))
+            .anyMatch(attr -> attr.getValue().equals("Config"));
+    return hasName && hasAttribute;
+  }
+
+  public static boolean isEnvFeature(final Feature feature) {
+    boolean hasName = feature.getFeatureName().equals("Env");
+    boolean hasAttribute =
+        feature.getAttributes().values().stream()
+            .filter(attr -> attr.getName().equals("type"))
+            .anyMatch(attr -> attr.getValue().equals("Env"));
+    return hasName && hasAttribute;
+  }
+
+  public static List<Feature> getAllBThreads(final BPFeatureModel featureModel) {
+    return featureModel.getFeatureMap().values().stream().filter(BTypeUtil::isBThread).toList();
+  }
+
+  public static List<Feature> getAllBThreadsWithBEvent(
+      final BPFeatureModel featureModel, String eventName) {
+    return getAllBThreads(featureModel).stream()
+        .filter(
+            feature ->
+                feature.getAttributes().values().stream()
+                    .anyMatch(attr -> isBEventAttribute(attr) && attr.getName().equals(eventName)))
+        .toList();
+  }
+
   public static boolean isBThread(final Feature feature) {
     return feature.getAttributes().values().stream().anyMatch(BTypeUtil::isBThreadAttribute);
   }

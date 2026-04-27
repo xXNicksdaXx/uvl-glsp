@@ -17,7 +17,7 @@ import {
 import { ContainerModule } from 'inversify';
 
 import { UVLModelTypes } from "uvl-common";
-import { EditableGCompartment, EditableGLabel } from "uvl-sprotty";
+import { EditableGCompartment, EditableGLabel, FeatureNode, FeatureNodeView } from "uvl-sprotty";
 
 import { BPModelTypes } from './utils/bp-model-types';
 import { BThreadNode } from "./model";
@@ -39,11 +39,16 @@ export const bpDiagramModule = new ContainerModule((bind, unbind, isBound, rebin
         ],
         viewportLines: [],
         alignmentElementFilter: (element: GModelElement) =>
-            element.type === UVLModelTypes.FEATURE || element.type === BPModelTypes.B_THREAD,
+               element.type === UVLModelTypes.FEATURE
+            || element.type === BPModelTypes.B_THREAD
+            || element.type === BPModelTypes.BP_CONFIG
+            || element.type === BPModelTypes.BP_ENV,
         minimumMoveDelta: { x: 16, y: 16 },
         alignmentEpsilon: 0.5
     });
 
+    configureModelElement(context, BPModelTypes.BP_CONFIG, FeatureNode, FeatureNodeView);
+    configureModelElement(context, BPModelTypes.BP_ENV, FeatureNode, FeatureNodeView);
     configureModelElement(context, BPModelTypes.B_THREAD, BThreadNode, BThreadNodeView);
 
     configureModelElement(context, BPModelTypes.REQUESTED_EVENT, EditableGCompartment, GCompartmentView);

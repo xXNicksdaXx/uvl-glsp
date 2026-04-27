@@ -7,3 +7,4 @@
  ****************************************************************************/
 
 export * from './uvl-model-types';
+export * from './actions/highlight.action';

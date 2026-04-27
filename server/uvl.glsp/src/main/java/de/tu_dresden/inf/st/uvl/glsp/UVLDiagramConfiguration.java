@@ -9,6 +9,7 @@ package de.tu_dresden.inf.st.uvl.glsp;
 import java.util.List;
 import org.eclipse.glsp.graph.DefaultTypes;
 import org.eclipse.glsp.server.diagram.BaseDiagramConfiguration;
+import org.eclipse.glsp.server.layout.ServerLayoutKind;
 import org.eclipse.glsp.server.types.EdgeTypeHint;
 import org.eclipse.glsp.server.types.ElementTypeHint;
 import org.eclipse.glsp.server.types.ShapeTypeHint;
@@ -92,6 +93,11 @@ public class UVLDiagramConfiguration extends BaseDiagramConfiguration {
             true,
             List.of(UVLModelTypes.FEATURE),
             List.of(UVLModelTypes.FEATURE)));
+  }
+
+  @Override
+  public ServerLayoutKind getLayoutKind() {
+    return ServerLayoutKind.MANUAL;
   }
 
   protected <T extends ElementTypeHint> void replaceTypeHints(

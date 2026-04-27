@@ -26,7 +26,7 @@ public abstract class AbstractGModelFactory {
     } else {
       // initialize with default values
       nodeBuilder.position(0, 0);
-      nodeBuilder.size(64, 32);
+      nodeBuilder.size(0, 0);
     }
   }
 

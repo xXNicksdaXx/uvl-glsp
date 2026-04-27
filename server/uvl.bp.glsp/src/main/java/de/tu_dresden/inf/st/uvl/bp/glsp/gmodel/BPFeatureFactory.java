@@ -31,7 +31,7 @@ public class BPFeatureFactory extends UVLFeatureFactory {
   @Inject protected BPEventFactory bpEventFactory;
 
   @Override
-  protected GNode create(final Feature feature) {
+  public GNode create(final Feature feature) {
     if (isBThread(feature)) {
       return createBThread(feature);
     }
@@ -104,6 +104,8 @@ public class BPFeatureFactory extends UVLFeatureFactory {
 
   @Override
   protected GCompartment buildAttributeCompartment(final String id, final Feature feature) {
+    boolean hideTypeAttribute = isConfigFeature(feature) || isEnvFeature(feature);
+
     GCompartmentBuilder compartmentBuilder =
         new GCompartmentBuilder(DefaultTypes.COMPARTMENT)
             .id(id + "_attribute_compartment")
@@ -119,6 +121,7 @@ public class BPFeatureFactory extends UVLFeatureFactory {
 
     feature.getAttributes().values().stream()
         .filter(attribute -> !isBThreadAttribute(attribute) && !isBEventAttribute(attribute))
+        .filter(attribute -> !hideTypeAttribute || !"type".equals(attribute.getName()))
         .map(attributeFactory::create)
         .forEach(compartmentBuilder::add);
 
