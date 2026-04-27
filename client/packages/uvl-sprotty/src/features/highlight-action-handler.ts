@@ -87,58 +87,32 @@ function applyHighlight(
             clearTimeout(state.timeoutId);
         }
 
-        // Early exit: check if any element is actually new
-        let hasNewElements = false;
-        for (const id of elementIds) {
-            if (!state.active.has(id)) {
-                hasNewElements = true;
-                break;
-            }
-        }
-
-        if (!hasNewElements && elementIds.length === state.active.size) {
-            // Same highlights, but reset the timer for the most recent
-            if (mostRecentId) {
-                state.mostRecentId = mostRecentId;
-                state.timeoutId = setTimeout(() => {
-                    clearHighlightElement(root, index, state, mostRecentId);
-                }, HIGHLIGHT_TIMEOUT_MS);
-            }
-            return { model: root, modelChanged: false };
-        }
-
-        const nextHighlightedIds = new Set(elementIds);
-        
-        // Remove highlights from elements no longer in the set (single pass)
+        // Remove all previous highlights
         for (const activeId of state.active) {
-            if (!nextHighlightedIds.has(activeId)) {
-                const activeElement = index.getById(activeId);
-                if (activeElement) {
-                    const nextClasses = updateHighlightClass(activeElement.cssClasses, false);
-                    if (nextClasses) {
-                        activeElement.cssClasses = nextClasses;
-                        modelChanged = true;
-                    }
+            const activeElement = index.getById(activeId);
+            if (activeElement) {
+                const nextClasses = updateHighlightClass(activeElement.cssClasses, false);
+                if (nextClasses) {
+                    activeElement.cssClasses = nextClasses;
                 }
+                modelChanged = true;
             }
         }
 
-        // Add highlights to new elements (single pass)
+        // Apply highlights to new elements
         for (const id of elementIds) {
-            if (!state.active.has(id)) {
-                const element = index.getById(id);
-                if (element) {
-                    const nextClasses = updateHighlightClass(element.cssClasses, true);
-                    if (nextClasses) {
-                        element.cssClasses = nextClasses;
-                        modelChanged = true;
-                    }
+            const element = index.getById(id);
+            if (element) {
+                const nextClasses = updateHighlightClass(element.cssClasses, true);
+                if (nextClasses) {
+                    element.cssClasses = nextClasses;
                 }
+                modelChanged = true;
             }
         }
 
         state.active.clear();
-        nextHighlightedIds.forEach(id => state.active.add(id));
+        elementIds.forEach(id => state.active.add(id));
 
         // Set timeout for the most recent element
         if (mostRecentId) {
@@ -161,8 +135,8 @@ function applyHighlight(
                 const nextClasses = updateHighlightClass(element.cssClasses, false);
                 if (nextClasses) {
                     element.cssClasses = nextClasses;
-                    modelChanged = true;
                 }
+                modelChanged = true;
             }
             state.active.delete(id);
         }
