@@ -11,6 +11,9 @@
         "path": "../../packages/uvl-command-contribution"
       },
       {
+        "path": "../../extensions/sse-command-contribution"
+      },
+      {
         "path": "../webview"
       }
     ]

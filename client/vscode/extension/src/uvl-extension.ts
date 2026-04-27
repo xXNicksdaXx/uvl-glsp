@@ -20,6 +20,7 @@ import * as vscode from 'vscode';
 import { configureBuildProfileCommandContributions } from './plugin-registry';
 import UVLEditorProvider from "./uvl-editor-provider";
 
+declare const __UVL_BUILD_PROFILE_ID__: string;
 declare const __UVL_SERVER_JAR_NAME__: string;
 
 export const LOG_DIR = path.join(__dirname, '..', 'logs');
@@ -27,6 +28,8 @@ export const LOG_DIR = path.join(__dirname, '..', 'logs');
 const DEFAULT_SERVER_PORT = '0';
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
+    await vscode.commands.executeCommand('setContext', 'uvl.buildProfile', __UVL_BUILD_PROFILE_ID__);
+
     // Start server process using quickstart component
     let serverProcess: GlspSocketServerLauncher | undefined;
     const port = JSON.parse(process.env.GLSP_SERVER_PORT || DEFAULT_SERVER_PORT);

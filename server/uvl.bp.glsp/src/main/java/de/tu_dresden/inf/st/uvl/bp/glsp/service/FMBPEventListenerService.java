@@ -50,7 +50,7 @@ public class FMBPEventListenerService implements ServerSentEventsService {
   private final Gson gson;
   private final HttpClient httpClient;
   private final URI endpoint;
-  private final ExecutorService executor;
+  private ExecutorService executor;
   private final AtomicBoolean running;
   private final AtomicLong highFrequencyPollingUntilEpochMillis;
   private final List<ListenerRegistration> listeners;
@@ -60,24 +60,27 @@ public class FMBPEventListenerService implements ServerSentEventsService {
     this.gson = new Gson();
     this.httpClient = HttpClient.newBuilder().connectTimeout(CONNECT_TIMEOUT).build();
     this.endpoint = URI.create(System.getProperty(ENDPOINT_PROPERTY, DEFAULT_ENDPOINT.toString()));
-    this.executor = Executors.newSingleThreadExecutor(r -> new Thread(r, "bp-sse-listener"));
     this.running = new AtomicBoolean(false);
     this.highFrequencyPollingUntilEpochMillis = new AtomicLong(0);
     this.listeners = new CopyOnWriteArrayList<>();
-    start();
   }
 
   @Override
-  public void start() {
+  public synchronized void start() {
     if (!running.compareAndSet(false, true)) {
       return;
     }
+
+    if (executor == null || executor.isShutdown()) {
+      executor = Executors.newSingleThreadExecutor(r -> new Thread(r, "bp-sse-listener"));
+    }
+
     streamTask = CompletableFuture.runAsync(this::runStreamLoop, executor);
     LOGGER.info("BP SSE service started. Endpoint: {}", endpoint);
   }
 
   @Override
-  public void stop() {
+  public synchronized void stop() {
     if (!running.compareAndSet(true, false)) {
       return;
     }
@@ -127,6 +130,10 @@ public class FMBPEventListenerService implements ServerSentEventsService {
 
   @Override
   public void triggerHighFrequencyPolling() {
+    if (!isRunning()) {
+      start();
+    }
+
     long now = System.currentTimeMillis();
     long boostedUntil = now + HIGH_FREQUENCY_POLL_WINDOW.toMillis();
     highFrequencyPollingUntilEpochMillis.updateAndGet(previous -> Math.max(previous, boostedUntil));

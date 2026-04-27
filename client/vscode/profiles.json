@@ -19,7 +19,7 @@
       "outFile": "uvl-bp-vscode.vsix",
       "serverJarPath": "../../server/uvl.bp.glsp/target/uvl.bp.glsp-0.3.1-glsp.jar",
       "containerModuleIds": ["uvl-core", "uvl-bp"],
-      "commandContributionIds": ["uvl-default"]
+      "commandContributionIds": ["uvl-default", "uvl-bp-sse"]
     }
   ]
 }

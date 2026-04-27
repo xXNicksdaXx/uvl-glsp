@@ -1,0 +1,50 @@
+{
+  "name": "sse-command-contribution",
+  "version": "0.3.1",
+  "private": "true",
+  "description": "SSE command contribution package for the UVL BP GLSP VS Code client",
+  "keywords": [
+    "glsp",
+    "commands",
+    "sse",
+    "uvl",
+    "bp"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://git-st.inf.tu-dresden.de/stgroup/student-projects/2026/ma-nick-ruider.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Nick Ruider"
+  },
+  "contributors": [
+    {
+      "name": "Nick Ruider",
+      "email": "nick.ruider@mailbox.tu-dresden.de",
+      "url": "https://github.com/xXNicksdaXx"
+    }
+  ],
+  "main": "lib/index",
+  "types": "lib/index",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf lib tsconfig.tsbuildinfo",
+    "lint": "eslint --ext .ts,.tsx ./src",
+    "lint:fix": "eslint --ext .ts,.tsx ./src --fix",
+    "lint:ci": "yarn lint --output-file eslint_report.json --format json",
+    "watch": "tsc -w"
+  },
+  "dependencies": {
+    "@eclipse-glsp/vscode-integration": "2.6.0",
+    "@types/vscode": "^1.80.0",
+    "inversify": "^6.2.2"
+  },
+  "devDependencies": {
+    "reflect-metadata": "~0.2.2"
+  }
+}
