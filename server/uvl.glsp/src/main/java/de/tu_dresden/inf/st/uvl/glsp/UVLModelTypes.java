@@ -18,7 +18,7 @@ import org.eclipse.glsp.graph.DefaultTypes;
 public final class UVLModelTypes {
   public static final String CONSTRAINT_BOX = DefaultTypes.NODE + ":constraintBox";
   public static final String CONSTRAINT = DefaultTypes.COMPARTMENT + ":constraint";
-  public static final String CONSTRAINT_TEXT = DefaultTypes.LABEL + ":constraint";
+  public static final String CONSTRAINT_TEXT = DefaultTypes.LABEL + ":constraintText";
 
   public static final String FEATURE = DefaultTypes.NODE + ":feature";
   public static final String FEATURE_NAME = DefaultTypes.LABEL + ":feature";
@@ -37,7 +37,7 @@ public final class UVLModelTypes {
   public static final String IMPLICATION = DefaultTypes.EDGE + ":implication";
 
   public static final String CARDINALITY_LABEL = DefaultTypes.LABEL + ":cardinality";
-  public static final String CONSTRAINT_LABEL = DefaultTypes.LABEL + ":constraint";
+  public static final String CONSTRAINT_EDGE_LABEL = DefaultTypes.LABEL + ":constraint";
 
   /** Private constructor to prevent instantiation of this utility class. */
   private UVLModelTypes() {

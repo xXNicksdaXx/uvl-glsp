@@ -99,7 +99,7 @@ const uvlDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => 
     configureModelElement(context, UVLModelTypes.EQUIVALENCE, GEdge, DoubleArrowEdgeView);
 
     configureModelElement(context, UVLModelTypes.CARDINALITY_LABEL, EditableGLabel, GLabelView);
-    configureModelElement(context, UVLModelTypes.CONSTRAINT_LABEL, GLabel, GLabelView)
+    configureModelElement(context, UVLModelTypes.CONSTRAINT_EDGE_LABEL, GLabel, GLabelView)
 });
 
 /**

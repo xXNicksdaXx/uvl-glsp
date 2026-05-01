@@ -80,7 +80,7 @@ public class UVLBiConstraintFactory extends AbstractSingleGModelFactory<Constrai
             .routerKind(GConstants.RouterKind.POLYLINE)
             .addCssClass("constraint-edge")
             .add(
-                new GLabelBuilder(UVLModelTypes.CONSTRAINT_LABEL)
+                new GLabelBuilder(UVLModelTypes.CONSTRAINT_EDGE_LABEL)
                     .id(id + "_label")
                     .text("requires")
                     .addCssClass("edge-label")
