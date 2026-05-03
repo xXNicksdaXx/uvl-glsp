@@ -94,8 +94,8 @@ const uvlDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => 
     configureModelElement(context, UVLModelTypes.GROUP_CARDINALITY, GEdge, GEdgeView);
     configureModelElement(context, UVLModelTypes.OR, GEdge, SectorEdgeView);
 
-    configureModelElement(context, UVLModelTypes.IMPLICATION, GEdge, SingleArrowEdgeView);
-    configureModelElement(context, UVLModelTypes.EQUIVALENCE, GEdge, DoubleArrowEdgeView);
+    configureModelElement(context, UVLModelTypes.REQUIRES, GEdge, SingleArrowEdgeView);
+    configureModelElement(context, UVLModelTypes.EXCLUDES, GEdge, DoubleArrowEdgeView);
 
     configureModelElement(context, UVLModelTypes.CARDINALITY_LABEL, EditableGLabel, GLabelView);
     configureModelElement(context, UVLModelTypes.CONSTRAINT_EDGE_LABEL, GLabel, GLabelView)

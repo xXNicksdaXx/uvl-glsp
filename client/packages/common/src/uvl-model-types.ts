@@ -31,8 +31,8 @@ export const UVLModelTypes = {
     GROUP_CARDINALITY: `${DefaultTypes.EDGE}:groupCardinality`,
     OR: `${DefaultTypes.EDGE}:or`,
 
-    EQUIVALENCE: `${DefaultTypes.EDGE}:equivalence`,
-    IMPLICATION: `${DefaultTypes.EDGE}:implication`,
+    EXCLUDES: `${DefaultTypes.EDGE}:excludes`,
+    REQUIRES: `${DefaultTypes.EDGE}:requires`,
 
     CARDINALITY_LABEL: `${DefaultTypes.LABEL}:cardinality`,
     CONSTRAINT_EDGE_LABEL: `${DefaultTypes.LABEL}:constraint`

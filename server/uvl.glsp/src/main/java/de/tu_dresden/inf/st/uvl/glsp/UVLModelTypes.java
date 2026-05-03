@@ -33,8 +33,8 @@ public final class UVLModelTypes {
   public static final String GROUP_CARDINALITY = DefaultTypes.EDGE + ":groupCardinality";
   public static final String OR = DefaultTypes.EDGE + ":or";
 
-  public static final String EQUIVALENCE = DefaultTypes.EDGE + ":equivalence";
-  public static final String IMPLICATION = DefaultTypes.EDGE + ":implication";
+  public static final String EXCLUDES = DefaultTypes.EDGE + ":excludes";
+  public static final String REQUIRES = DefaultTypes.EDGE + ":requires";
 
   public static final String CARDINALITY_LABEL = DefaultTypes.LABEL + ":cardinality";
   public static final String CONSTRAINT_EDGE_LABEL = DefaultTypes.LABEL + ":constraint";
