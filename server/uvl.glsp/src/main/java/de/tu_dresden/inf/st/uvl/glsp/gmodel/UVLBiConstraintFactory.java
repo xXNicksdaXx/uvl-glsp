@@ -34,12 +34,12 @@ public class UVLBiConstraintFactory extends AbstractSingleGModelFactory<Constrai
                     new IllegalStateException("Constraint not indexed: " + constraint.toString()));
     String type = convertConstraintTypeToModelType(constraint);
 
-    if (UVLModelTypes.EXCLUDES.equals(type)) {
-      return createExcludesEdge(constraint, index, id);
-    }
     if (UVLModelTypes.REQUIRES.equals(type)) {
       return createRequiresEdge(constraint, index, id);
+    } else if (UVLModelTypes.EXCLUDES.equals(type)) {
+      return createExcludesEdge(constraint, index, id);
     }
+
     throw new IllegalStateException("Unsupported bi-constraint type for: " + constraint);
   }
 
