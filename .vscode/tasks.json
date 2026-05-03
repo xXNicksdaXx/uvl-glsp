@@ -14,7 +14,7 @@
       },
       "command": "mvn clean verify",
       "options": {
-        "cwd": "${workspaceFolder}/server/uvl.glsp"
+        "cwd": "${workspaceFolder}/server"
       },
       "problemMatcher": []
     },
@@ -22,9 +22,23 @@
       "label": "Start UVL Server",
       "type": "shell",
       "group": "test",
-      "command": "java -jar target/uvl.glsp-0.0.1-glsp.jar",
+      "command": "java -jar target/uvl.glsp-0.5.0-glsp.jar",
       "options": {
         "cwd": "${workspaceFolder}/server/uvl.glsp"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Start UVL BP Server",
+      "type": "shell",
+      "group": "test",
+      "command": "java -jar target/uvl.bp.glsp-0.5.0-glsp.jar",
+      "options": {
+        "cwd": "${workspaceFolder}/server/uvl.bp.glsp"
       },
       "presentation": {
         "reveal": "always",

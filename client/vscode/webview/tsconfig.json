@@ -8,7 +8,10 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../../packages/sprotty"
+      "path": "../../extensions/bp-sprotty"
+    },
+    {
+      "path": "../../packages/uvl-sprotty"
     }
   ]
 }

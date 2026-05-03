@@ -1,0 +1,6 @@
+lib/**
+scripts/**
+src/**
+tsconfig.json
+tsconfig.tsbuildinfo
+webpack.*.js

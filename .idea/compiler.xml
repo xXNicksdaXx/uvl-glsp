@@ -7,6 +7,8 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="uvl.glsp" />
+        <module name="uvl.bp.glsp" />
+        <module name="uvl.metamodel" />
       </profile>
     </annotationProcessing>
   </component>
