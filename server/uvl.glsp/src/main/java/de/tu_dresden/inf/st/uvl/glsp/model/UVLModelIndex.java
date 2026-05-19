@@ -10,6 +10,7 @@ import static de.tu_dresden.inf.st.uvl.glsp.utils.ConstraintUtil.convertConstrai
 import static de.tu_dresden.inf.st.uvl.glsp.utils.ConstraintUtil.getBiConstraintSource;
 import static de.tu_dresden.inf.st.uvl.glsp.utils.ConstraintUtil.getBiConstraintTarget;
 import static de.tu_dresden.inf.st.uvl.glsp.utils.FeatureModelUtil.getAllGroups;
+import static de.tu_dresden.inf.st.uvl.glsp.utils.FeatureModelUtil.getVisibleFeatures;
 import static de.tu_dresden.inf.st.uvl.glsp.utils.GroupUtil.convertGroupTypeToModelType;
 
 import de.tu_dresden.inf.st.uvl.glsp.UVLModelTypes;
@@ -58,7 +59,7 @@ public class UVLModelIndex extends GModelIndexImpl {
     // Index FeatureModel based on the GModelIndex
     Collection<GModelElement> modelElements = idToElement.values();
 
-    featureModel.getFeatureMap().values().forEach(feature -> indexFeature(feature, modelElements));
+    getVisibleFeatures(featureModel).forEach(feature -> indexFeature(feature, modelElements));
     getAllGroups(featureModel).forEach(group -> indexGroup(group, modelElements));
     featureModel
         .getOwnConstraints()

@@ -42,11 +42,37 @@ public final class FeatureModelUtil {
   }
 
   public static Collection<Group> getAllGroups(FeatureModel featureModel) {
-    return featureModel.getFeatureMap().values().stream()
+    return getVisibleFeatures(featureModel).stream()
         .map(Feature::getParentGroup)
         .filter(Objects::nonNull)
         .distinct()
         .toList();
+  }
+
+  public static Collection<Feature> getVisibleFeatures(FeatureModel featureModel) {
+    return featureModel.getFeatureMap().values().stream()
+        .filter(FeatureModelUtil::featureIsVisible)
+        .toList();
+  }
+
+  private static boolean featureIsVisible(Feature feature) {
+    if (feature.isSubmodelRoot()) {
+      return true;
+    }
+
+    Feature current = feature;
+    while (current.getParentGroup() != null) {
+      Feature parentFeature = current.getParentGroup().getParentFeature();
+      if (parentFeature == null) {
+        break;
+      }
+      if (parentFeature.isSubmodelRoot()) {
+        return false;
+      }
+      current = parentFeature;
+    }
+
+    return true;
   }
 
   public static Collection<Constraint> getEdgeConstraints(FeatureModel featureModel) {
@@ -66,7 +92,7 @@ public final class FeatureModelUtil {
   }
 
   public static boolean includesFeatureCardinality(FeatureModel featureModel) {
-    return featureModel.getFeatureMap().values().stream()
+    return getVisibleFeatures(featureModel).stream()
         .anyMatch(feature -> feature.getCardinality() != null);
   }
 

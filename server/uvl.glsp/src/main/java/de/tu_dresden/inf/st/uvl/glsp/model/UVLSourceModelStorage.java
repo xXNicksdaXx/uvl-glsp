@@ -63,8 +63,7 @@ public class UVLSourceModelStorage extends GModelStorage implements SourceModelS
     String filePath = featureModelFile.getAbsolutePath();
 
     try {
-      String content = Files.readString(Paths.get(filePath));
-      FeatureModel featureModel = parseFeatureModel(content);
+      FeatureModel featureModel = parseFeatureModel(Paths.get(filePath));
       modelState.setFeatureModel(featureModel);
     } catch (IndexOutOfBoundsException e) {
       modelState.setFeatureModel(new FeatureModel());
@@ -74,10 +73,6 @@ public class UVLSourceModelStorage extends GModelStorage implements SourceModelS
               .reduce("", (acc, error) -> acc + error.toString() + "\n", String::concat);
       LOGGER.error(errorList);
       throw new GLSPServerException("Check the UVL file for the following error: " + errorList, e);
-    } catch (IOException e) {
-      LOGGER.error(e);
-      throw new GLSPServerException(
-          "Could not load FeatureModel from file: " + featureModelFile.toURI(), e);
     } catch (Exception e) {
       LOGGER.error(e);
       throw new GLSPServerException(
@@ -87,14 +82,20 @@ public class UVLSourceModelStorage extends GModelStorage implements SourceModelS
     }
   }
 
-  protected FeatureModel parseFeatureModel(final String content) {
-    boolean isEmpty = content.trim().isEmpty();
-    if (isEmpty) {
-      return new FeatureModel();
+  protected FeatureModel parseFeatureModel(final Path path) {
+    try {
+      String content = Files.readString(path);
+      boolean isEmpty = content.trim().isEmpty();
+      if (isEmpty) {
+        return new FeatureModel();
+      }
+    } catch (IOException e) {
+      LOGGER.error(e);
+      throw new GLSPServerException("Could not load FeatureModel from file: " + path.toUri(), e);
     }
 
     UVLModelFactory uvlModelFactory = new UVLModelFactory();
-    return uvlModelFactory.parse(content);
+    return uvlModelFactory.parse(path);
   }
 
   protected void loadGModel(final File notationFile) {

@@ -563,7 +563,9 @@ public class UVLModelFactory {
     private void validateTypeLevelConstraints(final FeatureModel featureModel) {
         final List<Constraint> constraints = featureModel.getOwnConstraints();
         for (final Constraint constraint: constraints) {
-            if (!validateTypeLevelConstraint(constraint)) {
+            Constraint cloned = constraint.clone();
+            resolveImportPlaceholders(cloned, featureModel);
+            if (!validateTypeLevelConstraint(cloned)) {
                 throw new ParseError("Invalid Constraint in line - " + constraint.getLineNumber());
             }
         }

@@ -55,6 +55,10 @@ public class UVLFeatureFactory extends AbstractSingleGModelFactory<Feature, GNod
             .add(buildHeader(id, feature.getFeatureName(), feature.getCardinality()))
             .add(buildAttributeCompartment(id, feature));
 
+    if (feature.isSubmodelRoot()) {
+      nodeBuilder.addCssClass("submodel-root");
+    }
+
     applyNodeData(nodeBuilder, id);
     return nodeBuilder.build();
   }

@@ -12,7 +12,11 @@ import de.tu_dresden.inf.st.uvl.glsp.model.UVLModelState;
 import de.tu_dresden.inf.st.uvl.metamodel.model.Feature;
 import de.tu_dresden.inf.st.uvl.metamodel.model.Group;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.eclipse.glsp.graph.*;
 import org.eclipse.glsp.graph.util.GraphUtil;
@@ -24,6 +28,10 @@ public class UVLTreeLayoutEngine implements LayoutEngine {
   // Configuration for the layout
   private static final double LEVEL_SPACING = 80.0; // Vertical gap between levels
   private static final double SIBLING_GAP = 20.0; // Horizontal gap between nodes
+  private static final double EXTRA_LEVEL_PADDING = 8.0; // Extra padding added to each level height
+
+  // Computed per-layout run: cumulative Y offsets for each level (level -> Y)
+  private List<Double> levelOffsets = new ArrayList<>();
 
   @Inject protected UVLModelState modelState;
 
@@ -83,6 +91,10 @@ public class UVLTreeLayoutEngine implements LayoutEngine {
     WalkersNode node =
         new WalkersNode(featureId, feature.getFeatureName(), size.getWidth(), size.getHeight());
 
+    if (feature.isSubmodelRoot()) {
+      return node;
+    }
+
     for (Group childGroup : feature.getChildren()) {
       childGroup
           .getFeatures()
@@ -100,8 +112,15 @@ public class UVLTreeLayoutEngine implements LayoutEngine {
   public void layout(WalkersNode root) {
     if (root == null) return;
 
+    // Compute per-level heights and offsets so variable node heights are respected
+    List<Double> maxHeights = computeMaxHeightsPerLevel(root);
+    computeLevelOffsets(maxHeights);
+
     // Pass 1: Calculate initial positions and modifiers (Bottom-Up)
     firstWalk(root, 0);
+
+    // Resolve any remaining overlaps within the same level (helps bottom layer)
+    resolveLevelOverlaps(root);
 
     // Pass 2: Calculate final absolute positions (Top-Down)
     secondWalk(root, 0);
@@ -112,7 +131,12 @@ public class UVLTreeLayoutEngine implements LayoutEngine {
 
   /** First Walk: Post-order traversal. Computes 'prelim' x-coordinates and 'modifier' values. */
   private void firstWalk(WalkersNode node, int level) {
-    node.y = level * LEVEL_SPACING;
+    // Use precomputed level offsets if available so tall nodes don't collide vertically
+    if (level < levelOffsets.size()) {
+      node.y = levelOffsets.get(level);
+    } else {
+      node.y = level * LEVEL_SPACING;
+    }
 
     if (node.children.isEmpty()) {
       // Leaf node: place next to left sibling
@@ -129,12 +153,15 @@ public class UVLTreeLayoutEngine implements LayoutEngine {
         firstWalk(child, level + 1);
       }
 
-      // Calculate the logical center of the children
-      double midPoint = (node.children.getFirst().prelim + node.children.getLast().prelim) / 2.0;
+      // Calculate the logical center of the children using their temporary absolute X
+      double firstAbs = getAbsoluteX(node.children.getFirst());
+      double lastAbs = getAbsoluteX(node.children.getLast());
+      double midPoint = (firstAbs + lastAbs) / 2.0;
 
       WalkersNode leftSibling = getLeftSibling(node);
       if (leftSibling != null) {
-        // Determine placement based on sibling
+        // Determine placement based on sibling. We keep prelim as a local-relative
+        // value but compute a modifier such that the node's center aligns properly
         node.prelim = leftSibling.prelim + spacing(leftSibling, node);
         node.modifier = node.prelim - midPoint;
 
@@ -281,6 +308,85 @@ public class UVLTreeLayoutEngine implements LayoutEngine {
       curr = curr.parent;
     }
     return x;
+  }
+
+  // Compute maximum heights per depth level so we can lay out levels with variable heights
+  private List<Double> computeMaxHeightsPerLevel(WalkersNode root) {
+    List<Double> heights = new ArrayList<>();
+    collectMaxHeights(root, 0, heights);
+    return heights;
+  }
+
+  private void collectMaxHeights(WalkersNode node, int depth, List<Double> heights) {
+    if (heights.size() <= depth) {
+      heights.add(node.height);
+    } else {
+      heights.set(depth, Math.max(heights.get(depth), node.height));
+    }
+    for (WalkersNode child : node.children) {
+      collectMaxHeights(child, depth + 1, heights);
+    }
+  }
+
+  private void computeLevelOffsets(List<Double> maxHeights) {
+    levelOffsets.clear();
+    double y = 0.0;
+    for (Double h : maxHeights) {
+      levelOffsets.add(y);
+      double levelHeight = (h != null ? h : 0.0) + EXTRA_LEVEL_PADDING;
+      y += levelHeight + LEVEL_SPACING;
+    }
+  }
+
+  // Resolve horizontal overlaps that remain within the same level after firstWalk.
+  // This pass walks levels left-to-right and shifts nodes that would overlap their
+  // predecessor at the same depth.
+  private void resolveLevelOverlaps(WalkersNode root) {
+    Map<Integer, List<WalkersNode>> byLevel = new HashMap<>();
+    collectNodesByLevel(root, 0, byLevel);
+
+    for (Map.Entry<Integer, List<WalkersNode>> e : byLevel.entrySet()) {
+      List<WalkersNode> nodes = e.getValue();
+      if (nodes.size() < 2) continue;
+      // Sort by their temporary absolute X to enforce left-to-right ordering
+      Collections.sort(nodes, Comparator.comparingDouble(this::getAbsoluteX));
+
+      double prevRight = Double.NEGATIVE_INFINITY;
+      for (WalkersNode node : nodes) {
+        double left = getAbsoluteX(node) - (node.width / 2.0);
+        double right = getAbsoluteX(node) + (node.width / 2.0);
+
+        if (prevRight == Double.NEGATIVE_INFINITY) {
+          prevRight = right;
+          continue;
+        }
+
+        double minLeft = prevRight + SIBLING_GAP;
+        if (left < minLeft) {
+          double shift = minLeft - left;
+          // shift the subtree rooted at this node to the right
+          shiftSubtreePrelim(node, shift);
+          // update right boundary after shift
+          right += shift;
+        }
+
+        prevRight = right;
+      }
+    }
+  }
+
+  private void collectNodesByLevel(
+      WalkersNode node, int depth, Map<Integer, List<WalkersNode>> map) {
+    map.computeIfAbsent(depth, k -> new ArrayList<>()).add(node);
+    for (WalkersNode child : node.children) {
+      collectNodesByLevel(child, depth + 1, map);
+    }
+  }
+
+  private void shiftSubtreePrelim(WalkersNode node, double amount) {
+    node.prelim += amount;
+    node.modifier += amount;
+    // children don't need direct modification because modifiers propagate
   }
 
   /**

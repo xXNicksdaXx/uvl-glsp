@@ -63,6 +63,10 @@ public class BPFeatureFactory extends UVLFeatureFactory {
             .add(buildAttributeCompartment(id, feature))
             .add(buildEventCompartment(id, feature));
 
+    if (feature.isSubmodelRoot()) {
+      nodeBuilder.addCssClass("submodel-root");
+    }
+
     applyNodeData(nodeBuilder, id);
     return nodeBuilder.build();
   }
