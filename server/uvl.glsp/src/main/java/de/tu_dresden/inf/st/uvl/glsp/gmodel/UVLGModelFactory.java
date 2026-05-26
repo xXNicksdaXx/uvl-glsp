@@ -8,6 +8,7 @@ package de.tu_dresden.inf.st.uvl.glsp.gmodel;
 
 import static de.tu_dresden.inf.st.uvl.glsp.utils.FeatureModelUtil.getAllGroups;
 import static de.tu_dresden.inf.st.uvl.glsp.utils.FeatureModelUtil.getEdgeConstraints;
+import static de.tu_dresden.inf.st.uvl.glsp.utils.FeatureModelUtil.getVisibleFeatures;
 
 import com.google.inject.Inject;
 import de.tu_dresden.inf.st.uvl.glsp.model.UVLModelState;
@@ -51,7 +52,7 @@ public class UVLGModelFactory implements GModelFactory {
   }
 
   protected void fillRootElement(GGraph root, FeatureModel featureModel) {
-    featureModel.getFeatureMap().values().stream()
+    getVisibleFeatures(featureModel).stream()
         .map(featureFactory::create)
         .forEachOrdered(root.getChildren()::add);
 

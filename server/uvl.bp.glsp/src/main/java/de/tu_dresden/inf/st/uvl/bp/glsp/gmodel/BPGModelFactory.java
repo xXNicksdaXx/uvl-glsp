@@ -24,7 +24,7 @@ public class BPGModelFactory extends UVLGModelFactory {
   @Inject protected BPAdditionalElementsFactory additionalElementsFactory;
 
   protected void fillRootElement(GGraph root, FeatureModel featureModel) {
-    featureModel.getFeatureMap().values().stream()
+    getVisibleFeatures(featureModel).stream()
         .filter(feature -> !isConfigFeature(feature) && !isEnvFeature(feature))
         .map(bpFeatureFactory::create)
         .forEachOrdered(root.getChildren()::add);

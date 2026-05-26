@@ -11,17 +11,27 @@ import de.tu_dresden.inf.st.uvl.metamodel.main.ModelType;
 import de.tu_dresden.inf.st.uvl.metamodel.main.UVLModelFactory;
 import de.tu_dresden.inf.st.uvl.metamodel.model.BPFeatureModel;
 import de.tu_dresden.inf.st.uvl.metamodel.model.FeatureModel;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import org.eclipse.glsp.server.types.GLSPServerException;
 
 public class BPSourceModelStorage extends UVLSourceModelStorage {
 
   @Override
-  protected FeatureModel parseFeatureModel(final String content) {
-    boolean isEmpty = content.trim().isEmpty();
-    if (isEmpty) {
-      return new BPFeatureModel();
+  protected FeatureModel parseFeatureModel(final Path path) {
+    try {
+      String content = Files.readString(path);
+      boolean isEmpty = content.trim().isEmpty();
+      if (isEmpty) {
+        return new BPFeatureModel();
+      }
+    } catch (IOException e) {
+      LOGGER.error(e);
+      throw new GLSPServerException("Could not load FeatureModel from file: " + path.toUri(), e);
     }
 
     UVLModelFactory uvlModelFactory = new UVLModelFactory();
-    return uvlModelFactory.parse(content, ModelType.BP);
+    return uvlModelFactory.parse(path, ModelType.BP);
   }
 }

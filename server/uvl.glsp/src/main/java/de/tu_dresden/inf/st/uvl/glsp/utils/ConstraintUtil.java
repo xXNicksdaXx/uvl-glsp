@@ -15,6 +15,7 @@ import de.tu_dresden.inf.st.uvl.metamodel.model.constraint.ExpressionConstraint;
 import de.tu_dresden.inf.st.uvl.metamodel.model.constraint.ImplicationConstraint;
 import de.tu_dresden.inf.st.uvl.metamodel.model.constraint.LiteralConstraint;
 import de.tu_dresden.inf.st.uvl.metamodel.model.constraint.NotConstraint;
+import de.tu_dresden.inf.st.uvl.metamodel.model.constraint.ParenthesisConstraint;
 import de.tu_dresden.inf.st.uvl.metamodel.model.expression.Expression;
 import de.tu_dresden.inf.st.uvl.metamodel.model.expression.LiteralExpression;
 import java.util.List;
@@ -152,7 +153,8 @@ public final class ConstraintUtil {
       return false;
     }
 
-    if (!(notConstraint.getContent() instanceof AndConstraint andConstraint)) {
+    Constraint content = unwrapParenthesisConstraints(notConstraint.getContent());
+    if (!(content instanceof AndConstraint andConstraint)) {
       return false;
     }
 
@@ -184,7 +186,8 @@ public final class ConstraintUtil {
 
     if (isExcludesConstraint(constraint)) {
       NotConstraint notConstraint = (NotConstraint) constraint;
-      AndConstraint andConstraint = (AndConstraint) notConstraint.getContent();
+      AndConstraint andConstraint =
+          (AndConstraint) unwrapParenthesisConstraints(notConstraint.getContent());
       Constraint subConstraint =
           source ? andConstraint.getChildren().getFirst() : andConstraint.getChildren().getLast();
       if (subConstraint instanceof LiteralConstraint literalConstraint) {
@@ -196,5 +199,13 @@ public final class ConstraintUtil {
 
     throw new IllegalStateException(
         "Unsupported bi-constraint type: " + constraint.getClass().getName());
+  }
+
+  private static Constraint unwrapParenthesisConstraints(Constraint constraint) {
+    Constraint current = constraint;
+    while (current instanceof ParenthesisConstraint parenthesisConstraint) {
+      current = parenthesisConstraint.getContent();
+    }
+    return current;
   }
 }
