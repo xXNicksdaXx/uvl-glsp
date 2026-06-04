@@ -6,7 +6,7 @@
 
     <groupId>de.tu_dresden.inf.st</groupId>
     <artifactId>uvl.glsp</artifactId>
-    <version>0.5.1</version>
+    <version>0.5.2</version>
     <description>GLSP server component</description>
     <url>https://git-st.inf.tu-dresden.de/stgroup/student-projects/2026/ma-nick-ruider</url>
 
@@ -50,7 +50,7 @@
         <google.java.format.version>1.31.0</google.java.format.version>
 
         <!-- Dependency Versions -->
-        <apache.logging.log4j.version>2.25.3</apache.logging.log4j.version>
+        <apache.logging.log4j.version>2.26.0</apache.logging.log4j.version>
         <eclipse.core.runtime.version>3.7.0</eclipse.core.runtime.version>
         <eclipse.core.version>3.7.100</eclipse.core.version>
         <eclipse.lsp4j.version>1.0.0</eclipse.lsp4j.version>
