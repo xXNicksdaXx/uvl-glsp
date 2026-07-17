@@ -10,6 +10,54 @@ It includes:
 UVL is a concise, extensible language for modeling variability in software product lines.
 UVL specifies variability models with a tree-like structure to represent the hierarchical structure of variability models.
 
+## Quick Start
+
+**Recommended:** download the prebuilt extension from Open VSX and install it locally via the VS Code Extensions view.
+
+- Open VSX download pages (pick the profile you want and download the `.vsix`):
+
+  - UVL (Base): [Link](https://open-vsx.org/extension/NickRuider/uvl-vscode-extension)
+  - UVL (BP): [Link](https://open-vsx.org/extension/NickRuider/uvl-bp-vscode-extension)
+
+- To install a downloaded `.vsix`: open the Extensions view in VS Code, click the ellipsis menu (⋯) and choose "Install from VSIX...", select the downloaded file, then reload the window.
+
+Alternatively, build the extension locally and install the produced VSIX:
+
+- Build (Windows):
+
+```powershell
+.\build.ps1 vscode uvl
+# or for BP profile
+.\build.ps1 vscode uvl-bp
+```
+
+- Build (Linux/macOS):
+
+```bash
+./build.sh vscode uvl
+# or for BP profile
+./build.sh vscode uvl-bp
+```
+
+After building, open `client/vscode/extension` and install the generated `.vsix` extension or use the existing VS Code run configurations.
+
+**Using a running example:**
+
+For UVL-BP, the extension uses [FMBP-SSE](https://github.com/xXNicksdaXx/FMBP-SSE) to support the _models@run.time_ approach.
+To use the BP extension with a running example, clone the FMBP-SSE repository and follow the instructions in its README to set up the SSE server.
+
+This should include setting up the workspace path in the ``config.json`` file so the execution of the behavioral program uses the same UVL model as the diagram editor.
+
+**Connecting GLSP & FMBP:**
+
+Once the FMBP-SSE repository is ready, follow these steps to connect both components for runtime feedback:
+
+1. **Open the model:** In VS Code, open a `.uvl` model file that is configured to be executed (as specified in your FMBP-SSE configuration). The graphical GLSP diagram editor should open automatically.
+2. **Start polling:** Opeb the VS Code Command Palette (`Ctrl+Shift+P`or `F1`), search for `uvl` polling command, and execute it to start polling against the FMBP-SSE instance.
+3. **Execute the program:** Run your behavioral program via FMBP-SSE.
+
+The connection between FMBP and GLSP is now established, enabling live runtime feedback directly inside the diagram editor.
+
 ## Project Structure
 
 The project is organized as follows:
@@ -47,6 +95,7 @@ To install via the command line:
 code --install-extension NickRuider/uvl-vscode-extension
 # OR
 code --install-extension NickRuider/uvl-bp-vscode-extension
+```
 
 ## Prerequisites
 
@@ -221,5 +270,6 @@ The extension build system uses static profiles configured in `client/vscode/pro
 ## Resources
 
 - [Project GitLab Repository](https://git-st.inf.tu-dresden.de/stgroup/student-projects/2026/ma-nick-ruider)
+- [Project GitHub Repository](https://github.com/xXNicksdaXx/uvl-glsp)
 - [Eclipse GLSP](https://www.eclipse.org/glsp/)
 - [Universal Variability Language (UVL)](https://universal-variability-language.github.io/)

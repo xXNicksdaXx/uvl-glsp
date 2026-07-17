@@ -50,6 +50,7 @@ case "$1" in
     ;;
   vscode)
     build_server
+    build_client
     build_vscode
     ;;
   clean)

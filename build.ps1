@@ -50,6 +50,7 @@ switch ($target) {
     }
     "vscode" {
         Invoke-BuildServer
+        Invoke-BuildClient
         Invoke-BuildVscode
     }
     "clean" {
